@@ -1,20 +1,19 @@
 <template>
-  <footer class="bg-gray-800 text-white py-8">
+  <footer class="bg-[#1a2235] text-white py-8">
     <div class="container mx-auto px-4">
       <div class="flex flex-col md:flex-row justify-between items-center">
+        <!-- Copyright -->
         <div class="mb-4 md:mb-0">
-          <p>&copy; {{ new Date().getFullYear() }} Aurélien Fèvre. Tous droits réservés.</p>
+          <p>&copy; {{ currentYear }} Aurélien Fèvre. Tous droits réservés.</p>
         </div>
+
+        <!-- Liens sociaux -->
         <div class="flex space-x-4">
-          <a href="#" class="hover:text-primary transition-colors">
-            <icon-github class="w-6 h-6" />
-          </a>
-          <a href="#" class="hover:text-primary transition-colors">
-            <icon-linkedin class="w-6 h-6" />
-          </a>
-          <a href="#" class="hover:text-primary transition-colors">
-            <icon-email class="w-6 h-6" />
-          </a>
+          <SocialLink
+              v-for="link in socialLinks.filter(l => l.name !== 'email' && l.name !== 'website')"
+              :key="link.name"
+              v-bind="link"
+          />
         </div>
       </div>
     </div>
@@ -22,5 +21,9 @@
 </template>
 
 <script setup lang="ts">
-// Vous pouvez importer des icônes si nécessaire, par exemple depuis '@heroicons/vue'
+import { computed } from 'vue'
+import { socialLinks } from '@/data/social'
+import SocialLink from '~/components/common/SocialLink.vue'
+
+const currentYear = computed(() => new Date().getFullYear())
 </script>

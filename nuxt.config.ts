@@ -1,12 +1,8 @@
 export default defineNuxtConfig({
-  modules: ['@nuxtjs/tailwindcss'],
+  modules: [
+    '@nuxtjs/tailwindcss',
+  ],
   css: ['~/assets/css/main.css'],
-  postcss: {
-    plugins: {
-      tailwindcss: {},
-      autoprefixer: {},
-    },
-  },
   app: {
     head: {
       title: 'Aurélien Fèvre - Portfolio',
@@ -16,19 +12,9 @@ export default defineNuxtConfig({
         { hid: 'description', name: 'description', content: 'Portfolio d\'Aurélien Fèvre, développeur front-end' }
       ],
       link: [
-        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap' }
       ]
-    }
-  },
-  tailwindcss: {
-    configPath: '~/tailwind.config.ts',
-    exposeConfig: false,
-    injectPosition: 0,
-    viewer: true,
-  },
-  nitro: {
-    prerender: {
-      routes: ['/', '/projects']
     }
   }
 })

@@ -1,16 +1,25 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Ajoutez ici vos styles globaux personnalisés */
-body {
-    @apply bg-gray-50 text-gray-900;
+:root {
+    --border-light: #e0e0e0;
+    --border-dark: #1a2235;
+    --bg-light: #ffffff;
+    --bg-dark: #0f1320;
+    --text-light: #2c2c2c;
+    --text-dark: #ffffff;
 }
 
-h1, h2, h3, h4, h5, h6 {
-    @apply font-bold;
+/* Theme Styles */
+.light {
+    --bg-primary: var(--bg-light);
+    --text-primary: var(--text-light);
+    --border-primary: var(--border-light);
 }
 
-/* Vous pouvez ajouter d'autres styles globaux ici */
+.dark {
+    --bg-primary: var(--bg-dark);
+    --text-primary: var(--text-dark);
+    --border-primary: var(--border-dark);
+}
