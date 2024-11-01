@@ -3,7 +3,7 @@
     <div class="p-8">
       <!-- Header de la section -->
       <div class="flex items-center gap-3 mb-8">
-        <FolderGit2 class="w-5 h-5" />
+        <Folder class="w-5 h-5" />
         <h3 class="text-lg font-medium">Projets</h3>
       </div>
 
@@ -99,7 +99,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { FolderGit2, ArrowUpRight, X } from 'lucide-vue-next'
+import { Folder, ArrowUpRight, X } from 'lucide-vue-next'
 import { projects } from '@/data/projects'
 import type { Project } from '@/types/project'
 import BentoItem from '~/components/common/BentoItem.vue'

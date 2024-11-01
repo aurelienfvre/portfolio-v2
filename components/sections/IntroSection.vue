@@ -13,20 +13,21 @@
 
       <!-- Actions -->
       <div class="flex flex-wrap gap-4">
-
-        <a href="mailto:aurelien.fvre@gmail.com"
-        class="tech-pill inline-flex items-center gap-1.5 hover:bg-text-primary hover:text-bg-primary transition-colors"
+        <a
+            href="mailto:aurelien.fvre@gmail.com"
+            class="tech-pill inline-flex items-center gap-1.5 hover:bg-text-primary hover:text-bg-primary transition-colors"
         >
-        <Mail class="w-4 h-4" />
-        <span>Me contacter</span>
+          <Mail class="w-4 h-4" />
+          <span>Me contacter</span>
         </a>
 
-
-        <a href="https://github.com/aurelienfvre"
-        class="tech-pill inline-flex items-center gap-1.5 hover:bg-text-primary hover:text-bg-primary transition-colors"
+        <a
+            href="/files/CV-AurelienFevre.pdf"
+            download
+            class="tech-pill inline-flex items-center gap-1.5 hover:bg-text-primary hover:text-bg-primary transition-colors"
         >
-        <FolderGit2 class="w-4 h-4" />
-        <span>Voir mes projets</span>
+          <FileDown class="w-4 h-4" />
+          <span>Télécharger mon CV</span>
         </a>
       </div>
     </div>
@@ -34,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import { Mail, FolderGit2 } from 'lucide-vue-next'
+import { Mail, FileDown } from 'lucide-vue-next'
 import BentoItem from '~/components/common/BentoItem.vue'
 </script>
 

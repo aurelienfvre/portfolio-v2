@@ -1,18 +1,18 @@
 <template>
   <header class="fixed top-10 left-1/2 -translate-x-1/2 z-50 w-full max-w-[500px] px-5">
     <nav class="py-2 px-3 bg-bg-primary/80 backdrop-blur-md border border-border-primary rounded-full flex items-center">
-      <!-- Navigation Links Container -->
       <div class="relative flex justify-between items-center flex-1" ref="menuRef">
-        <!-- Navigation Items -->
         <NuxtLink
             v-for="item in navigation"
             :key="item.path"
             :to="item.path"
-            class="relative z-[2] px-4 py-2 text-sm whitespace-nowrap"
+            class="relative z-[2] px-4 py-2 text-sm whitespace-nowrap transition-colors"
             :class="[
             activeSection === item.path
               ? 'text-bg-primary'
-              : 'text-gray-600 hover:text-gray-900'
+              : theme === 'dark'
+                ? 'text-gray-400 dark:hover:text-gray-100'
+                : 'text-gray-600 hover:text-gray-900'
           ]"
             @click="handleClick(item.path, $event)"
         >
@@ -22,12 +22,9 @@
         <!-- Active Background -->
         <div
             ref="activeBackgroundRef"
-            class="absolute h-[calc(100%-4px)] bg-text-primary border border-border-primary rounded-full transition-all duration-300"
-            :style="{
-            width: activeLinkWidth + 'px',
-            left: activeLinkLeft + 'px',
-            top: '2px'
-          }"
+            class="active-background absolute h-[calc(100%-4px)] bg-text-primary border border-border-primary rounded-full"
+            :class="{ 'transition-all duration-300': isInitialized }"
+            :style="activeBackgroundStyle"
         ></div>
       </div>
 
@@ -39,19 +36,18 @@
       >
         <Sun
             class="w-4 h-4 absolute transition-transform duration-300"
-            :class="theme === 'dark' ? 'rotate-90 scale-0' : ''"
+            :class="{ 'rotate-90 scale-0': initialTheme === 'dark' || theme === 'dark' }"
         />
         <Moon
             class="w-4 h-4 absolute transition-transform duration-300"
-            :class="theme === 'light' ? '-rotate-90 scale-0' : ''"
+            :class="{ '-rotate-90 scale-0': initialTheme === 'light' && theme === 'light' }"
         />
       </button>
     </nav>
   </header>
 </template>
-
 <script setup lang="ts">
-import { ref, onMounted, watch, onBeforeUnmount, nextTick } from 'vue'
+import { ref, onMounted, watch, onBeforeUnmount, computed } from 'vue'
 import { Sun, Moon } from 'lucide-vue-next'
 import { navigation } from '@/data/navigation'
 import { useTheme } from '~/composables/useTheme'
@@ -59,46 +55,71 @@ import { useTheme } from '~/composables/useTheme'
 const menuRef = ref<HTMLElement | null>(null)
 const activeBackgroundRef = ref<HTMLElement | null>(null)
 const activeSection = ref('/')
-const activeLinkWidth = ref(0)
+const activeLinkWidth = ref(81.98) // Valeur initiale plus grande
 const activeLinkLeft = ref(0)
+const isInitialized = ref(false)
+const hasScrolled = ref(false)
 
 const { theme, toggleTheme } = useTheme()
+const initialTheme = ref(process.client ? localStorage.getItem('theme') || 'light' : 'light')
 
-// Fonction pour détecter la section visible
+const activeBackgroundStyle = computed(() => ({
+  width: `${activeLinkWidth.value}px`,
+  left: `${activeLinkLeft.value}px`,
+  top: '2px'
+}))
+
 const getVisibleSection = (): string => {
+  if (!hasScrolled.value || window.scrollY < 50) {
+    return '/'
+  }
+
+  const windowHeight = window.innerHeight
+  const documentHeight = document.documentElement.scrollHeight
+  const scrollTop = window.scrollY
+
+  // Si on est proche du bas de la page
+  if (scrollTop + windowHeight >= documentHeight - 100) {
+    return '/#contact'
+  }
+
   const sections = navigation
       .map(item => item.path.replace('/#', ''))
       .filter(Boolean)
 
-  // Si on est en haut de la page
-  if (window.scrollY < 50) {
-    return '/'
-  }
-
-  for (const section of sections) {
+  for (const section of sections.reverse()) {
     const element = document.getElementById(section)
     if (!element) continue
 
     const rect = element.getBoundingClientRect()
-    // Ajuster cette valeur selon vos besoins
-    if (rect.top <= 150 && rect.bottom >= 150) {
+    if (rect.top <= windowHeight * 0.5) {
       return '/#' + section
     }
   }
 
-  return activeSection.value
+  return '/'
+}
+
+const updateActiveLinkPosition = (path = activeSection.value) => {
+  if (!menuRef.value) return
+
+  const activeLink = menuRef.value.querySelector(`a[href="${path}"]`) as HTMLElement
+  if (!activeLink) return
+
+  const menuRect = menuRef.value.getBoundingClientRect()
+  const linkRect = activeLink.getBoundingClientRect()
+
+  activeLinkWidth.value = linkRect.width
+  activeLinkLeft.value = linkRect.left - menuRect.left
 }
 
 const scrollToSection = (path: string) => {
   const sectionId = path.replace('/#', '')
   if (!sectionId) {
-    // Si c'est l'accueil, remonter en haut
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
     })
-    activeSection.value = '/'
-    updateActiveLinkPosition()
     return
   }
 
@@ -112,35 +133,18 @@ const scrollToSection = (path: string) => {
       top: offsetPosition,
       behavior: 'smooth'
     })
-
-    activeSection.value = path
-    updateActiveLinkPosition()
   }
-}
-
-const updateActiveLinkPosition = () => {
-  if (!menuRef.value) return
-
-  nextTick(() => {
-    const activeLink = menuRef.value?.querySelector(`a[href="${activeSection.value}"]`) as HTMLElement
-    if (!activeLink) return
-
-    const menuRect = menuRef.value?.getBoundingClientRect()
-    const linkRect = activeLink.getBoundingClientRect()
-
-    requestAnimationFrame(() => {
-      activeLinkWidth.value = linkRect.width
-      activeLinkLeft.value = linkRect.left - menuRect.left
-    })
-  })
 }
 
 const handleClick = (path: string, event: Event) => {
   event.preventDefault()
+  activeSection.value = path
+  updateActiveLinkPosition(path)
   scrollToSection(path)
 }
 
-const updateActiveSection = () => {
+const handleScroll = () => {
+  hasScrolled.value = true
   const newSection = getVisibleSection()
   if (newSection !== activeSection.value) {
     activeSection.value = newSection
@@ -148,25 +152,38 @@ const updateActiveSection = () => {
   }
 }
 
-// Initialisation immédiate au chargement
+const handleResize = () => {
+  updateActiveLinkPosition()
+}
+
 onMounted(() => {
-  // Mettre à jour immédiatement la position active
+  // Set initial theme from localStorage
+  if (process.client) {
+    initialTheme.value = localStorage.getItem('theme') || 'light'
+  }
+
+  // Mesurer et positionner immédiatement
   nextTick(() => {
-    activeSection.value = getVisibleSection()
     updateActiveLinkPosition()
+    // Activer les transitions après le positionnement initial
+    setTimeout(() => {
+      isInitialized.value = true
+    }, 100)
   })
 
-  window.addEventListener('scroll', updateActiveSection)
-  window.addEventListener('resize', updateActiveLinkPosition)
+  window.addEventListener('scroll', handleScroll)
+  window.addEventListener('resize', handleResize)
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('scroll', updateActiveSection)
-  window.removeEventListener('resize', updateActiveLinkPosition)
+  window.removeEventListener('scroll', handleScroll)
+  window.removeEventListener('resize', handleResize)
 })
 
-// Mettre à jour quand le thème change
-watch(theme, updateActiveLinkPosition)
+watch(theme, (newTheme) => {
+  initialTheme.value = newTheme
+  nextTick(updateActiveLinkPosition)
+})
 </script>
 
 <style scoped>
@@ -176,12 +193,19 @@ nav {
 }
 
 :deep(a) {
-  @apply transition-colors;
+  @apply transition-colors duration-200;
 }
 
-/* Correction du hover en mode sombre */
-:deep(.dark a:not(.text-bg-primary):hover) {
-  @apply text-white;
+:deep(a:not(.text-bg-primary)) {
+  @apply text-gray-400 dark:hover:text-gray-100 hover:text-gray-900;
+}
+
+.active-background {
+  transition: none;
+}
+
+.active-background.transition-all {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @media (max-width: 400px) {

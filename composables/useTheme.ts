@@ -3,26 +3,15 @@ import { ref, watch } from 'vue'
 const theme = ref<'light' | 'dark'>('light')
 
 export function useTheme() {
-    // Initialize theme on client side only
     if (process.client) {
-        // Check local storage
-        const savedTheme = localStorage.getItem('theme')
-        if (savedTheme === 'dark' || savedTheme === 'light') {
-            theme.value = savedTheme
-        } else {
-            // Check system preference
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-            theme.value = prefersDark ? 'dark' : 'light'
-        }
-
-        // Apply theme class immediately
-        document.documentElement.classList.toggle('dark', theme.value === 'dark')
+        // Synchroniser l'état initial avec la classe appliquée
+        theme.value = document.documentElement.classList.contains('dark') ? 'dark' : 'light'
     }
 
-    // Watch for changes
     watch(theme, (newTheme) => {
         if (process.client) {
-            document.documentElement.classList.toggle('dark', newTheme === 'dark')
+            document.documentElement.className = newTheme
+            document.body.className = newTheme
             localStorage.setItem('theme', newTheme)
         }
     })
