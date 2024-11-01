@@ -64,36 +64,70 @@ const activeLinkLeft = ref(0)
 
 const { theme, toggleTheme } = useTheme()
 
+// Fonction pour détecter la section visible
+const getVisibleSection = (): string => {
+  const sections = navigation
+      .map(item => item.path.replace('/#', ''))
+      .filter(Boolean)
+
+  // Si on est en haut de la page
+  if (window.scrollY < 50) {
+    return '/'
+  }
+
+  for (const section of sections) {
+    const element = document.getElementById(section)
+    if (!element) continue
+
+    const rect = element.getBoundingClientRect()
+    // Ajuster cette valeur selon vos besoins
+    if (rect.top <= 150 && rect.bottom >= 150) {
+      return '/#' + section
+    }
+  }
+
+  return activeSection.value
+}
+
 const scrollToSection = (path: string) => {
   const sectionId = path.replace('/#', '')
-  if (sectionId) {
-    const element = document.getElementById(sectionId)
-    if (element) {
-      const offset = 100
-      const bodyRect = document.body.getBoundingClientRect().top
-      const elementRect = element.getBoundingClientRect().top
-      const elementPosition = elementRect - bodyRect
-      const offsetPosition = elementPosition - offset
+  if (!sectionId) {
+    // Si c'est l'accueil, remonter en haut
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    })
+    activeSection.value = '/'
+    updateActiveLinkPosition()
+    return
+  }
 
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      })
-    }
+  const element = document.getElementById(sectionId)
+  if (element) {
+    const offset = 100
+    const elementPosition = element.getBoundingClientRect().top + window.scrollY
+    const offsetPosition = elementPosition - offset
+
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: 'smooth'
+    })
+
+    activeSection.value = path
+    updateActiveLinkPosition()
   }
 }
 
-const updateActiveLinkPosition = (path = activeSection.value) => {
-  if (!menuRef.value || !activeBackgroundRef.value) return
+const updateActiveLinkPosition = () => {
+  if (!menuRef.value) return
 
   nextTick(() => {
-    const activeLink = menuRef.value?.querySelector(`a[href="${path}"]`) as HTMLElement
+    const activeLink = menuRef.value?.querySelector(`a[href="${activeSection.value}"]`) as HTMLElement
     if (!activeLink) return
 
     const menuRect = menuRef.value?.getBoundingClientRect()
     const linkRect = activeLink.getBoundingClientRect()
 
-    // Assurez-vous que les dimensions sont calculées après le rendu complet
     requestAnimationFrame(() => {
       activeLinkWidth.value = linkRect.width
       activeLinkLeft.value = linkRect.left - menuRect.left
@@ -103,80 +137,36 @@ const updateActiveLinkPosition = (path = activeSection.value) => {
 
 const handleClick = (path: string, event: Event) => {
   event.preventDefault()
-  activeSection.value = path
-  updateActiveLinkPosition(path)
   scrollToSection(path)
 }
 
 const updateActiveSection = () => {
-  const sections = navigation
-      .map(item => item.path.replace('/#', ''))
-      .filter(Boolean)
-
-  let closestSection = ''
-  let minDistance = Infinity
-
-  for (const section of sections) {
-    const element = document.getElementById(section)
-    if (!element) continue
-
-    const rect = element.getBoundingClientRect()
-    const distance = Math.abs(rect.top - 150)
-
-    if (distance < minDistance) {
-      minDistance = distance
-      closestSection = section
-    }
-  }
-
-  if (closestSection) {
-    activeSection.value = '/#' + closestSection
-    updateActiveLinkPosition()
-  } else if (window.scrollY < 100) {
-    activeSection.value = '/'
+  const newSection = getVisibleSection()
+  if (newSection !== activeSection.value) {
+    activeSection.value = newSection
     updateActiveLinkPosition()
   }
 }
 
-// Gestionnaire de redimensionnement avec debounce
-let resizeTimeout: NodeJS.Timeout | null = null
-const handleResize = () => {
-  if (resizeTimeout) {
-    clearTimeout(resizeTimeout)
-  }
-  resizeTimeout = setTimeout(() => {
-    updateActiveLinkPosition()
-  }, 100)
-}
-
-watch(theme, () => {
-  nextTick(() => {
-    updateActiveLinkPosition()
-  })
-})
-
+// Initialisation immédiate au chargement
 onMounted(() => {
-  // Position initiale
+  // Mettre à jour immédiatement la position active
   nextTick(() => {
+    activeSection.value = getVisibleSection()
     updateActiveLinkPosition()
   })
 
   window.addEventListener('scroll', updateActiveSection)
-  window.addEventListener('resize', handleResize)
-
-  // Mettre à jour la position après un court délai pour assurer le rendu complet
-  setTimeout(() => {
-    updateActiveLinkPosition()
-  }, 100)
+  window.addEventListener('resize', updateActiveLinkPosition)
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('scroll', updateActiveSection)
-  window.removeEventListener('resize', handleResize)
-  if (resizeTimeout) {
-    clearTimeout(resizeTimeout)
-  }
+  window.removeEventListener('resize', updateActiveLinkPosition)
 })
+
+// Mettre à jour quand le thème change
+watch(theme, updateActiveLinkPosition)
 </script>
 
 <style scoped>
@@ -185,7 +175,15 @@ nav {
   0 8px 20px -8px rgba(0, 0, 0, 0.1);
 }
 
-/* Ajout des styles responsive uniquement pour mobile */
+:deep(a) {
+  @apply transition-colors;
+}
+
+/* Correction du hover en mode sombre */
+:deep(.dark a:not(.text-bg-primary):hover) {
+  @apply text-white;
+}
+
 @media (max-width: 400px) {
   .fixed {
     @apply px-2;
@@ -197,10 +195,6 @@ nav {
 
   :deep(a) {
     @apply px-2 py-1.5 text-xs;
-  }
-
-  .active-background {
-    @apply h-[calc(100%-2px)] top-1;
   }
 
   button {

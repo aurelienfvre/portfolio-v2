@@ -1,5 +1,5 @@
 <template>
-  <BentoItem id="projets" className="col-span-12">
+  <BentoItem id="projects" className="col-span-12">
     <div class="p-8">
       <!-- Header de la section -->
       <div class="flex items-center gap-3 mb-8">
