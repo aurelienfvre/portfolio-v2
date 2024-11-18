@@ -20,11 +20,11 @@
         <div class="flex flex-wrap gap-2">
           <TechPill
               v-for="location in stageInfo.locations"
-              :key="location"
-              :label="location"
-              class="flex items-center gap-1.5"
+              :key="location.name"
+              :label="location.name"
+              class="tech-pill-location"
           >
-            <template v-if="location === stageInfo.locations[0]">
+            <template #prefix v-if="location.isPrimary">
               <MapPin class="w-4 h-4" />
             </template>
           </TechPill>
@@ -40,3 +40,9 @@ import { stageInfo } from '@/data/stage'
 import BentoItem from '~/components/common/BentoItem.vue'
 import TechPill from '~/components/common/TechPill.vue'
 </script>
+
+<style scoped>
+.tech-pill-location {
+  @apply inline-flex items-center gap-1.5;
+}
+</style>

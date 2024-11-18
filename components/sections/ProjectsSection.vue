@@ -16,20 +16,26 @@
             :description="project.description"
             :image="project.image"
             :technologies="project.technologies"
-            class="bento-item"
+            class="group relative"
         >
           <!-- Bouton "Voir plus" -->
           <template #action>
             <button
-                class="project-button absolute bottom-5 right-5 p-2 bg-bg-primary border border-border-primary rounded-full flex items-center gap-2 group hover:gap-3 transition-all"
+                class="project-button absolute bottom-5 right-5 w-10 h-10 bg-bg-primary border border-border-primary rounded-full flex items-center justify-center transition-all duration-300"
+                :class="[
+                'hover:w-[130px] group-hover:w-[130px]',
+                'overflow-hidden'
+              ]"
                 @click="openProject(project)"
             >
-              <span class="w-0 overflow-hidden whitespace-nowrap group-hover:w-[70px] transition-all">
-                Voir plus
-              </span>
-              <ArrowUpRight
-                  class="w-4 h-4 transition-transform group-hover:rotate-45"
-              />
+              <div class="flex items-center justify-center w-full h-full relative">
+                <span class="absolute opacity-0 transform -translate-x-10 group-hover:opacity-100 hover:opacity-100 group-hover:translate-x-[-20px] hover:translate-x-[-20px] transition-all duration-300 whitespace-nowrap">
+                  Voir plus
+                </span>
+                <ArrowUpRight
+                    class="w-4 h-4 absolute transform transition-all duration-300 group-hover:translate-x-[35px] hover:translate-x-[35px] group-hover:rotate-45 hover:rotate-45"
+                />
+              </div>
             </button>
           </template>
         </Card>
@@ -98,7 +104,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { Folder, ArrowUpRight, X } from 'lucide-vue-next'
 import { projects } from '@/data/projects'
 import type { Project } from '@/types/project'
@@ -122,5 +128,21 @@ watch(selectedProject, (newValue) => {
 <style scoped>
 .project-button {
   @apply transition-all duration-300;
+}
+
+.project-button .arrow-icon {
+  @apply transition-transform duration-300;
+}
+
+/* Assure une transition fluide pour le hover */
+.project-button:hover,
+.group:hover .project-button {
+  @apply w-[130px];
+}
+
+/* Rotation et translation de la flèche */
+.project-button:hover .arrow-icon,
+.group:hover .project-button .arrow-icon {
+  @apply translate-x-[35px] rotate-45;
 }
 </style>
