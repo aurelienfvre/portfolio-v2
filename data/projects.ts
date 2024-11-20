@@ -5,7 +5,7 @@ export const projects: Project[] = [
         id: 'wintok',
         title: 'Wintok',
         description: 'SaaS innovant pour l\'automatisation des wins sur TikTok Gaming',
-        image: '/api/placeholder/800/450',
+        image: '../images/Thumbnail_wintok.png',
         technologies: [
             {
                 name: 'Symfony',
@@ -67,7 +67,7 @@ export const projects: Project[] = [
         id: 'cinevue',
         title: 'CinéVue',
         description: 'Application web fullstack de gestion de films et d\'acteurs',
-        image: '/api/placeholder/800/450',
+        image: '../images/Thumbnail_cinevue.png',
         technologies: [
             {
                 name: 'Vue.js',
@@ -240,7 +240,7 @@ export const projects: Project[] = [
         id: 'truchypluot',
         title: 'Truchy&Pluot',
         description: 'Site vitrine avec système de contact et devis pour une entreprise locale',
-        image: '/api/placeholder/800/450',
+        image: '../images/Thumbnail_truchy.png',
         technologies: [
             {
                 name: 'HTML',

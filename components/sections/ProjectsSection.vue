@@ -23,7 +23,7 @@
           <!-- Bouton "Voir plus" -->
           <template #action>
             <button
-                class="project-button absolute bottom-5 right-5 w-10 h-10 bg-bg-primary border border-border-primary rounded-full flex items-center justify-center transition-all duration-300"
+                class="project-button w-10 h-10 bg-bg-primary border border-border-primary rounded-full flex items-center justify-center transition-all duration-300"
                 :class="[
                 'hover:w-[130px] group-hover:w-[130px]',
                 'overflow-hidden'
@@ -60,46 +60,23 @@
             @click.self="selectedProject = null"
         >
           <div
-              class="w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-bg-primary border border-border-primary rounded-2xl"
+              class="w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-bg-primary border border-border-primary rounded-2xl relative"
           >
-            <div class="p-8">
-              <!-- Header Modal avec liens -->
-              <div class="flex justify-between items-center mb-6">
+            <!-- Header Modal -->
+            <div class="sticky top-0 z-10 bg-bg-primary border-b border-border-primary p-6">
+              <div class="flex justify-between items-center">
                 <h2 class="text-2xl font-medium">{{ selectedProject.title }}</h2>
-                <div class="flex items-center gap-2">
-
-                  v-if="selectedProject.links?.website"
-                  <a :href="selectedProject.links.website"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="p-2 bg-bg-primary border border-border-primary rounded-full hover:border-text-primary transition-colors"
-                  title="Voir le site"
-                  >
-                  <Globe class="w-4 h-4" />
-                  </a>
-                  <template v-if="selectedProject.links?.github">
-
-                    v-for="(repo, index) in selectedProject.links.github"
-                    :key="index"
-                    <a :href="repo"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="p-2 bg-bg-primary border border-border-primary rounded-full hover:border-text-primary transition-colors"
-                    :title="`Voir le code ${selectedProject.links.github.length > 1 ? (index + 1) : ''}`"
-                    >
-                    <Github class="w-4 h-4" />
-                    </a>
-                  </template>
-                  <button
-                      class="p-2 hover:bg-[#1a2235] rounded-full transition-colors"
-                      @click="selectedProject = null"
-                  >
-                    <X class="w-6 h-6" />
-                  </button>
-                </div>
+                <button
+                    class="p-2 hover:bg-[#1a2235] rounded-full transition-colors"
+                    @click="selectedProject = null"
+                >
+                  <X class="w-6 h-6" />
+                </button>
               </div>
+            </div>
 
-              <!-- Reste de la modal identique -->
+            <div class="p-8">
+              <!-- Contenu Modal -->
               <div class="aspect-video mb-6 rounded-xl overflow-hidden bg-[#1a2235]">
                 <video
                     v-if="selectedProject.videoUrl"
@@ -117,10 +94,41 @@
                 />
               </div>
 
+              <!-- Description détaillée -->
               <div
                   class="text-gray-400"
                   v-html="selectedProject.detailedContent"
               ></div>
+
+              <!-- Liens -->
+              <div class="mt-8 flex gap-4 justify-end border-t border-border-primary pt-6">
+                <template v-if="selectedProject.links">
+                  <template v-if="selectedProject.links.website">
+                    <a
+                        :href="selectedProject.links.website"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="flex items-center gap-2 px-4 py-2 bg-bg-primary border border-border-primary rounded-full hover:border-text-primary transition-colors"
+                    >
+                      <Globe class="w-4 h-4" />
+                      <span>Voir le site</span>
+                    </a>
+                  </template>
+                  <template v-if="selectedProject.links.github">
+                    <template v-for="(repo, index) in selectedProject.links.github" :key="index">
+                      <a
+                          :href="repo"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="flex items-center gap-2 px-4 py-2 bg-bg-primary border border-border-primary rounded-full hover:border-text-primary transition-colors"
+                      >
+                        <Github class="w-4 h-4" />
+                        <span>{{ selectedProject.links.github.length > 1 ? `Code ${index + 1}` : 'Code' }}</span>
+                      </a>
+                    </template>
+                  </template>
+                </template>
+              </div>
             </div>
           </div>
         </div>
