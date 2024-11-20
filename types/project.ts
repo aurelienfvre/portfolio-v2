@@ -1,7 +1,13 @@
+export interface ProjectLink {
+    type: 'github' | 'website';
+    url: string;
+    label?: string;  // Pour différencier plusieurs repos par exemple
+}
+
 export interface Technology {
-    name: string
-    icon?: string
-    invert?: boolean
+    name: string;
+    icon?: string;
+    invert?: boolean;
 }
 
 export interface Project {
@@ -12,5 +18,8 @@ export interface Project {
     technologies: Technology[]
     videoUrl?: string
     detailedContent: string
-    link?: string
+    links?: {
+        website?: string
+        github?: string[] // tableau pour gérer plusieurs repos
+    }
 }

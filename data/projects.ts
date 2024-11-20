@@ -58,7 +58,10 @@ export const projects: Project[] = [
                     l'optimisation des performances.
                 </p>
             </div>
-        </div>`
+        </div>`,
+        links: {
+            website: 'https://wintok.fr'
+        }
     },
     {
         id: 'cinevue',
@@ -154,7 +157,13 @@ export const projects: Project[] = [
                 d'exploration et de visualisation.
             </p>
         </div>
-    </div>`
+    </div>`,
+        links: {
+            github: [
+                'https://github.com/aurelienfvre/WR506D-MMI-AB',
+                'https://github.com/aurelienfvre/r505'
+            ]
+        }
     },
     {
         id: 'portfolio',
@@ -221,12 +230,16 @@ export const projects: Project[] = [
                     développé de manière modulaire pour faciliter la maintenance et les futures évolutions.
                 </p>
             </div>
-        </div>`
+        </div>`,
+        links: {
+            website: 'https://aurelien-fevre.com',
+            github: ['https://github.com/aurelienfvre/portfolio-v2']
+        }
     },
     {
         id: 'truchypluot',
         title: 'Truchy&Pluot',
-        description: 'Site vitrine avec système de contact et devis',
+        description: 'Site vitrine avec système de contact et devis pour une entreprise locale',
         image: '/api/placeholder/800/450',
         technologies: [
             {
@@ -246,12 +259,80 @@ export const projects: Project[] = [
                 icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/php/php-original.svg'
             }
         ],
-        detailedContent: `Site vitrine professionnel avec système de contact et génération de devis`
+        detailedContent: `
+    <div class="space-y-6">
+        <div>
+            <h3 class="text-xl font-medium mb-3">Présentation</h3>
+            <p class="text-gray-400">
+                Projet réalisé durant un stage de 3 mois chez TRUCHY JEAN LUC à Bleigny-le-Carreau. 
+                Développement d'un site vitrine professionnel intégrant des fonctionnalités avancées 
+                de communication client-entreprise.
+            </p>
+        </div>
+
+        <div>
+            <h3 class="text-xl font-medium mb-3">Responsabilités principales</h3>
+            <ul class="list-disc pl-5 space-y-2 text-gray-400">
+                <li>Conception et développement des pages contact et devis</li>
+                <li>Implémentation complète du système d'emails</li>
+                <li>Design responsive et optimisation UX/UI</li>
+                <li>Collaboration avec l'équipe de développement</li>
+            </ul>
+        </div>
+
+        <div>
+            <h3 class="text-xl font-medium mb-3">Fonctionnalités développées</h3>
+            <ul class="list-disc pl-5 space-y-2 text-gray-400">
+                <li>Formulaire de contact interactif et validé</li>
+                <li>Système de génération de devis automatisé</li>
+                <li>Notifications email automatiques :
+                    <ul class="ml-4 mt-2 space-y-1">
+                        <li>- Confirmation de réception pour les clients</li>
+                        <li>- Notifications détaillées pour l'entreprise</li>
+                        <li>- Suivi des demandes de devis</li>
+                    </ul>
+                </li>
+                <li>Interface responsive adaptée à tous les appareils</li>
+            </ul>
+        </div>
+
+        <div>
+            <h3 class="text-xl font-medium mb-3">Aspects techniques</h3>
+            <ul class="list-disc pl-5 space-y-2 text-gray-400">
+                <li>Développement front-end avec HTML5, CSS3 et JavaScript</li>
+                <li>Back-end en PHP pour la gestion des emails et des données</li>
+                <li>Validation et sécurisation des formulaires</li>
+                <li>Optimisation des performances et du référencement</li>
+            </ul>
+        </div>
+
+        <div>
+            <h3 class="text-xl font-medium mb-3">Méthodologie</h3>
+            <ul class="list-disc pl-5 space-y-2 text-gray-400">
+                <li>Participation active aux réunions de suivi</li>
+                <li>Collaboration étroite avec l'équipe</li>
+                <li>Tests et optimisations continus</li>
+                <li>Documentation des fonctionnalités</li>
+            </ul>
+        </div>
+
+        <div>
+            <h3 class="text-xl font-medium mb-3">Résultats</h3>
+            <p class="text-gray-400">
+                Livraison d'un site professionnel fonctionnel permettant une meilleure communication 
+                entre l'entreprise et ses clients, avec un système robuste de gestion des demandes 
+                de contact et de devis.
+            </p>
+        </div>
+    </div>`,
+        links: {
+            website: 'https://aurelien-fevre.com/truchy_pluot/'
+        }
     },
     {
-        id: 'minecraft',
-        title: 'Plugins Minecraft',
-        description: 'Animations interactives en temps réel pour lives',
+        id: 'minecraft-plugins',
+        title: 'Plugins Minecraft Interactifs',
+        description: 'Suite de plugins pour streams TikTok Gaming interactifs',
         image: '/api/placeholder/800/450',
         technologies: [
             {
@@ -259,20 +340,210 @@ export const projects: Project[] = [
                 icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg'
             }
         ],
-        detailedContent: `Développement de plugins Minecraft pour créer des animations interactives en temps réel`
+        detailedContent: `
+    <div class="space-y-6">
+        <div>
+            <h3 class="text-xl font-medium mb-3">Présentation</h3>
+            <p class="text-gray-400">
+                Développement d'une suite de plugins Minecraft innovants conçus spécifiquement pour les lives TikTok Gaming.
+                Ces plugins enrichissent l'expérience de streaming en ajoutant des mécaniques de jeu interactives et des
+                effets visuels spectaculaires, le tout intégré avec la plateforme Wintok.
+            </p>
+        </div>
+
+        <div>
+            <h3 class="text-xl font-medium mb-3">Fonctionnalités principales</h3>
+            <ul class="list-disc pl-5 space-y-2 text-gray-400">
+                <li>Système de Box personnalisable :
+                    <ul class="ml-4 mt-2 space-y-1">
+                        <li>- Création de cuves avec 3 tailles différentes</li>
+                        <li>- Choix des blocs et motifs de remplissage</li>
+                        <li>- Personnalisation des dégradés et couleurs</li>
+                        <li>- Détection automatique du remplissage</li>
+                    </ul>
+                </li>
+                <li>Mécaniques de jeu avancées :
+                    <ul class="ml-4 mt-2 space-y-1">
+                        <li>- Chronomètre automatique lors du remplissage</li>
+                        <li>- Système de construction par étages</li>
+                        <li>- Gestion dynamique des blocs (ajout/retrait)</li>
+                        <li>- Détection de destruction de ligne</li>
+                    </ul>
+                </li>
+                <li>Effets visuels spectaculaires :
+                    <ul class="ml-4 mt-2 space-y-1">
+                        <li>- Animation de PNJ par étages</li>
+                        <li>- Particules de cœur pour les likes</li>
+                        <li>- Trou noir avec effet d'aspiration et zigzag</li>
+                        <li>- Reset avec animation d'éclairs ligne par ligne</li>
+                        <li>- Animation de nuke avec projection de blocs</li>
+                        <li>- TNT personnalisées avec effets uniques</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div>
+            <h3 class="text-xl font-medium mb-3">Intégration avec Wintok</h3>
+            <ul class="list-disc pl-5 space-y-2 text-gray-400">
+                <li>Synchronisation automatique avec l'overlay Wintok</li>
+                <li>Mise à jour en temps réel des victoires</li>
+                <li>Interaction avec Stream2Earn pour les événements TikTok</li>
+                <li>Système de récompenses automatisé</li>
+            </ul>
+        </div>
+
+        <div>
+            <h3 class="text-xl font-medium mb-3">Aspects Techniques</h3>
+            <ul class="list-disc pl-5 space-y-2 text-gray-400">
+                <li>Développé en Java avec l'API Spigot/Bukkit</li>
+                <li>Gestion efficace des événements Minecraft</li>
+                <li>Optimisation des performances pour le streaming</li>
+                <li>Architecture modulaire pour faciliter les extensions</li>
+            </ul>
+        </div>
+
+        <div>
+            <h3 class="text-xl font-medium mb-3">Développements futurs</h3>
+            <p class="text-gray-400">
+                En cours de développement d'un nouveau modpack plugin innovant pour TikTok Gaming, 
+                apportant de nouvelles mécaniques de jeu et une expérience entièrement repensée.
+                Cette nouvelle version intégrera des fonctionnalités encore plus poussées et une 
+                meilleure interaction avec la communauté.
+            </p>
+        </div>
+
+        <div>
+            <h3 class="text-xl font-medium mb-3">Impact</h3>
+            <p class="text-gray-400">
+                Ces plugins ont permis d'enrichir significativement l'expérience de streaming sur TikTok,
+                en offrant des interactions uniques et des effets visuels captivants pour la communauté.
+                L'intégration avec Wintok a permis d'automatiser complètement le suivi des performances
+                et la gestion des récompenses.
+            </p>
+        </div>
+    </div>`
     },
     {
         id: 'edutask',
         title: 'EduTask',
-        description: 'Calendrier de tâches pour étudiants MMI',
+        description: 'Application de gestion de tâches pour étudiants MMI',
         image: '/api/placeholder/800/450',
         technologies: [
             {
                 name: 'Symfony',
                 icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/symfony/symfony-original.svg',
                 invert: true
+            },
+            {
+                name: 'JavaScript',
+                icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg'
+            },
+            {
+                name: 'HTML',
+                icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg'
+            },
+            {
+                name: 'CSS',
+                icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg'
             }
         ],
-        detailedContent: `Application de gestion de tâches spécialement conçue pour les étudiants MMI`
+        detailedContent: `
+    <div class="space-y-6">
+        <div>
+            <h3 class="text-xl font-medium mb-3">Présentation</h3>
+            <p class="text-gray-400">
+                EduTask est une application web collaborative conçue pour aider les étudiants MMI à suivre 
+                leurs dates de rendu de travaux. Développée en équipe, elle met l'accent sur l'expérience 
+                utilisateur et l'accessibilité tout en offrant des fonctionnalités avancées de gestion de tâches.
+            </p>
+        </div>
+
+        <div>
+            <h3 class="text-xl font-medium mb-3">Fonctionnalités principales</h3>
+            <ul class="list-disc pl-5 space-y-2 text-gray-400">
+                <li>Gestion des utilisateurs :
+                    <ul class="ml-4 mt-2 space-y-1">
+                        <li>- Système d'inscription et connexion</li>
+                        <li>- Modification du profil utilisateur</li>
+                        <li>- Gestion des sessions sécurisées</li>
+                    </ul>
+                </li>
+                <li>Gestion des tâches :
+                    <ul class="ml-4 mt-2 space-y-1">
+                        <li>- Calendrier interactif des rendus</li>
+                        <li>- Système de to-do list avancé</li>
+                        <li>- Cartes de tâches personnalisables</li>
+                        <li>- Fonctionnalité de rappels</li>
+                    </ul>
+                </li>
+                <li>Interface utilisateur :
+                    <ul class="ml-4 mt-2 space-y-1">
+                        <li>- Mode sombre/clair</li>
+                        <li>- Design responsive</li>
+                        <li>- Modales de recherche et tri</li>
+                        <li>- Navigation fluide sans rechargement</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div>
+            <h3 class="text-xl font-medium mb-3">Aspects techniques</h3>
+            <ul class="list-disc pl-5 space-y-2 text-gray-400">
+                <li>Backend (Symfony) :
+                    <ul class="ml-4 mt-2 space-y-1">
+                        <li>- Architecture MVC</li>
+                        <li>- Templates Twig</li>
+                        <li>- Gestion de base de données</li>
+                        <li>- Système d'authentification</li>
+                    </ul>
+                </li>
+                <li>Frontend :
+                    <ul class="ml-4 mt-2 space-y-1">
+                        <li>- JavaScript pour l'interactivité</li>
+                        <li>- CSS pour le styling responsif</li>
+                        <li>- HTML sémantique</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div>
+            <h3 class="text-xl font-medium mb-3">Standards et bonnes pratiques</h3>
+            <ul class="list-disc pl-5 space-y-2 text-gray-400">
+                <li>Conformité aux normes W3C</li>
+                <li>Principes d'UX/UI appliqués</li>
+                <li>Accessibilité optimisée</li>
+                <li>Responsive design</li>
+                <li>Code maintenable et documenté</li>
+            </ul>
+        </div>
+
+        <div>
+            <h3 class="text-xl font-medium mb-3">Contribution personnelle</h3>
+            <ul class="list-disc pl-5 space-y-2 text-gray-400">
+                <li>Développement full-stack (40 heures)</li>
+                <li>Implémentation des fonctionnalités clés</li>
+                <li>Conception de l'interface utilisateur</li>
+                <li>Tests et optimisation des performances</li>
+                <li>Collaboration avec l'équipe de développement</li>
+            </ul>
+        </div>
+
+        <div>
+            <h3 class="text-xl font-medium mb-3">Résultats</h3>
+            <p class="text-gray-400">
+                EduTask est devenue une solution efficace pour la gestion des tâches académiques, 
+                offrant une expérience utilisateur optimale tout en respectant les standards web 
+                et les principes d'accessibilité. Le projet a permis de renforcer mes compétences 
+                en développement full-stack tout en créant un outil pratique pour la communauté étudiante.
+            </p>
+        </div>
+    </div>`,
+        links: {
+            website: 'https://aurelien-fevre.com/edutask/',
+            github: ['https://github.com/aurelienfvre/sae301']
+        }
     }
 ]

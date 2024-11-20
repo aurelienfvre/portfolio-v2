@@ -16,7 +16,9 @@
             :description="project.description"
             :image="project.image"
             :technologies="project.technologies"
+            :links="project.links"
             class="group relative"
+            @click="openProject(project)"
         >
           <!-- Bouton "Voir plus" -->
           <template #action>
@@ -26,7 +28,7 @@
                 'hover:w-[130px] group-hover:w-[130px]',
                 'overflow-hidden'
               ]"
-                @click="openProject(project)"
+                @click.stop="openProject(project)"
             >
               <div class="flex items-center justify-center w-full h-full relative">
                 <span class="absolute opacity-0 transform -translate-x-10 group-hover:opacity-100 hover:opacity-100 group-hover:translate-x-[-20px] hover:translate-x-[-20px] transition-all duration-300 whitespace-nowrap">
@@ -61,18 +63,43 @@
               class="w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-bg-primary border border-border-primary rounded-2xl"
           >
             <div class="p-8">
-              <!-- Header Modal -->
+              <!-- Header Modal avec liens -->
               <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-medium">{{ selectedProject.title }}</h2>
-                <button
-                    class="p-2 hover:bg-[#1a2235] rounded-full transition-colors"
-                    @click="selectedProject = null"
-                >
-                  <X class="w-6 h-6" />
-                </button>
+                <div class="flex items-center gap-2">
+
+                  v-if="selectedProject.links?.website"
+                  <a :href="selectedProject.links.website"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="p-2 bg-bg-primary border border-border-primary rounded-full hover:border-text-primary transition-colors"
+                  title="Voir le site"
+                  >
+                  <Globe class="w-4 h-4" />
+                  </a>
+                  <template v-if="selectedProject.links?.github">
+
+                    v-for="(repo, index) in selectedProject.links.github"
+                    :key="index"
+                    <a :href="repo"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="p-2 bg-bg-primary border border-border-primary rounded-full hover:border-text-primary transition-colors"
+                    :title="`Voir le code ${selectedProject.links.github.length > 1 ? (index + 1) : ''}`"
+                    >
+                    <Github class="w-4 h-4" />
+                    </a>
+                  </template>
+                  <button
+                      class="p-2 hover:bg-[#1a2235] rounded-full transition-colors"
+                      @click="selectedProject = null"
+                  >
+                    <X class="w-6 h-6" />
+                  </button>
+                </div>
               </div>
 
-              <!-- Contenu Modal -->
+              <!-- Reste de la modal identique -->
               <div class="aspect-video mb-6 rounded-xl overflow-hidden bg-[#1a2235]">
                 <video
                     v-if="selectedProject.videoUrl"
@@ -90,7 +117,6 @@
                 />
               </div>
 
-              <!-- Description détaillée -->
               <div
                   class="text-gray-400"
                   v-html="selectedProject.detailedContent"
@@ -105,7 +131,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { Folder, ArrowUpRight, X } from 'lucide-vue-next'
+import { Folder, ArrowUpRight, X, Globe, Github } from 'lucide-vue-next'
 import { projects } from '@/data/projects'
 import type { Project } from '@/types/project'
 import BentoItem from '~/components/common/BentoItem.vue'
@@ -130,19 +156,8 @@ watch(selectedProject, (newValue) => {
   @apply transition-all duration-300;
 }
 
-.project-button .arrow-icon {
-  @apply transition-transform duration-300;
-}
-
-/* Assure une transition fluide pour le hover */
 .project-button:hover,
 .group:hover .project-button {
   @apply w-[130px];
-}
-
-/* Rotation et translation de la flèche */
-.project-button:hover .arrow-icon,
-.group:hover .project-button .arrow-icon {
-  @apply translate-x-[35px] rotate-45;
 }
 </style>

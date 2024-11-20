@@ -1,6 +1,7 @@
 <template>
   <div
-      class="relative border border-border-primary rounded-2xl overflow-hidden transition-all duration-300 group bg-bg-primary"
+      class="relative border border-border-primary rounded-2xl overflow-hidden transition-all duration-300 group bg-bg-primary cursor-pointer h-full flex flex-col"
+      @click="$emit('click')"
   >
     <!-- Image -->
     <div v-if="image" class="w-full h-48 overflow-hidden">
@@ -12,12 +13,9 @@
     </div>
 
     <!-- Content -->
-    <div class="p-6">
+    <div class="p-6 flex flex-col flex-grow">
       <!-- Title -->
-      <h3
-          v-if="title"
-          class="text-xl font-semibold mb-2"
-      >
+      <h3 v-if="title" class="text-xl font-semibold mb-2">
         {{ title }}
       </h3>
 
@@ -55,21 +53,62 @@
 
       <!-- Footer slot -->
       <slot name="footer"></slot>
-    </div>
 
-    <!-- Action slot -->
-    <slot name="action"></slot>
+      <!-- Links -->
+      <div class="mt-auto pt-4 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+          <template v-if="links?.website">
+            <a
+                :href="links.website"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="p-2 bg-bg-primary border border-border-primary rounded-full hover:border-text-primary transition-colors"
+                title="Voir le site"
+                @click.stop
+            >
+              <Globe class="w-4 h-4" />
+            </a>
+          </template>
+          <template v-else-if="links?.github && links.github.length > 0">
+            <a
+                :href="links.github[0]"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="p-2 bg-bg-primary border border-border-primary rounded-full hover:border-text-primary transition-colors"
+                title="Voir le code"
+                @click.stop
+            >
+              <Github class="w-4 h-4" />
+            </a>
+          </template>
+        </div>
+
+        <!-- Action slot pour le bouton voir plus -->
+        <slot name="action"></slot>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { Globe, Github } from 'lucide-vue-next'
 import type { Technology } from '@/types/project'
+
+interface Links {
+  website?: string
+  github?: string[]
+}
 
 defineProps<{
   title?: string
   description?: string
   image?: string
   technologies?: Technology[]
+  links?: Links
+}>()
+
+defineEmits<{
+  (e: 'click'): void
 }>()
 </script>
 
@@ -92,7 +131,6 @@ defineProps<{
   }
 }
 
-/* Assurez-vous que les images qui doivent être inversées en mode sombre le sont */
 :deep(.dark) img.dark\:invert {
   @apply invert;
 }
