@@ -1,8 +1,38 @@
 export default defineNuxtConfig({
   modules: [
     '@nuxtjs/tailwindcss',
+    '@nuxt/image',
   ],
   css: ['~/assets/css/main.css'],
+  image: {
+    dir: 'public/images',
+    screens: {
+      xs: 320,
+      sm: 640,
+      md: 768,
+      lg: 1024,
+      xl: 1280,
+      xxl: 1536,
+    },
+    presets: {
+      thumbnail: {
+        modifiers: {
+          format: 'webp',
+          width: 400,
+          height: 300,
+          quality: 80
+        }
+      },
+      project: {
+        modifiers: {
+          format: 'webp',
+          width: 800,
+          height: 450,
+          quality: 90
+        }
+      }
+    }
+  },
   app: {
     head: {
       title: 'Aurélien Fèvre - Portfolio',

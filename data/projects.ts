@@ -17,7 +17,6 @@ export const projects: Project[] = [
                 icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg'
             }
         ],
-        videoUrl: '/path/to/wintok-demo.mp4',
         detailedContent: `
         <div class="space-y-6">
             <div>
@@ -169,7 +168,7 @@ export const projects: Project[] = [
         id: 'portfolio',
         title: 'Portfolio Personnel',
         description: 'Portfolio moderne développé avec Nuxt 3 et Tailwind',
-        image: '/api/placeholder/800/450',
+        image: '../images/Thumbnail_portfolio.png',
         technologies: [
             {
                 name: 'Vue.js',
@@ -333,7 +332,7 @@ export const projects: Project[] = [
         id: 'minecraft-plugins',
         title: 'Plugins Minecraft Interactifs',
         description: 'Suite de plugins pour streams TikTok Gaming interactifs',
-        image: '/api/placeholder/800/450',
+        image: '../images/Thumbnail_plugin.png',
         technologies: [
             {
                 name: 'Java',
@@ -428,7 +427,7 @@ export const projects: Project[] = [
         id: 'edutask',
         title: 'EduTask',
         description: 'Application de gestion de tâches pour étudiants MMI',
-        image: '/api/placeholder/800/450',
+        image: '../images/Thumbnail_edutask.png',
         technologies: [
             {
                 name: 'Symfony',
