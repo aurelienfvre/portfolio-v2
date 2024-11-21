@@ -4,11 +4,11 @@
       @click="$emit('click')"
   >
     <!-- Image -->
-    <div v-if="image" class="w-full h-48 overflow-hidden">
+    <div v-if="image" class="w-full h-64 overflow-hidden">
       <nuxt-img
           :src="image"
           :alt="title"
-          class="w-full h-full object-cover"
+          class="w-full h-full object-cover object-top"
           loading="lazy"
           preset="thumbnail"
           format="webp"
@@ -61,27 +61,27 @@
       <div class="mt-auto pt-4 flex justify-between items-center">
         <div class="flex items-center gap-2">
           <template v-if="links?.website">
-
-           <a :href="links.website"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="p-2 bg-bg-primary border border-border-primary rounded-full hover:border-text-primary transition-colors"
-            title="Voir le site"
-            @click.stop
+            <a
+                :href="links.website"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="p-2 bg-bg-primary border border-border-primary rounded-full hover:border-text-primary transition-colors"
+                title="Voir le site"
+                @click.stop
             >
-            <Globe class="w-4 h-4" />
+              <Globe class="w-4 h-4" />
             </a>
           </template>
           <template v-else-if="links?.github && links.github.length > 0">
-
-            <a :href="links.github[0]"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="p-2 bg-bg-primary border border-border-primary rounded-full hover:border-text-primary transition-colors"
-            title="Voir le code"
-            @click.stop
+            <a
+                :href="links.github[0]"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="p-2 bg-bg-primary border border-border-primary rounded-full hover:border-text-primary transition-colors"
+                title="Voir le code"
+                @click.stop
             >
-            <Github class="w-4 h-4" />
+              <Github class="w-4 h-4" />
             </a>
           </template>
         </div>
