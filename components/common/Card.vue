@@ -4,7 +4,7 @@
       @click="$emit('click')"
   >
     <!-- Image -->
-    <div v-if="image" class="w-full h-64 overflow-hidden">
+    <div v-if="image" class="w-full h-96 overflow-hidden"> <!-- Changé à h-96 pour test -->
       <nuxt-img
           :src="image"
           :alt="title"
