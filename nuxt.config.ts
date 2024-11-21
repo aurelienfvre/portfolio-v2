@@ -18,8 +18,8 @@ export default defineNuxtConfig({
       thumbnail: {
         modifiers: {
           format: 'webp',
-          width: 800,
-          height: 600,
+          width: 1600,
+          height: 900,
           quality: 85
         }
       },
