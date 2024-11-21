@@ -5,7 +5,7 @@ export const projects: Project[] = [
         id: 'wintok',
         title: 'Wintok',
         description: 'SaaS innovant pour l\'automatisation des wins sur TikTok Gaming',
-        image: '../images/Thumbnail_wintok.png',
+        image: '/images/Thumbnail_wintok.png',
         technologies: [
             {
                 name: 'Symfony',
@@ -66,7 +66,7 @@ export const projects: Project[] = [
         id: 'cinevue',
         title: 'CinéVue',
         description: 'Application web fullstack de gestion de films et d\'acteurs',
-        image: '../images/Thumbnail_cinevue.png',
+        image: '/images/Thumbnail_cinevue.png',
         technologies: [
             {
                 name: 'Vue.js',
@@ -168,7 +168,7 @@ export const projects: Project[] = [
         id: 'portfolio',
         title: 'Portfolio Personnel',
         description: 'Portfolio moderne développé avec Nuxt 3 et Tailwind',
-        image: '../images/Thumbnail_portfolio.png',
+        image: '/images/Thumbnail_portfolio.png',
         technologies: [
             {
                 name: 'Vue.js',
@@ -239,7 +239,7 @@ export const projects: Project[] = [
         id: 'truchypluot',
         title: 'Truchy&Pluot',
         description: 'Site vitrine avec système de contact et devis pour une entreprise locale',
-        image: '../images/Thumbnail_truchy.png',
+        image: '/images/Thumbnail_truchy.png',
         technologies: [
             {
                 name: 'HTML',
@@ -332,7 +332,7 @@ export const projects: Project[] = [
         id: 'minecraft-plugins',
         title: 'Plugins Minecraft Interactifs',
         description: 'Suite de plugins pour streams TikTok Gaming interactifs',
-        image: '../images/Thumbnail_plugin.png',
+        image: '/images/Thumbnail_plugin.png',
         technologies: [
             {
                 name: 'Java',
@@ -427,7 +427,7 @@ export const projects: Project[] = [
         id: 'edutask',
         title: 'EduTask',
         description: 'Application de gestion de tâches pour étudiants MMI',
-        image: '../images/Thumbnail_edutask.png',
+        image: '/images/Thumbnail_edutask.png',
         technologies: [
             {
                 name: 'Symfony',
