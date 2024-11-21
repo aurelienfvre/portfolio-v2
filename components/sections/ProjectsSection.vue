@@ -57,7 +57,7 @@
         <div
             v-if="selectedProject"
             class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
-            @click.self="selectedProject = null"
+            @click.self="closeModal"
         >
           <div
               class="w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-bg-primary border border-border-primary rounded-2xl relative"
@@ -68,7 +68,7 @@
                 <h2 class="text-2xl font-medium">{{ selectedProject.title }}</h2>
                 <button
                     class="p-2 hover:bg-[#1a2235] rounded-full transition-colors"
-                    @click="selectedProject = null"
+                    @click="closeModal"
                 >
                   <X class="w-6 h-6" />
                 </button>
@@ -86,11 +86,13 @@
                   <source :src="selectedProject.videoUrl" type="video/mp4">
                   Votre navigateur ne supporte pas la lecture de vidéos.
                 </video>
-                <img
+                <nuxt-img
                     v-else
                     :src="selectedProject.image"
                     :alt="selectedProject.title"
                     class="w-full h-full object-cover"
+                    preset="project"
+                    format="webp"
                 />
               </div>
 
@@ -104,26 +106,26 @@
               <div class="mt-8 flex gap-4 justify-end border-t border-border-primary pt-6">
                 <template v-if="selectedProject.links">
                   <template v-if="selectedProject.links.website">
-                    <a
-                        :href="selectedProject.links.website"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="flex items-center gap-2 px-4 py-2 bg-bg-primary border border-border-primary rounded-full hover:border-text-primary transition-colors"
+
+                   <a :href="selectedProject.links.website"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="flex items-center gap-2 px-4 py-2 bg-bg-primary border border-border-primary rounded-full hover:border-text-primary transition-colors"
                     >
-                      <Globe class="w-4 h-4" />
-                      <span>Voir le site</span>
+                    <Globe class="w-4 h-4" />
+                    <span>Voir le site</span>
                     </a>
                   </template>
                   <template v-if="selectedProject.links.github">
                     <template v-for="(repo, index) in selectedProject.links.github" :key="index">
-                      <a
-                          :href="repo"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          class="flex items-center gap-2 px-4 py-2 bg-bg-primary border border-border-primary rounded-full hover:border-text-primary transition-colors"
+
+                     <a :href="repo"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="flex items-center gap-2 px-4 py-2 bg-bg-primary border border-border-primary rounded-full hover:border-text-primary transition-colors"
                       >
-                        <Github class="w-4 h-4" />
-                        <span>{{ selectedProject.links.github.length > 1 ? `Code ${index + 1}` : 'Code' }}</span>
+                      <Github class="w-4 h-4" />
+                      <span>{{ selectedProject.links.github.length > 1 ? `Code ${index + 1}` : 'Code' }}</span>
                       </a>
                     </template>
                   </template>
@@ -138,7 +140,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import { Folder, ArrowUpRight, X, Globe, Github } from 'lucide-vue-next'
 import { projects } from '@/data/projects'
 import type { Project } from '@/types/project'
@@ -151,6 +153,26 @@ const openProject = (project: Project) => {
   selectedProject.value = project
   document.body.style.overflow = 'hidden'
 }
+
+const closeModal = () => {
+  selectedProject.value = null
+}
+
+// Gestionnaire pour la touche Escape
+const handleKeydown = (e: KeyboardEvent) => {
+  if (e.key === 'Escape' && selectedProject.value) {
+    closeModal()
+  }
+}
+
+// Ajout des event listeners
+onMounted(() => {
+  window.addEventListener('keydown', handleKeydown)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleKeydown)
+})
 
 watch(selectedProject, (newValue) => {
   if (!newValue) {
