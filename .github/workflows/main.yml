@@ -20,6 +20,11 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
+      - name: Copy images
+        run: |
+          mkdir -p ./public/images
+          cp -r ./public/images/* ./public/images/ || true
+
       - name: Build
         run: npm run generate
         env:
@@ -45,25 +50,30 @@ jobs:
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT }}
           script: |
-            # Passer en root
-            sudo -i
+            echo "${{ secrets.VPS_PASSWORD }}" | sudo -S bash << 'EOF'
             cd /home/mmi22h03/public_html/portfolio-v2
-            
-            # Mise à jour du code
+
+            # Arrêt de PM2 et nettoyage
+            su - mmi22h03 -c "pm2 delete portfolio-v2" || true
+
+            # Mise à jour du code depuis le dépôt
             git pull origin main
-            
-            # Installation et build
-            npm ci
-            npm run build
-            
-            # Configuration des permissions
-            chown -R mmi22h03:www-data .
-            chmod -R 775 .
-            chmod -R 775 public/images
-            chmod -R 775 .output
-            
-            # Redémarrage des services
-            su - mmi22h03 -c "pm2 delete portfolio-v2 || true"
-            su - mmi22h03 -c "pm2 start npm --name 'portfolio-v2' -- run start"
-            
+
+            # Configuration initiale des permissions
+            chown -R mmi22h03:mmi22h03 .
+
+            # Installation et build en tant que mmi22h03
+            su - mmi22h03 -c "cd /home/mmi22h03/public_html/portfolio-v2 && \
+                             export NVM_DIR=\"/home/mmi22h03/.nvm\" && \
+                             [ -s \"\$NVM_DIR/nvm.sh\" ] && \. \"\$NVM_DIR/nvm.sh\" && \
+                             npm ci && \
+                             npm run build && \
+                             pm2 start npm --name 'portfolio-v2' -- run start"
+
+            # Configuration finale des permissions
+            chown -R mmi22h03:www-data /home/mmi22h03/public_html/portfolio-v2/.output
+            chmod -R 775 /home/mmi22h03/public_html/portfolio-v2/.output
+
+            # Redémarrage d'Apache
             systemctl restart apache2
+            EOF
