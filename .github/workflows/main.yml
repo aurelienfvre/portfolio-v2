@@ -8,47 +8,45 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '21.4.0'
           cache: 'npm'
-          
+
       - name: Install Dependencies
         run: npm ci
 
-      # Ajoute cette étape pour copier les images avant le build
       - name: Copy images
         run: |
           mkdir -p ./public/images
           cp -r ./public/images/* ./public/images/ || true
-        
+
       - name: Build
         run: npm run generate
         env:
           NITRO_PRESET: node-server
-          
+
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           known_hosts: unnecessary
           if_key_exists: replace
-          
+
       - name: Adding Known Hosts
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan -p ${{ secrets.VPS_PORT }} -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
-          
+
       - name: Deploy with rsync
         run: |
           rsync -avz --delete -e "ssh -p ${{ secrets.VPS_PORT }}" \
-            ./ \
-            ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }}:/home/mmi22h03/public_html/portfolio-v2/
+          ./ \
+          ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }}:/home/mmi22h03/public_html/portfolio-v2/
 
       - name: Execute post-deploy commands
         uses: appleboy/ssh-action@master
@@ -59,13 +57,21 @@ jobs:
           port: ${{ secrets.VPS_PORT }}
           script: |
             cd /home/mmi22h03/public_html/portfolio-v2
+            # Assurer que l'utilisateur a les bonnes permissions
+            sudo chown -R mmi22h03:mmi22h03 .
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             npm ci
             npm run build
             mkdir -p public/images
-            chmod -R 755 public/images
-            pm2 restart portfolio-v2 || pm2 start npm --name "portfolio-v2" -- run start
-            chmod -R 755 .output/public
-            find .output/public -type f -exec chmod 644 {} \;
+            sudo chown -R mmi22h03:www-data .
+            sudo chmod -R 775 .
+            sudo chmod -R 775 public/images
+            sudo chmod -R 775 .output
+            # Redémarrer PM2 avec les bonnes permissions
+            pm2 delete portfolio-v2 || true
+            pm2 start npm --name "portfolio-v2" -- run start
+            # Configurer les permissions finales
+            sudo find .output/public -type d -exec chmod 775 {} \;
+            sudo find .output/public -type f -exec chmod 664 {} \;
             sudo systemctl restart apache2
