@@ -56,7 +56,10 @@
       >
         <div
             v-if="selectedProject"
-            class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+            class="fixed inset-0 bg-black/80 flex items-center justify-center p-4"
+            :class="[
+              'z-[60]' // Increase z-index to be higher than header (z-50)
+            ]"
             @click.self="closeModal"
         >
           <div
