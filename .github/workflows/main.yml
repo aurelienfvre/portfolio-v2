@@ -21,23 +21,4 @@ jobs:
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT }}
           script: |
-            cd /home/mmi22h03/public_html/portfolio-v2
-            
-            # Récupérer les dernières modifications
-            git pull origin main
-            
-            # Installation et build
-            npm ci
-            npm run build
-            
-            # Arrêter l'ancienne application
-            pm2 delete portfolio-v2 || true
-            
-            # Démarrer correctement avec PM2
-            pm2 start .output/server/index.mjs --name "portfolio-v2"
-            pm2 save
-            
-            # Permissions et redémarrage Apache
-            sudo chown -R mmi22h03:www-data /home/mmi22h03/public_html/portfolio-v2/.output
-            sudo chmod -R 775 /home/mmi22h03/public_html/portfolio-v2/.output
-            sudo systemctl restart apache2
+            /home/mmi22h03/deploy.sh
