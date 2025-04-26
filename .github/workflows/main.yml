@@ -1,58 +1,43 @@
 name: Deploy to VPS
-
 on:
   push:
-    branches: [ main ]
-
+    branches:
+      - main
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
-      - name: Setup Node.js (locale CI)
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 21.4.0
-          cache: npm
-
-      # --- soit vous générez du statique et rsyncez ---
-      - name: Build static
-        run: |
-          npm ci
-          npm run generate
-        env:
-          NITRO_PRESET: node-server
-
-      - name: Rsync to VPS
-        uses: burnett01/rsync-deployments@v2
-        with:
-          switches: -avz --delete
-          path: .output/public/
-          remote_path: ${{ secrets.DEPLOY_PATH }}
-          remote_host: ${{ secrets.VPS_HOST }}
-          remote_port: ${{ secrets.VPS_PORT }}
-          remote_user: ${{ secrets.VPS_USERNAME }}
-          private_key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      # --- ou bien vous build et démarrez à distance ---
-      - name: Build & Start on VPS
+          node-version: '21.4.0'
+          cache: 'npm'
+      - name: Deploy with SSH
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
-          port: ${{ secrets.VPS_PORT }}
           username: ${{ secrets.VPS_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          pty: true
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: ${{ secrets.VPS_PORT }}
           script: |
-            cd ${{ secrets.DEPLOY_PATH }}
+            cd /home/mmi22h03/public_html/portfolio-v2
+            
+            # Récupérer les dernières modifications
             git pull origin main
-            sudo pm2 delete portfolio-v2 || true
-            sudo chown -R $USER:$USER .
-            export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-            nvm use 21.4.0
+            
+            # Installation et build
             npm ci
             npm run build
-            sudo pm2 start .output/server/index.mjs --name portfolio-v2
-            sudo pm2 save
+            
+            # Arrêter l'ancienne application
+            pm2 delete portfolio-v2 || true
+            
+            # Démarrer correctement avec PM2
+            pm2 start .output/server/index.mjs --name "portfolio-v2"
+            pm2 save
+            
+            # Permissions et redémarrage Apache
+            sudo chown -R mmi22h03:www-data /home/mmi22h03/public_html/portfolio-v2/.output
+            sudo chmod -R 775 /home/mmi22h03/public_html/portfolio-v2/.output
             sudo systemctl restart apache2
