@@ -1,0 +1,79 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '21.4.0'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Copy images
+        run: |
+          mkdir -p ./public/images
+          cp -r ./public/images/* ./public/images/ || true
+
+      - name: Build
+        run: npm run generate
+        env:
+          NITRO_PRESET: node-server
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: unnecessary
+          if_key_exists: replace
+
+      - name: Adding Known Hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p ${{ secrets.VPS_PORT }} -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy with rsync and execute commands
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            echo "${{ secrets.VPS_PASSWORD }}" | sudo -S bash << 'EOF'
+            cd /home/mmi22h03/public_html/portfolio-v2
+
+            # Arrêt de PM2 et nettoyage
+            su - mmi22h03 -c "pm2 delete portfolio-v2" || true
+
+            # Mise à jour du code depuis le dépôt
+            git pull origin main
+
+            # Configuration initiale des permissions
+            chown -R mmi22h03:mmi22h03 .
+
+            # Installation et build en tant que mmi22h03
+            su - mmi22h03 -c "cd /home/mmi22h03/public_html/portfolio-v2 && \
+                             export NVM_DIR=\"/home/mmi22h03/.nvm\" && \
+                             [ -s \"\$NVM_DIR/nvm.sh\" ] && \. \"\$NVM_DIR/nvm.sh\" && \
+                             npm ci && \
+                             npm run build && \
+                             pm2 start npm --name 'portfolio-v2' -- run start"
+
+            # Configuration finale des permissions
+            chown -R mmi22h03:www-data /home/mmi22h03/public_html/portfolio-v2/.output
+            chmod -R 775 /home/mmi22h03/public_html/portfolio-v2/.output
+
+            # Redémarrage d'Apache
+            systemctl restart apache2
+            EOF
