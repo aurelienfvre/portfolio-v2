@@ -7,7 +7,7 @@
 
       <!-- Description -->
       <p class="text-gray-400 max-w-2xl mb-6">
-        Étudiant en 3ème année de BUT MMI, passionné par le développement
+        Étudiant en 3e année de BUT MMI, passionné par le développement
         front-end et la création d'expériences web innovantes.
       </p>
 
