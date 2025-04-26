@@ -70,7 +70,7 @@
               <div class="flex justify-between items-center">
                 <h2 class="text-2xl font-medium">{{ selectedProject.title }}</h2>
                 <button
-                    class="p-2 hover:bg-[#1a2235] rounded-full transition-colors"
+                    class="p-2 rounded-full"
                     @click="closeModal"
                 >
                   <X class="w-6 h-6" />
