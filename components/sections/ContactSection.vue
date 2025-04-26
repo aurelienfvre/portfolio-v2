@@ -43,7 +43,7 @@
         <div class="bento-item p-6">
           <MapPin class="w-6 h-6 mb-4" />
           <h4 class="font-medium mb-2">Localisation</h4>
-          <p class="text-gray-400">Lille, France</p>
+          <p class="text-gray-400">Troyes, France</p>
         </div>
       </div>
 
