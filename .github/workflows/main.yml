@@ -21,6 +21,17 @@ jobs:
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT }}
           script: |
+            # Charger NVM et Node.js
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            
+            # Vérifier les versions
+            node -v
+            npm -v
+            
+            # Installer PM2 si nécessaire
+            npm install -g pm2
+            
             cd /home/mmi22h03/public_html/portfolio-v2
             
             # Récupérer les dernières modifications
@@ -38,6 +49,4 @@ jobs:
             pm2 save
             
             # Permissions et redémarrage Apache
-            sudo chown -R mmi22h03:www-data /home/mmi22h03/public_html/portfolio-v2/.output
-            sudo chmod -R 775 /home/mmi22h03/public_html/portfolio-v2/.output
-            sudo systemctl restart apache2
+            sudo -S systemctl restart apache2
