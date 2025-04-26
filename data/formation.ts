@@ -2,6 +2,12 @@ import type { Formation } from '@/types/formation'
 
 export const formations: Formation[] = [
     {
+        title: 'Mastère Lead Developer Front End',
+        institution: 'ECV Lille',
+        period: '2025-2027',
+        order: 3
+    },
+    {
         title: 'BUT MMI - 3ème année',
         institution: 'IUT de Troyes',
         period: '2022-2025',
@@ -9,14 +15,9 @@ export const formations: Formation[] = [
     },
     {
         title: 'BUT Informatique',
-        institution: "Université d'Amiens",
+        institution: "IUT d'Amiens",
         period: '2021-2022',
         order: 2
-    },
-    {
-        title: 'Baccalauréat STMG',
-        institution: '',
-        period: '2020-2021',
-        order: 3
     }
+   
 ]

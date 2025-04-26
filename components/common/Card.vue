@@ -120,18 +120,12 @@ defineEmits<{
   @apply transition-all duration-200;
 }
 
-.tech-pill:hover {
-  @apply border-text-primary;
-}
 
 :deep(.dark) {
   .tech-pill {
     @apply bg-[#1a2235] border-[#2a3245] text-gray-300;
   }
 
-  .tech-pill:hover {
-    @apply border-gray-300;
-  }
 }
 
 :deep(.dark) img.dark\:invert {

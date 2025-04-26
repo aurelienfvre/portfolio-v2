@@ -9,13 +9,13 @@ export const socialLinks: SocialLink[] = [
     },
     {
         name: 'github',
-        url: 'https://github.com/username',
+        url: 'https://github.com/aurelienfvre',
         icon: 'github',
         title: 'GitHub'
     },
     {
         name: 'linkedin',
-        url: 'https://linkedin.com/in/username',
+        url: 'https://www.linkedin.com/in/aurelienfevre',
         icon: 'linkedin',
         title: 'LinkedIn'
     },

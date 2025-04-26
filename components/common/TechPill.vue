@@ -44,6 +44,6 @@ const isDark = computed(() => theme.value === 'dark')
 
 <style scoped>
 span {
-  @apply bg-bg-primary text-text-primary hover:border-text-primary;
+  @apply bg-bg-primary text-text-primary;
 }
 </style>

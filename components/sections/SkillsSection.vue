@@ -21,7 +21,6 @@
                 :label="skill.name"
                 :icon="skill.icon"
                 :invert="skill.invert"
-                class="hover:border-text-primary transition-colors"
             />
           </div>
         </div>

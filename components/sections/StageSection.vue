@@ -4,14 +4,14 @@
       <!-- Titre de la section -->
       <div class="flex items-center gap-3 mb-4">
         <Search class="w-5 h-5" />
-        <h3 class="text-lg font-medium">Recherche de Stage</h3>
+        <h3 class="text-lg font-medium">Recherche d'Alternance</h3>
       </div>
 
       <!-- Informations du stage -->
       <div class="space-y-4">
         <div>
           <p class="text-lg font-medium">
-            {{ stageInfo.duration }} à partir du {{ stageInfo.startDate }}
+            {{ stageInfo.duration }} à partir de {{ stageInfo.startDate }}
           </p>
           <p class="text-gray-400">{{ stageInfo.position }}</p>
         </div>

@@ -1,6 +1,6 @@
 <template>
   <BentoItem id="accueil" className="col-span-12 md:col-span-8">
-    <div class="p-8">
+    <div class="p-8 pt-20">
       <!-- En-tête -->
       <h1 class="text-4xl md:text-5xl font-bold mb-4">Aurélien Fevre</h1>
       <h2 class="text-xl md:text-2xl mb-6">Développeur Front-end</h2>

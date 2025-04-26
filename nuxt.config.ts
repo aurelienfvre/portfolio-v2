@@ -3,7 +3,9 @@ export default defineNuxtConfig({
     '@nuxtjs/tailwindcss',
     '@nuxt/image',
   ],
+
   css: ['~/assets/css/main.css'],
+
   image: {
     dir: 'public/images',
     screens: {
@@ -33,6 +35,7 @@ export default defineNuxtConfig({
       }
     }
   },
+
   app: {
     head: {
       title: 'Aurélien Fèvre - Portfolio',
@@ -61,7 +64,10 @@ export default defineNuxtConfig({
       mode: 'out-in'
     }
   },
+
   experimental: {
     payloadExtraction: false
-  }
+  },
+
+  compatibilityDate: '2024-11-24'
 })
