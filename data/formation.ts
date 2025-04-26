@@ -8,7 +8,7 @@ export const formations: Formation[] = [
         order: 3
     },
     {
-        title: 'BUT MMI - 3ème année',
+        title: 'BUT MMI - 3e année',
         institution: 'IUT de Troyes',
         period: '2022-2025',
         order: 1
