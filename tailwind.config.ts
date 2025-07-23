@@ -15,8 +15,13 @@ export default <Config>{
       },
       colors: {
         'bg-primary': 'var(--bg-primary)',
+        'bg-secondary': 'var(--bg-secondary)',
+        'bg-tertiary': 'var(--bg-tertiary)',
         'text-primary': 'var(--text-primary)',
+        'text-secondary': 'var(--text-secondary)',
+        'text-tertiary': 'var(--text-tertiary)',
         'border-primary': 'var(--border-primary)',
+        'accent': '#6366f1',
       }
     },
   },

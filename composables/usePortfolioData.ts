@@ -5,17 +5,25 @@ import { studentYears as initialStudentYears } from '~/data/student-data'
 
 // State reactif global pour les données du portfolio
 const portfolioProjects = ref([...initialProjects])
-const portfolioSkills = ref([...initialSkills])
+
+// Flatten skills from categories to individual items with category info
+const flattenedSkills = initialSkills.flatMap(category => 
+  category.items.map(item => ({
+    ...item,
+    category: category.name
+  }))
+)
+const portfolioSkills = ref([...flattenedSkills])
 const portfolioStudentYears = ref([...initialStudentYears])
 const portfolioBentoBlocks = ref([
-  { id: 1, title: 'Photo Profil', type: 'Image', colSpan: 3, gradient: 'from-blue-500 to-purple-600', order: 1, component: 'ProfileSection', visible: true },
-  { id: 2, title: 'Introduction', type: 'Text', colSpan: 6, gradient: 'from-green-500 to-blue-500', order: 2, component: 'IntroSection', visible: true },
-  { id: 3, title: 'Stage', type: 'Info', colSpan: 3, gradient: 'from-yellow-500 to-red-500', order: 3, component: 'StageSection', visible: true },
-  { id: 4, title: 'Liens', type: 'Social', colSpan: 4, gradient: 'from-purple-500 to-pink-500', order: 4, component: 'LinksSection', visible: true },
-  { id: 5, title: 'Formation', type: 'Timeline', colSpan: 4, gradient: 'from-indigo-500 to-purple-500', order: 5, component: 'FormationSection', visible: true },
-  { id: 6, title: 'Compétences', type: 'Skills', colSpan: 4, gradient: 'from-teal-500 to-green-500', order: 6, component: 'SkillsSection', visible: true },
-  { id: 7, title: 'Projets', type: 'Portfolio', colSpan: 8, gradient: 'from-orange-500 to-red-500', order: 7, component: 'ProjectsSection', visible: true },
-  { id: 8, title: 'Contact', type: 'Form', colSpan: 4, gradient: 'from-pink-500 to-rose-500', order: 8, component: 'ContactSection', visible: true }
+  { id: 1, title: 'Photo Profil', type: 'Image', colSpan: 3, backgroundColor: 'bg-blue-500', order: 1, component: 'ProfileSection', visible: true },
+  { id: 2, title: 'Introduction', type: 'Text', colSpan: 6, backgroundColor: 'bg-green-500', order: 2, component: 'IntroSection', visible: true },
+  { id: 3, title: 'Stage', type: 'Info', colSpan: 3, backgroundColor: 'bg-yellow-500', order: 3, component: 'StageSection', visible: true },
+  { id: 4, title: 'Liens', type: 'Social', colSpan: 4, backgroundColor: 'bg-purple-500', order: 4, component: 'LinksSection', visible: true },
+  { id: 5, title: 'Formation', type: 'Timeline', colSpan: 4, backgroundColor: 'bg-indigo-500', order: 5, component: 'FormationSection', visible: true },
+  { id: 6, title: 'Compétences', type: 'Skills', colSpan: 4, backgroundColor: 'bg-teal-500', order: 6, component: 'SkillsSection', visible: true },
+  { id: 7, title: 'Projets', type: 'Portfolio', colSpan: 8, backgroundColor: 'bg-orange-500', order: 7, component: 'ProjectsSection', visible: true },
+  { id: 8, title: 'Contact', type: 'Form', colSpan: 4, backgroundColor: 'bg-pink-500', order: 8, component: 'ContactSection', visible: true }
 ])
 
 export const usePortfolioData = () => {
@@ -138,7 +146,7 @@ export const usePortfolioData = () => {
 
   const resetToDefaults = () => {
     portfolioProjects.value = [...initialProjects]
-    portfolioSkills.value = [...initialSkills]
+    portfolioSkills.value = [...flattenedSkills]
     portfolioStudentYears.value = [...initialStudentYears]
     if (process.client) {
       localStorage.removeItem('portfolio-data')

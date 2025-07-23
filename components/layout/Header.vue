@@ -1,15 +1,19 @@
 <template>
-  <header class="fixed top-10 left-1/2 -translate-x-1/2 z-50 w-full px-5" :class="isPro ? 'max-w-[600px]' : 'max-w-[750px]'">
+  <header 
+    v-if="!isAdminPage" 
+    class="fixed top-10 left-1/2 -translate-x-1/2 z-50 w-full px-5" 
+    :class="isPro ? 'max-w-[600px]' : 'max-w-[750px]'"
+  >
     <nav class="py-2 px-3 bg-bg-primary/80 backdrop-blur-md border border-border-primary rounded-full flex items-center">
       <!-- Portfolio Mode Selector -->
       <div class="relative mr-3">
         <button
           @click="toggleModeDropdown"
-          class="flex items-center gap-2 px-3 py-1.5 text-xs rounded-full border border-border-primary transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
+          class="flex items-center gap-2 px-3 py-1.5 text-xs rounded-full border border-border-primary transition-colors bg-bg-primary/80 backdrop-blur-sm"
           :class="[
             theme === 'dark'
-              ? 'text-gray-300 hover:text-gray-100'
-              : 'text-gray-600 hover:text-gray-900'
+              ? 'text-text-primary hover:bg-bg-secondary'
+              : 'text-text-primary hover:bg-bg-secondary'
           ]"
         >
           <span class="w-2 h-2 rounded-full" :class="isPro ? 'bg-blue-500' : 'bg-purple-500'"></span>
@@ -20,27 +24,29 @@
         <!-- Dropdown -->
         <div
           v-if="showModeDropdown"
-          class="absolute top-full left-0 mt-2 bg-bg-primary border border-border-primary rounded-lg shadow-lg py-2 min-w-[120px] z-10"
+          class="absolute top-full left-0 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl py-2 min-w-[160px] z-[9999] overflow-hidden"
+          style="box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);"
         >
           <button
             @click="switchToMode('pro')"
-            class="w-full px-3 py-2 text-left text-xs hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2"
+            class="w-full px-4 py-3 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3 transition-colors"
             :class="[
               isPro 
-                ? 'text-blue-600 font-medium' 
-                : theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                ? 'text-blue-600 font-semibold bg-blue-50 dark:bg-blue-900/30' 
+                : 'text-gray-900 dark:text-gray-100'
             ]"
           >
             <span class="w-2 h-2 rounded-full bg-blue-500"></span>
             Professionnel
           </button>
+          <div class="border-t border-gray-100 dark:border-gray-700"></div>
           <button
             @click="switchToMode('student')"
-            class="w-full px-3 py-2 text-left text-xs hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2"
+            class="w-full px-4 py-3 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3 transition-colors"
             :class="[
               isStudent 
-                ? 'text-purple-600 font-medium' 
-                : theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                ? 'text-purple-600 font-semibold bg-purple-50 dark:bg-purple-900/30' 
+                : 'text-gray-900 dark:text-gray-100'
             ]"
           >
             <span class="w-2 h-2 rounded-full bg-purple-500"></span>
@@ -130,6 +136,10 @@ const isNavigating = ref(false) // Flag pour empêcher les conflits pendant navi
 const { theme, toggleTheme } = useTheme()
 const { portfolioMode, setMode, isPro, isStudent, initMode } = usePortfolioMode()
 const initialTheme = ref(process.client ? localStorage.getItem('theme') || 'light' : 'light')
+
+// Check if current page is admin
+const route = useRoute()
+const isAdminPage = computed(() => route.path === '/admin')
 
 // Portfolio mode management
 const showModeDropdown = ref(false)
