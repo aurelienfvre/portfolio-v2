@@ -27,6 +27,33 @@
         <!-- Form -->
         <form @submit.prevent="handleSubmit" class="space-y-6">
           <div class="space-y-6">
+            <!-- Templates (for new blocks only) -->
+            <div v-if="!isEdit" class="mb-8">
+              <label class="block text-sm font-semibold text-text-primary mb-4">
+                Templates Prédéfinis
+              </label>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                <div
+                  v-for="template in blockTemplates"
+                  :key="template.id"
+                  @click="applyTemplate(template)"
+                  class="cursor-pointer border border-border-primary rounded-2xl p-4 hover:border-accent hover:shadow-md transition-all duration-200 bg-bg-secondary"
+                >
+                  <div class="text-center">
+                    <div class="text-2xl mb-2">{{ template.icon }}</div>
+                    <div class="font-semibold text-text-primary mb-1">{{ template.name }}</div>
+                    <div class="text-xs text-text-tertiary mb-2">{{ template.description }}</div>
+                    <div 
+                      :class="`${template.backgroundColor} rounded-lg p-2 text-white text-xs`"
+                    >
+                      {{ template.colSpan }} colonnes
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="border-b border-border-primary mb-6"></div>
+            </div>
+
             <!-- Basic Info -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -162,6 +189,20 @@
             </div>
           </div>
 
+          <!-- Content -->
+          <div v-if="!form.component">
+            <label class="block text-sm font-semibold text-text-primary mb-3">
+              Contenu du Bloc
+            </label>
+            <textarea
+              v-model="form.content"
+              rows="4"
+              class="w-full px-4 py-3 border border-border-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-bg-secondary text-text-primary placeholder-text-tertiary transition-all duration-200 resize-vertical"
+              placeholder="Contenu de votre bloc personnalisé..."
+            ></textarea>
+            <p class="text-xs text-text-tertiary mt-2">Ce contenu sera modifiable en double-cliquant sur le bloc</p>
+          </div>
+
           <!-- Fields Configuration -->
           <div>
             <label class="block text-sm font-semibold text-text-primary mb-3">
@@ -227,10 +268,15 @@
             <div
               :class="`col-span-${form.colSpan} ${form.backgroundColor} rounded-xl p-4 flex items-center justify-center text-white font-medium min-h-[100px]`"
             >
-              <div class="text-center">
+              <div class="text-center" v-if="!form.content">
                 <div class="text-lg mb-1">{{ form.title || 'Titre du bloc' }}</div>
                 <div class="text-sm opacity-80">{{ form.type || 'Type' }}</div>
                 <div class="text-xs opacity-60 mt-1">{{ form.colSpan }} colonnes</div>
+              </div>
+              <div class="text-center" v-else>
+                <div class="text-lg mb-2">{{ form.title || 'Titre du bloc' }}</div>
+                <div class="text-sm opacity-90 line-clamp-3">{{ form.content }}</div>
+                <div class="text-xs opacity-60 mt-2">{{ form.colSpan }} colonnes</div>
               </div>
             </div>
           </div>
@@ -281,8 +327,125 @@ const form = ref({
   order: 1,
   component: '',
   visible: true,
-  fields: []
+  fields: [],
+  content: ''
 })
+
+// Block templates for quick creation
+const blockTemplates = ref([
+  {
+    id: 'text-intro',
+    name: 'Introduction',
+    description: 'Bloc de texte d\'introduction',
+    icon: '📝',
+    title: 'À propos de moi',
+    type: 'Text',
+    colSpan: 8,
+    backgroundColor: 'bg-blue-500',
+    component: 'IntroSection',
+    content: 'Présentez-vous en quelques lignes...'
+  },
+  {
+    id: 'profile',
+    name: 'Profil',
+    description: 'Section profil avec photo',
+    icon: '👤',
+    title: 'Profil',
+    type: 'Image',
+    colSpan: 4,
+    backgroundColor: 'bg-purple-500',
+    component: 'ProfileSection',
+    content: ''
+  },
+  {
+    id: 'skills',
+    name: 'Compétences',
+    description: 'Affichage des compétences',
+    icon: '🛠️',
+    title: 'Mes Compétences',
+    type: 'Skills',
+    colSpan: 6,
+    backgroundColor: 'bg-green-500',
+    component: 'SkillsSection',
+    content: ''
+  },
+  {
+    id: 'projects',
+    name: 'Projets',
+    description: 'Galerie de projets',
+    icon: '🚀',
+    title: 'Mes Projets',
+    type: 'Portfolio',
+    colSpan: 12,
+    backgroundColor: 'bg-indigo-500',
+    component: 'ProjectsSection',
+    content: ''
+  },
+  {
+    id: 'contact',
+    name: 'Contact',
+    description: 'Informations de contact',
+    icon: '📧',
+    title: 'Contact',
+    type: 'Form',
+    colSpan: 6,
+    backgroundColor: 'bg-teal-500',
+    component: 'ContactSection',
+    content: ''
+  },
+  {
+    id: 'social',
+    name: 'Réseaux Sociaux',
+    description: 'Liens sociaux',
+    icon: '🌐',
+    title: 'Mes Réseaux',
+    type: 'Social',
+    colSpan: 4,
+    backgroundColor: 'bg-pink-500',
+    component: 'LinksSection',
+    content: ''
+  },
+  {
+    id: 'custom-text',
+    name: 'Texte Simple',
+    description: 'Bloc de texte personnalisé',
+    icon: '💬',
+    title: 'Nouveau Bloc',
+    type: 'Custom',
+    colSpan: 6,
+    backgroundColor: 'bg-orange-500',
+    component: '',
+    content: 'Votre contenu personnalisé ici...'
+  },
+  {
+    id: 'empty',
+    name: 'Bloc Vide',
+    description: 'Bloc vide à personnaliser',
+    icon: '⬜',
+    title: 'Bloc Vide',
+    type: 'Custom',
+    colSpan: 4,
+    backgroundColor: 'bg-gray-500',
+    component: '',
+    content: 'Bloc vide prêt à être personnalisé'
+  }
+])
+
+// Apply template to form
+const applyTemplate = (template: any) => {
+  form.value = {
+    title: template.title,
+    type: template.type,
+    colSpan: template.colSpan,
+    mobileColSpan: 4,
+    backgroundColor: template.backgroundColor,
+    order: form.value.order || 1,
+    component: template.component,
+    visible: true,
+    fields: [],
+    content: template.content
+  }
+}
 
 // Initialize form with block data if editing
 watch(() => props.block, (block) => {
@@ -296,7 +459,8 @@ watch(() => props.block, (block) => {
       order: block.order || 1,
       component: block.component || '',
       visible: block.visible !== false,
-      fields: block.fields ? [...block.fields] : []
+      fields: block.fields ? [...block.fields] : [],
+      content: block.content || ''
     }
   } else {
     // Reset form for new block
@@ -309,7 +473,8 @@ watch(() => props.block, (block) => {
       order: 1,
       component: '',
       visible: true,
-      fields: []
+      fields: [],
+      content: ''
     }
   }
 }, { immediate: true })
@@ -336,6 +501,7 @@ const handleSubmit = () => {
     ...form.value,
     title: form.value.title.trim(),
     component: form.value.component.trim(),
+    content: form.value.content.trim(),
     fields: form.value.fields.filter(field => field.label.trim() && field.key.trim())
   }
   

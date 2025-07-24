@@ -18,23 +18,126 @@
         </NuxtLink>
       </div>
 
-      <!-- Main Tabs Navigation -->
-      <div class="mb-8">
-        <div class="bg-bg-secondary p-2 rounded-2xl inline-flex">
-          <button
-            v-for="tab in tabs"
-            :key="tab.id"
-            @click="activeTab = tab.id"
-            :class="[
-              'px-6 py-3 rounded-xl font-medium text-sm transition-all duration-200 flex items-center space-x-2',
-              activeTab === tab.id
-                ? 'bg-accent text-white shadow-lg'
-                : 'text-text-secondary hover:text-text-primary hover:bg-bg-tertiary'
-            ]"
-          >
-            <span>{{ tab.icon }}</span>
-            <span>{{ tab.name }}</span>
-          </button>
+      <!-- Dashboard Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <!-- Portfolio Pro -->
+        <div class="bg-bg-secondary border border-border-primary rounded-3xl p-6 hover:shadow-lg transition-all duration-200">
+          <div class="flex items-center mb-4">
+            <div class="w-12 h-12 bg-blue-500/20 rounded-2xl flex items-center justify-center mr-4">
+              <span class="text-2xl">💼</span>
+            </div>
+            <div>
+              <h3 class="text-xl font-semibold text-text-primary">Portfolio Pro</h3>
+              <p class="text-text-tertiary text-sm">Gestion mode professionnel</p>
+            </div>
+          </div>
+          <div class="space-y-3">
+            <NuxtLink
+              to="/admin/projects"
+              class="block w-full px-4 py-3 bg-bg-primary border border-border-primary rounded-xl hover:bg-bg-tertiary transition-colors text-text-primary font-medium"
+            >
+              <div class="flex items-center justify-between">
+                <span>Projets</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </div>
+            </NuxtLink>
+            <NuxtLink
+              to="/admin/skills"
+              class="block w-full px-4 py-3 bg-bg-primary border border-border-primary rounded-xl hover:bg-bg-tertiary transition-colors text-text-primary font-medium"
+            >
+              <div class="flex items-center justify-between">
+                <span>Compétences</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </div>
+            </NuxtLink>
+            <NuxtLink
+              to="/admin/bento"
+              class="block w-full px-4 py-3 bg-bg-primary border border-border-primary rounded-xl hover:bg-bg-tertiary transition-colors text-text-primary font-medium"
+            >
+              <div class="flex items-center justify-between">
+                <span>Bento Grid</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </div>
+            </NuxtLink>
+          </div>
+        </div>
+
+        <!-- Portfolio Étudiant -->
+        <div class="bg-bg-secondary border border-border-primary rounded-3xl p-6 hover:shadow-lg transition-all duration-200">
+          <div class="flex items-center mb-4">
+            <div class="w-12 h-12 bg-purple-500/20 rounded-2xl flex items-center justify-center mr-4">
+              <span class="text-2xl">🎓</span>
+            </div>
+            <div>
+              <h3 class="text-xl font-semibold text-text-primary">Portfolio Étudiant</h3>
+              <p class="text-text-tertiary text-sm">Gestion mode étudiant</p>
+            </div>
+          </div>
+          <div class="space-y-3">
+            <NuxtLink
+              to="/admin/student"
+              class="block w-full px-4 py-3 bg-bg-primary border border-border-primary rounded-xl hover:bg-bg-tertiary transition-colors text-text-primary font-medium"
+            >
+              <div class="flex items-center justify-between">
+                <span>Apprentissages Critiques</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </div>
+            </NuxtLink>
+          </div>
+        </div>
+
+        <!-- Édition Avancée -->
+        <div class="bg-bg-secondary border border-border-primary rounded-3xl p-6 hover:shadow-lg transition-all duration-200">
+          <div class="flex items-center mb-4">
+            <div class="w-12 h-12 bg-green-500/20 rounded-2xl flex items-center justify-center mr-4">
+              <span class="text-2xl">🎨</span>
+            </div>
+            <div>
+              <h3 class="text-xl font-semibold text-text-primary">Édition Avancée</h3>
+              <p class="text-text-tertiary text-sm">Outils d'édition spécialisés</p>
+            </div>
+          </div>
+          <div class="space-y-3">
+            <NuxtLink
+              to="/admin/bento-edit"
+              class="block w-full px-4 py-3 bg-bg-primary border border-border-primary rounded-xl hover:bg-bg-tertiary transition-colors text-text-primary font-medium"
+            >
+              <div class="flex items-center justify-between">
+                <span>Éditeur Bento</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </div>
+            </NuxtLink>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Stats -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-bg-secondary border border-border-primary rounded-2xl p-4">
+          <div class="text-2xl font-bold text-text-primary">{{ projects.length }}</div>
+          <div class="text-text-tertiary text-sm">Projets</div>
+        </div>
+        <div class="bg-bg-secondary border border-border-primary rounded-2xl p-4">
+          <div class="text-2xl font-bold text-text-primary">{{ Object.keys(skillsByCategory).length }}</div>
+          <div class="text-text-tertiary text-sm">Catégories de compétences</div>
+        </div>
+        <div class="bg-bg-secondary border border-border-primary rounded-2xl p-4">
+          <div class="text-2xl font-bold text-text-primary">{{ sortedBentoBlocks.length }}</div>
+          <div class="text-text-tertiary text-sm">Blocs Bento</div>
+        </div>
+        <div class="bg-bg-secondary border border-border-primary rounded-2xl p-4">
+          <div class="text-2xl font-bold text-text-primary">{{ totalACs }}</div>
+          <div class="text-text-tertiary text-sm">Apprentissages Critiques</div>
         </div>
       </div>
 
@@ -81,33 +184,31 @@
                 v-for="project in projects"
                 :key="project.id"
                 :data-swapy-slot="project.id"
-                :class="[
-                  'bg-bg-primary border border-border-primary rounded-3xl shadow-sm overflow-hidden transition-all duration-200 relative hover:shadow-md group'
-                ]"
+                class="transition-all duration-200"
               >
                 <div
                   :data-swapy-item="project.id"
-                  class="w-full h-full cursor-move border-2 border-transparent group-hover:border-dashed group-hover:border-accent transition-all"
+                  class="bg-bg-primary border border-border-primary rounded-3xl shadow-sm overflow-hidden transition-all duration-200 relative hover:shadow-md group cursor-move border-2 border-transparent hover:border-dashed hover:border-accent"
                 >
                   <img
                     v-if="project.image"
                     :src="project.image"
                     :alt="project.title"
-                    class="w-full h-32 object-cover"
+                    class="w-full h-32 object-cover pointer-events-none"
                   >
                   <div class="p-4">
-                    <h3 class="font-semibold text-text-primary mb-2">{{ project.title }}</h3>
-                    <p class="text-sm text-text-tertiary mb-3 line-clamp-2">{{ project.description }}</p>
+                    <h3 class="font-semibold text-text-primary mb-2 pointer-events-none">{{ project.title }}</h3>
+                    <p class="text-sm text-text-tertiary mb-3 line-clamp-2 pointer-events-none">{{ project.description }}</p>
                     <div class="flex space-x-2" @click.stop>
                       <button
                         @click="openProjectModal(project)"
-                        class="px-3 py-1 bg-accent text-white text-sm rounded-lg hover:bg-accent/80 font-medium transition-colors"
+                        class="px-3 py-1 bg-accent text-white text-sm rounded-lg hover:bg-accent/80 font-medium transition-colors pointer-events-auto"
                       >
                         Modifier
                       </button>
                       <button
                         @click="handleDeleteProject(project.id)"
-                        class="px-3 py-1 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 font-medium transition-colors"
+                        class="px-3 py-1 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 font-medium transition-colors pointer-events-auto"
                       >
                         Supprimer
                       </button>
@@ -141,14 +242,14 @@
                   v-for="skill in categorySkills"
                   :key="skill.name"
                   :data-swapy-slot="`${categoryName}-${skill.name}`"
-                  class="bg-bg-primary border border-border-primary rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition-shadow group"
+                  class="transition-all duration-200"
                 >
                   <div 
                     :data-swapy-item="`${categoryName}-${skill.name}`"
-                    class="w-full h-full cursor-move border-2 border-transparent group-hover:border-dashed group-hover:border-accent transition-all"
+                    class="bg-bg-primary border border-border-primary rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition-all duration-200 group cursor-move border-2 border-transparent hover:border-dashed hover:border-accent"
                   >
                     <div class="p-4">
-                      <div class="flex items-center space-x-3 mb-3">
+                      <div class="flex items-center space-x-3 mb-3 pointer-events-none">
                         <img
                           v-if="skill.icon"
                           :src="skill.icon"
@@ -161,13 +262,13 @@
                       <div class="flex space-x-2" @click.stop>
                         <button
                           @click="openSkillModal(skill)"
-                          class="px-3 py-1 bg-accent text-white text-sm rounded-lg hover:bg-accent/80 font-medium transition-colors"
+                          class="px-3 py-1 bg-accent text-white text-sm rounded-lg hover:bg-accent/80 font-medium transition-colors pointer-events-auto"
                         >
                           Modifier
                         </button>
                         <button
                           @click="handleDeleteSkill(skill.name)"
-                          class="px-3 py-1 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 font-medium transition-colors"
+                          class="px-3 py-1 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 font-medium transition-colors pointer-events-auto"
                         >
                           Supprimer
                         </button>
@@ -184,12 +285,23 @@
           <div v-if="activeProTab === 'bento'" class="space-y-6">
           <div class="flex justify-between items-center">
             <h2 class="text-2xl font-semibold text-text-primary">Gestion Bento Grid</h2>
-            <button
-              @click="openBentoModal()"
-              class="bg-accent text-white px-4 py-2 rounded-xl hover:bg-accent/90 transition-colors font-medium shadow-lg"
-            >
-              + Nouveau Bloc Bento
-            </button>
+            <div class="flex gap-3">
+              <NuxtLink
+                to="/admin/bento-editor"
+                class="bg-blue-500 text-white px-4 py-2 rounded-xl hover:bg-blue-600 transition-colors font-medium shadow-lg flex items-center gap-2"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a1 1 0 01-1-1V9a1 1 0 011-1h1a2 2 0 100-4H4a1 1 0 01-1-1V4a1 1 0 011-1h3a1 1 0 001-1v-1a2 2 0 012-2z"/>
+                </svg>
+                Mode Édition Plein Écran
+              </NuxtLink>
+              <button
+                @click="openBentoModal()"
+                class="bg-accent text-white px-4 py-2 rounded-xl hover:bg-accent/90 transition-colors font-medium shadow-lg"
+              >
+                + Nouveau Bloc Bento
+              </button>
+            </div>
           </div>
 
           <div class="bg-bg-secondary border border-border-primary rounded-3xl shadow-sm p-6">

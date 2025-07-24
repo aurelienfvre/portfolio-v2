@@ -16,14 +16,14 @@ const flattenedSkills = initialSkills.flatMap(category =>
 const portfolioSkills = ref([...flattenedSkills])
 const portfolioStudentYears = ref([...initialStudentYears])
 const portfolioBentoBlocks = ref([
-  { id: 1, title: 'Photo Profil', type: 'Image', colSpan: 3, backgroundColor: 'bg-blue-500', order: 1, component: 'ProfileSection', visible: true },
-  { id: 2, title: 'Introduction', type: 'Text', colSpan: 6, backgroundColor: 'bg-green-500', order: 2, component: 'IntroSection', visible: true },
-  { id: 3, title: 'Stage', type: 'Info', colSpan: 3, backgroundColor: 'bg-yellow-500', order: 3, component: 'StageSection', visible: true },
-  { id: 4, title: 'Liens', type: 'Social', colSpan: 4, backgroundColor: 'bg-purple-500', order: 4, component: 'LinksSection', visible: true },
+  { id: 1, title: 'Photo Profil', type: 'Image', colSpan: 4, backgroundColor: 'bg-blue-500', order: 1, component: 'ProfileSection', visible: true },
+  { id: 2, title: 'Introduction', type: 'Text', colSpan: 8, backgroundColor: 'bg-green-500', order: 2, component: 'IntroSection', visible: true },
+  { id: 3, title: 'Stage', type: 'Info', colSpan: 6, backgroundColor: 'bg-yellow-500', order: 3, component: 'StageSection', visible: true },
+  { id: 4, title: 'Liens', type: 'Social', colSpan: 6, backgroundColor: 'bg-purple-500', order: 4, component: 'LinksSection', visible: true },
   { id: 5, title: 'Formation', type: 'Timeline', colSpan: 4, backgroundColor: 'bg-indigo-500', order: 5, component: 'FormationSection', visible: true },
-  { id: 6, title: 'Compétences', type: 'Skills', colSpan: 4, backgroundColor: 'bg-teal-500', order: 6, component: 'SkillsSection', visible: true },
-  { id: 7, title: 'Projets', type: 'Portfolio', colSpan: 8, backgroundColor: 'bg-orange-500', order: 7, component: 'ProjectsSection', visible: true },
-  { id: 8, title: 'Contact', type: 'Form', colSpan: 4, backgroundColor: 'bg-pink-500', order: 8, component: 'ContactSection', visible: true }
+  { id: 6, title: 'Compétences', type: 'Skills', colSpan: 8, backgroundColor: 'bg-teal-500', order: 6, component: 'SkillsSection', visible: true },
+  { id: 7, title: 'Projets', type: 'Portfolio', colSpan: 12, backgroundColor: 'bg-orange-500', order: 7, component: 'ProjectsSection', visible: true },
+  { id: 8, title: 'Contact', type: 'Form', colSpan: 12, backgroundColor: 'bg-pink-500', order: 8, component: 'ContactSection', visible: true }
 ])
 
 export const usePortfolioData = () => {
@@ -115,7 +115,7 @@ export const usePortfolioData = () => {
 
   // Persistence
   const saveToLocalStorage = () => {
-    if (process.client) {
+    if (import.meta.client) {
       const data = {
         projects: portfolioProjects.value,
         skills: portfolioSkills.value,
@@ -128,7 +128,7 @@ export const usePortfolioData = () => {
   }
 
   const loadFromLocalStorage = () => {
-    if (process.client) {
+    if (import.meta.client) {
       try {
         const saved = localStorage.getItem('portfolio-data')
         if (saved) {
@@ -148,7 +148,17 @@ export const usePortfolioData = () => {
     portfolioProjects.value = [...initialProjects]
     portfolioSkills.value = [...flattenedSkills]
     portfolioStudentYears.value = [...initialStudentYears]
-    if (process.client) {
+    portfolioBentoBlocks.value = [
+      { id: 1, title: 'Photo Profil', type: 'Image', colSpan: 4, backgroundColor: 'bg-blue-500', order: 1, component: 'ProfileSection', visible: true },
+      { id: 2, title: 'Introduction', type: 'Text', colSpan: 8, backgroundColor: 'bg-green-500', order: 2, component: 'IntroSection', visible: true },
+      { id: 3, title: 'Stage', type: 'Info', colSpan: 6, backgroundColor: 'bg-yellow-500', order: 3, component: 'StageSection', visible: true },
+      { id: 4, title: 'Liens', type: 'Social', colSpan: 6, backgroundColor: 'bg-purple-500', order: 4, component: 'LinksSection', visible: true },
+      { id: 5, title: 'Formation', type: 'Timeline', colSpan: 4, backgroundColor: 'bg-indigo-500', order: 5, component: 'FormationSection', visible: true },
+      { id: 6, title: 'Compétences', type: 'Skills', colSpan: 8, backgroundColor: 'bg-teal-500', order: 6, component: 'SkillsSection', visible: true },
+      { id: 7, title: 'Projets', type: 'Portfolio', colSpan: 12, backgroundColor: 'bg-orange-500', order: 7, component: 'ProjectsSection', visible: true },
+      { id: 8, title: 'Contact', type: 'Form', colSpan: 12, backgroundColor: 'bg-pink-500', order: 8, component: 'ContactSection', visible: true }
+    ]
+    if (import.meta.client) {
       localStorage.removeItem('portfolio-data')
     }
   }

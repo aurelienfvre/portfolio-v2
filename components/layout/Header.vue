@@ -24,29 +24,29 @@
         <!-- Dropdown -->
         <div
           v-if="showModeDropdown"
-          class="absolute top-full left-0 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl py-2 min-w-[160px] z-[9999] overflow-hidden"
+          class="absolute top-full left-0 mt-2 bg-bg-primary border border-border-primary rounded-2xl shadow-xl py-2 min-w-[160px] z-[9999] overflow-hidden backdrop-blur-lg"
           style="box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);"
         >
           <button
             @click="switchToMode('pro')"
-            class="w-full px-4 py-3 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3 transition-colors"
+            class="w-full px-4 py-3 text-left text-sm hover:bg-bg-secondary flex items-center gap-3 transition-colors"
             :class="[
               isPro 
-                ? 'text-blue-600 font-semibold bg-blue-50 dark:bg-blue-900/30' 
-                : 'text-gray-900 dark:text-gray-100'
+                ? 'text-blue-500 font-semibold bg-blue-500/10' 
+                : 'text-text-primary'
             ]"
           >
             <span class="w-2 h-2 rounded-full bg-blue-500"></span>
             Professionnel
           </button>
-          <div class="border-t border-gray-100 dark:border-gray-700"></div>
+          <div class="border-t border-border-primary"></div>
           <button
             @click="switchToMode('student')"
-            class="w-full px-4 py-3 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3 transition-colors"
+            class="w-full px-4 py-3 text-left text-sm hover:bg-bg-secondary flex items-center gap-3 transition-colors"
             :class="[
               isStudent 
-                ? 'text-purple-600 font-semibold bg-purple-50 dark:bg-purple-900/30' 
-                : 'text-gray-900 dark:text-gray-100'
+                ? 'text-purple-500 font-semibold bg-purple-500/10' 
+                : 'text-text-primary'
             ]"
           >
             <span class="w-2 h-2 rounded-full bg-purple-500"></span>
@@ -139,7 +139,7 @@ const initialTheme = ref(process.client ? localStorage.getItem('theme') || 'ligh
 
 // Check if current page is admin
 const route = useRoute()
-const isAdminPage = computed(() => route.path === '/admin')
+const isAdminPage = computed(() => route.path.startsWith('/admin'))
 
 // Portfolio mode management
 const showModeDropdown = ref(false)
