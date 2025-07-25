@@ -91,6 +91,7 @@ const onProjectChange = (newProjects: any[]) => {
   opacity: 0.5;
   background: #f3f4f6;
   border: 2px dashed #6366f1;
+  border-radius: 1.5rem; /* 24px - rounded-3xl */
 }
 
 .chosen {

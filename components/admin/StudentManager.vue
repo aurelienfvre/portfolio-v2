@@ -134,6 +134,7 @@ const onCompetenceChange = () => {
   opacity: 0.5;
   background: #f3f4f6;
   border: 2px dashed #6366f1;
+  border-radius: 0.75rem; /* 12px - rounded-xl */
 }
 
 .chosen {
@@ -152,6 +153,7 @@ const onCompetenceChange = () => {
   opacity: 0.3;
   background: #e0f2fe;
   border: 2px dashed #0ea5e9;
+  border-radius: 1rem; /* 16px - rounded-2xl */
   transform: scale(0.95);
 }
 
