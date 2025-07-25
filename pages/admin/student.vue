@@ -123,6 +123,10 @@ const handleDeleteAC = (ac: any) => {
 const handleUpdateStudentYears = (updatedYears: any[]) => {
   // Sauvegarder les nouvelles données
   studentYears.value = updatedYears
+  
+  // Sauvegarder en localStorage
+  const { saveToLocalStorage } = usePortfolioData()
+  saveToLocalStorage()
 }
 
 // Initialize data on mount

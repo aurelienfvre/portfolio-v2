@@ -83,13 +83,46 @@
                 <label class="block text-sm font-semibold text-text-primary mb-3">
                   Technologies
                 </label>
+                
+                <!-- Skills selector -->
+                <div class="mb-4 p-4 bg-bg-tertiary rounded-xl">
+                  <h4 class="text-sm font-medium text-text-primary mb-3">Sélectionner depuis les compétences</h4>
+                  <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    <button
+                      v-for="skill in availableSkills"
+                      :key="skill.name"
+                      type="button"
+                      @click="addTechnologyFromSkill(skill)"
+                      :disabled="form.technologies.some(tech => tech.name === skill.name)"
+                      class="flex items-center gap-2 p-2 text-left text-sm bg-bg-primary border border-border-primary rounded-lg hover:border-accent hover:bg-accent/5 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                    >
+                      <img 
+                        v-if="skill.icon" 
+                        :src="skill.icon" 
+                        :alt="skill.name"
+                        class="w-4 h-4"
+                        :class="{ 'filter invert': skill.invert }"
+                      />
+                      <span class="truncate text-text-primary">{{ skill.name }}</span>
+                    </button>
+                  </div>
+                </div>
+                
+                <!-- Manual technologies -->
                 <div class="space-y-3">
                   <div
                     v-for="(tech, index) in form.technologies"
                     :key="index"
                     class="bg-bg-tertiary p-4 rounded-xl space-y-3"
                   >
-                    <div class="flex space-x-2">
+                    <div class="flex items-center space-x-2">
+                      <img 
+                        v-if="tech.icon" 
+                        :src="tech.icon" 
+                        :alt="tech.name"
+                        class="w-6 h-6"
+                        :class="{ 'filter invert': tech.invert }"
+                      />
                       <input
                         v-model="tech.name"
                         type="text"
@@ -129,7 +162,7 @@
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
-                    Ajouter une technologie
+                    Ajouter une technologie manuellement
                   </button>
                 </div>
               </div>
@@ -222,6 +255,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { usePortfolioData } from '~/composables/usePortfolioData'
 import ImageUpload from './ImageUpload.vue'
 import WysiwygEditor from './WysiwygEditor.vue'
 
@@ -233,6 +267,23 @@ const emit = defineEmits<{
   close: []
   save: [projectData: any]
 }>()
+
+// Get skills data for technology suggestions
+const { skillsByCategory, loadFromLocalStorage } = usePortfolioData()
+
+// Flatten skills for technology selection
+const availableSkills = computed(() => {
+  const flattened: any[] = []
+  Object.entries(skillsByCategory.value).forEach(([category, skills]) => {
+    skills.forEach(skill => {
+      flattened.push({
+        ...skill,
+        category
+      })
+    })
+  })
+  return flattened
+})
 
 const isEdit = computed(() => !!props.project)
 
@@ -287,6 +338,18 @@ const addTechnology = () => {
   form.value.technologies.push({ name: '', icon: '', invert: false })
 }
 
+const addTechnologyFromSkill = (skill: any) => {
+  // Vérifier si la technologie n'est pas déjà ajoutée
+  const exists = form.value.technologies.some(tech => tech.name === skill.name)
+  if (!exists) {
+    form.value.technologies.push({
+      name: skill.name,
+      icon: skill.icon || '',
+      invert: skill.invert || false
+    })
+  }
+}
+
 const removeTechnology = (index: number) => {
   form.value.technologies.splice(index, 1)
 }
@@ -324,6 +387,8 @@ const handleEscKey = (event: KeyboardEvent) => {
 // Add/remove event listeners
 onMounted(() => {
   document.addEventListener('keydown', handleEscKey)
+  // Load skills data for technology suggestions
+  loadFromLocalStorage()
 })
 
 onUnmounted(() => {
