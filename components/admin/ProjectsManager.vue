@@ -10,18 +10,22 @@
       </button>
     </div>
 
-    <div 
-      ref="projectsContainer" 
+    <VueDraggable
+      :model-value="projects"
+      @update:model-value="onProjectChange"
+      group="projects"
       class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+      ghost-class="ghost"
+      chosen-class="chosen"
+      drag-class="drag"
+      :animation="200"
     >
       <div
-        v-for="(project, index) in projects"
+        v-for="project in projects"
         :key="project.id"
-        :data-swapy-slot="`slot-${index}`"
         class="min-h-[200px]"
       >
         <div
-          :data-swapy-item="project.id"
           class="bg-bg-primary border border-border-primary rounded-3xl shadow-sm overflow-hidden relative group cursor-move hover:border-accent w-full h-full"
         >
           <img
@@ -50,12 +54,12 @@
           </div>
         </div>
       </div>
-    </div>
+    </VueDraggable>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { VueDraggable } from 'vue-draggable-plus'
 
 const props = defineProps<{
   projects: any[]
@@ -68,53 +72,10 @@ const emit = defineEmits<{
   updateProjects: [projects: any[]]
 }>()
 
-const projectsContainer = ref(null)
-let swapyInstance: any = null
-
-// Initialize Swapy
-const initializeSwapy = async () => {
-  if (import.meta.client && projectsContainer.value && props.projects.length > 0) {
-    try {
-      const { createSwapy } = await import('swapy')
-      
-      swapyInstance = createSwapy(projectsContainer.value)
-      
-      swapyInstance.onSwap((event: any) => {
-        const newOrder = event.newSlotItemMap.asArray
-        
-        // Créer le nouveau tableau dans l'ordre des slots
-        const reorderedProjects = newOrder.map((slot: any, index: number) => {
-          const project = props.projects.find(p => p.id === slot.item)
-          return {
-            ...project,
-            order: index + 1
-          }
-        })
-        
-        emit('updateProjects', reorderedProjects)
-      })
-    } catch (error) {
-      console.error('Error initializing Swapy:', error)
-    }
-  }
+// Handler pour les changements de drag & drop
+const onProjectChange = (newProjects: any[]) => {
+  emit('updateProjects', newProjects)
 }
-
-const destroySwapy = () => {
-  if (swapyInstance) {
-    swapyInstance.destroy()
-    swapyInstance = null
-  }
-}
-
-onMounted(() => {
-  nextTick(() => {
-    initializeSwapy()
-  })
-})
-
-onUnmounted(() => {
-  destroySwapy()
-})
 </script>
 
 <style scoped>
@@ -123,5 +84,23 @@ onUnmounted(() => {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* Styles pour le drag & drop */
+.ghost {
+  opacity: 0.5;
+  background: #f3f4f6;
+  border: 2px dashed #6366f1;
+}
+
+.chosen {
+  transform: rotate(5deg);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.drag {
+  transform: rotate(5deg);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  z-index: 999;
 }
 </style>

@@ -19,6 +19,7 @@
     "nuxt": "^3.13.0",
     "swapy": "^1.0.5",
     "vue": "latest",
+    "vue-draggable-plus": "^0.6.0",
     "vue-router": "latest"
   },
   "devDependencies": {

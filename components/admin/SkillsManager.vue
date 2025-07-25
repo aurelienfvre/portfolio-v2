@@ -23,18 +23,22 @@
         >
           {{ categoryName }}
         </h3>
-        <div
-          :ref="el => setSkillsContainer(el, categoryName)"
+        <VueDraggable
+          :model-value="skills"
+          @update:model-value="(newSkills) => onSkillChange(categoryName, newSkills)"
+          :group="`skills-${categoryName}`"
           class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
+          ghost-class="ghost"
+          chosen-class="chosen"
+          drag-class="drag"
+          :animation="200"
         >
           <div
-            v-for="(skill, index) in skills"
+            v-for="skill in skills"
             :key="skill.name"
-            :data-swapy-slot="`slot-${index}`"
             class="min-h-[120px]"
           >
             <div
-              :data-swapy-item="skill.name"
               class="bg-bg-primary border border-border-primary rounded-2xl shadow-sm overflow-hidden relative group cursor-move hover:border-accent w-full h-full"
             >
               <div class="p-3">
@@ -69,91 +73,53 @@
               </div>
             </div>
           </div>
-        </div>
+        </VueDraggable>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick } from "vue";
+import { VueDraggable } from 'vue-draggable-plus'
 
 const props = defineProps<{
-  skillsByCategory: Record<string, any[]>;
-}>();
+  skillsByCategory: Record<string, any[]>
+}>()
 
 const emit = defineEmits<{
-  openSkillModal: [];
-  editSkill: [skill: any];
-  deleteSkill: [skillName: string];
-  updateSkills: [skills: Record<string, any[]>];
-}>();
+  openSkillModal: []
+  editSkill: [skill: any]
+  deleteSkill: [skillName: string]
+  updateSkills: [skills: Record<string, any[]>]
+}>()
 
-const skillsContainers = ref<Record<string, HTMLElement>>({})
-let skillsSwapyInstances: Record<string, any> = {};
-
-const setSkillsContainer = (el: HTMLElement | null, categoryName: string) => {
-  if (el) {
-    skillsContainers.value[categoryName] = el
+// Handler pour les changements de drag & drop
+const onSkillChange = (categoryName: string, newSkills: any[]) => {
+  const updatedSkillsByCategory = {
+    ...props.skillsByCategory,
+    [categoryName]: newSkills
   }
+  emit('updateSkills', updatedSkillsByCategory)
+}
+</script>
+
+<style scoped>
+/* Styles pour le drag & drop */
+.ghost {
+  opacity: 0.5;
+  background: #f3f4f6;
+  border: 2px dashed #6366f1;
 }
 
-const initializeSkillsSwapy = async () => {
-  if (import.meta.client) {
-    try {
-      const { createSwapy } = await import("swapy");
+.chosen {
+  transform: rotate(5deg);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
 
-      Object.keys(props.skillsByCategory).forEach((categoryName) => {
-        const container = skillsContainers.value[categoryName]
-        const skills = props.skillsByCategory[categoryName];
-
-        if (container && skills.length > 0) {
-          const swapyInstance = createSwapy(container);
-
-          swapyInstance.onSwap((event: any) => {
-            const newOrder = event.newSlotItemMap.asArray;
-
-            const reorderedSkills = newOrder.map((slot: any, index: number) => {
-              const skill = skills.find((s) => s.name === slot.item);
-              return {
-                ...skill,
-                order: index + 1,
-              };
-            });
-
-            const updatedSkillsByCategory = {
-              ...props.skillsByCategory,
-              [categoryName]: reorderedSkills,
-            };
-            emit("updateSkills", updatedSkillsByCategory);
-          });
-
-          skillsSwapyInstances[categoryName] = swapyInstance;
-        }
-      });
-    } catch (error) {
-      console.error("Error initializing Skills Swapy:", error);
-    }
-  }
-};
-
-const destroySkillsSwapy = () => {
-  Object.values(skillsSwapyInstances).forEach((instance) => {
-    if (instance) {
-      instance.destroy();
-    }
-  });
-  skillsSwapyInstances = {};
-};
-
-onMounted(() => {
-  nextTick(() => {
-    initializeSkillsSwapy();
-  });
-});
-
-onUnmounted(() => {
-  destroySkillsSwapy();
-});
-</script>
+.drag {
+  transform: rotate(5deg);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  z-index: 999;
+}
+</style>
 
