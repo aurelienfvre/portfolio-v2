@@ -26,6 +26,7 @@
         @openSkillModal="openSkillModal"
         @editSkill="openSkillModal"
         @deleteSkill="handleDeleteSkill"
+        @updateSkills="updateSkillsOrder"
       />
     </div>
 
@@ -42,7 +43,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { usePortfolioData } from '~/composables/usePortfolioData'
+import { usePortfolioDatabase } from '~/composables/usePortfolioDatabase'
 import SkillsManager from '~/components/admin/SkillsManager.vue'
 import SkillModal from '~/components/admin/SkillModal.vue'
 
@@ -52,8 +53,8 @@ const {
   addSkill,
   updateSkill,
   deleteSkill,
-  loadFromLocalStorage
-} = usePortfolioData()
+  fetchSkills
+} = usePortfolioDatabase()
 
 // Modal state
 const showSkillModal = ref(false)
@@ -70,24 +71,51 @@ const closeSkillModal = () => {
   selectedSkill.value = null
 }
 
-const saveSkill = (skillData: any) => {
-  if (selectedSkill.value) {
-    updateSkill(selectedSkill.value.name, skillData)
-  } else {
-    addSkill(skillData)
+const saveSkill = async (skillData: any) => {
+  try {
+    if (selectedSkill.value) {
+      await updateSkill(selectedSkill.value.id, skillData)
+    } else {
+      await addSkill(skillData)
+    }
+    closeSkillModal()
+  } catch (error) {
+    console.error('Error saving skill:', error)
   }
-  closeSkillModal()
 }
 
-const handleDeleteSkill = (skillName: string) => {
+const handleDeleteSkill = async (skillId: number) => {
   if (confirm('Êtes-vous sûr de vouloir supprimer cette compétence ?')) {
-    deleteSkill(skillName)
+    try {
+      await deleteSkill(skillId)
+    } catch (error) {
+      console.error('Error deleting skill:', error)
+    }
+  }
+}
+
+const updateSkillsOrder = async (updatedSkillsByCategory: Record<string, any[]>) => {
+  try {
+    const updatePromises: Promise<any>[] = []
+    
+    // Flatten all skills and update their order
+    Object.values(updatedSkillsByCategory).forEach((skillList) => {
+      skillList.forEach((skill, index) => {
+        skill.order = index + 1
+        updatePromises.push(updateSkill(skill.id, skill))
+      })
+    })
+    
+    await Promise.all(updatePromises)
+    console.log('Skills order updated successfully')
+  } catch (error) {
+    console.error('Error updating skills order:', error)
   }
 }
 
 // Initialize data on mount
-onMounted(() => {
-  loadFromLocalStorage()
+onMounted(async () => {
+  await fetchSkills()
 })
 
 // SEO

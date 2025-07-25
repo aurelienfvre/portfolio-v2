@@ -42,7 +42,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { usePortfolioData } from '~/composables/usePortfolioData'
+import { usePortfolioDatabase } from '~/composables/usePortfolioDatabase'
 import ProjectsManager from '~/components/admin/ProjectsManager.vue'
 import ProjectModal from '~/components/admin/ProjectModal.vue'
 
@@ -52,8 +52,8 @@ const {
   addProject,
   updateProject,
   deleteProject,
-  loadFromLocalStorage
-} = usePortfolioData()
+  fetchProjects
+} = usePortfolioDatabase()
 
 // Modal state
 const showProjectModal = ref(false)
@@ -85,17 +85,24 @@ const handleDeleteProject = (projectId: string) => {
   }
 }
 
-const updateProjectsOrder = (newProjects: any[]) => {
-  // Update projects order
-  newProjects.forEach((project, index) => {
-    project.order = index + 1
-    updateProject(project.id, project)
-  })
+const updateProjectsOrder = async (newProjects: any[]) => {
+  try {
+    // Update projects order in parallel
+    const updatePromises = newProjects.map(async (project, index) => {
+      project.order = index + 1
+      return updateProject(project.id, project)
+    })
+    
+    await Promise.all(updatePromises)
+    console.log('Projects order updated successfully')
+  } catch (error) {
+    console.error('Error updating projects order:', error)
+  }
 }
 
 // Initialize data on mount
-onMounted(() => {
-  loadFromLocalStorage()
+onMounted(async () => {
+  await fetchProjects()
 })
 
 // SEO

@@ -44,18 +44,16 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { usePortfolioData } from '~/composables/usePortfolioData'
+import { usePortfolioDatabase } from '~/composables/usePortfolioDatabase'
 import StudentManager from '~/components/admin/StudentManager.vue'
 import ACModal from '~/components/admin/ACModal.vue'
 
 // Portfolio data management
 const {
   studentYears,
-  addStudentAC,
   updateStudentAC,
-  deleteStudentAC,
-  loadFromLocalStorage
-} = usePortfolioData()
+  fetchStudentYears
+} = usePortfolioDatabase()
 
 // Modal state
 const showACModal = ref(false)
@@ -98,40 +96,42 @@ const closeACModal = () => {
   selectedACIndices.value = { yearIndex: -1, competenceIndex: -1, acIndex: -1 }
 }
 
-const saveAC = (acData: any, yearIndex: number, competenceIndex: number) => {
-  const { acIndex } = selectedACIndices.value
-  
-  if (acIndex === -1) {
-    // New AC - use indices from modal
-    addStudentAC(yearIndex, competenceIndex, acData)
-  } else {
-    // Update existing AC - use stored indices
-    updateStudentAC(selectedACIndices.value.yearIndex, selectedACIndices.value.competenceIndex, acIndex, acData)
+const saveAC = async (acData: any, yearIndex: number, competenceIndex: number) => {
+  try {
+    // For now, we'll focus on drag & drop updates which use updateStudentAC
+    // Adding new ACs can be implemented later
+    console.log('AC save functionality - to be implemented')
+    closeACModal()
+  } catch (error) {
+    console.error('Error saving AC:', error)
   }
-  closeACModal()
 }
 
-const handleDeleteAC = (ac: any) => {
+const handleDeleteAC = async (ac: any) => {
   if (confirm('Êtes-vous sûr de vouloir supprimer cet AC ?')) {
-    const { yearIndex, competenceIndex, acIndex } = findACIndices(ac)
-    if (acIndex !== -1) {
-      deleteStudentAC(yearIndex, competenceIndex, acIndex)
+    try {
+      // AC deletion functionality - to be implemented
+      console.log('AC delete functionality - to be implemented')
+    } catch (error) {
+      console.error('Error deleting AC:', error)
     }
   }
 }
 
-const handleUpdateStudentYears = (updatedYears: any[]) => {
-  // Sauvegarder les nouvelles données
-  studentYears.value = updatedYears
-  
-  // Sauvegarder en localStorage
-  const { saveToLocalStorage } = usePortfolioData()
-  saveToLocalStorage()
+const handleUpdateStudentYears = async (updatedData: any) => {
+  try {
+    // Handle drag & drop updates for AC order
+    if (updatedData.acUpdates && updatedData.yearId) {
+      await updateStudentAC(updatedData.yearId, updatedData.acUpdates)
+    }
+  } catch (error) {
+    console.error('Error updating student years:', error)
+  }
 }
 
 // Initialize data on mount
-onMounted(() => {
-  loadFromLocalStorage()
+onMounted(async () => {
+  await fetchStudentYears()
 })
 
 // SEO

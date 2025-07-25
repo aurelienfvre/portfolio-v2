@@ -41,7 +41,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { usePortfolioData } from '~/composables/usePortfolioData'
+import { usePortfolioDatabase } from '~/composables/usePortfolioDatabase'
 import BentoManager from '~/components/admin/BentoManager.vue'
 import BentoModal from '~/components/admin/BentoModal.vue'
 
@@ -51,8 +51,8 @@ const {
   sortedBentoBlocks,
   addBentoBlock,
   updateBentoBlock,
-  loadFromLocalStorage
-} = usePortfolioData()
+  fetchBentoBlocks
+} = usePortfolioDatabase()
 
 // Modal state
 const showBentoModal = ref(false)
@@ -69,26 +69,34 @@ const closeBentoModal = () => {
   selectedBentoBlock.value = null
 }
 
-const saveBentoBlock = (blockData: any) => {
-  if (selectedBentoBlock.value) {
-    updateBentoBlock(selectedBentoBlock.value.id, blockData)
-  } else {
-    addBentoBlock(blockData)
+const saveBentoBlock = async (blockData: any) => {
+  try {
+    if (selectedBentoBlock.value) {
+      await updateBentoBlock(selectedBentoBlock.value.id, blockData)
+    } else {
+      await addBentoBlock(blockData)
+    }
+    closeBentoModal()
+  } catch (error) {
+    console.error('Error saving bento block:', error)
   }
-  closeBentoModal()
 }
 
-const updateBentoBlocksOrder = (newBlocks: any[]) => {
-  // Update blocks order
-  newBlocks.forEach((block, index) => {
-    block.order = index + 1
-    updateBentoBlock(block.id, block)
-  })
+const updateBentoBlocksOrder = async (newBlocks: any[]) => {
+  try {
+    // Update blocks order
+    for (const [index, block] of newBlocks.entries()) {
+      block.order = index + 1
+      await updateBentoBlock(block.id, block)
+    }
+  } catch (error) {
+    console.error('Error updating bento blocks order:', error)
+  }
 }
 
 // Initialize data on mount
-onMounted(() => {
-  loadFromLocalStorage()
+onMounted(async () => {
+  await fetchBentoBlocks()
 })
 
 // SEO

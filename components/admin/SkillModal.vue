@@ -277,7 +277,7 @@ const handleSubmit = () => {
     name: form.value.name.trim(),
     category: form.value.category.trim(),
     icon: form.value.icon.trim(),
-    level: form.value.level.trim()
+    level: typeof form.value.level === 'string' ? form.value.level.trim() : form.value.level
   }
   
   emit('save', cleanedForm)

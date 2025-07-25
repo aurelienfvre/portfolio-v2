@@ -387,7 +387,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick } from "vue";
-import { usePortfolioData } from "~/composables/usePortfolioData";
+import { usePortfolioDatabase } from "~/composables/usePortfolioDatabase";
 import BentoModal from "~/components/admin/BentoModal.vue";
 import ResizeModal from "~/components/admin/ResizeModal.vue";
 import WysiwygEditor from "~/components/admin/WysiwygEditor.vue";
@@ -410,8 +410,8 @@ const {
   addBentoBlock,
   updateBentoBlock,
   deleteBentoBlock,
-  loadFromLocalStorage,
-} = usePortfolioData();
+  fetchBentoBlocks,
+} = usePortfolioDatabase();
 
 // Modal states
 const showBentoModal = ref(false);
@@ -439,17 +439,21 @@ const closeBentoModal = () => {
   selectedBentoBlock.value = null;
 };
 
-const saveBentoBlock = (blockData: any) => {
-  if (selectedBentoBlock.value) {
-    updateBentoBlock(selectedBentoBlock.value.id, blockData);
-  } else {
-    // Ajouter la taille par défaut si pas spécifiée
-    if (!blockData.colSpan && blockData.component) {
-      blockData.colSpan = getDefaultColSpan(blockData.component)
+const saveBentoBlock = async (blockData: any) => {
+  try {
+    if (selectedBentoBlock.value) {
+      await updateBentoBlock(selectedBentoBlock.value.id, blockData);
+    } else {
+      // Ajouter la taille par défaut si pas spécifiée
+      if (!blockData.colSpan && blockData.component) {
+        blockData.colSpan = getDefaultColSpan(blockData.component)
+      }
+      await addBentoBlock(blockData);
     }
-    addBentoBlock(blockData);
+    closeBentoModal();
+  } catch (error) {
+    console.error('Error saving bento block:', error);
   }
-  closeBentoModal();
 };
 
 const openResizeModal = (block: any) => {
@@ -462,19 +466,27 @@ const closeResizeModal = () => {
   selectedBlock.value = null;
 };
 
-const saveBlockSize = (newSize: number) => {
-  if (selectedBlock.value) {
-    updateBentoBlock(selectedBlock.value.id, {
-      ...selectedBlock.value,
-      colSpan: newSize,
-    });
+const saveBlockSize = async (newSize: number) => {
+  try {
+    if (selectedBlock.value) {
+      await updateBentoBlock(selectedBlock.value.id, {
+        ...selectedBlock.value,
+        colSpan: newSize,
+      });
+    }
+    closeResizeModal();
+  } catch (error) {
+    console.error('Error saving block size:', error);
   }
-  closeResizeModal();
 };
 
-const deleteBlock = (blockId: number) => {
+const deleteBlock = async (blockId: number) => {
   if (confirm("Êtes-vous sûr de vouloir supprimer ce bloc ?")) {
-    deleteBentoBlock(blockId);
+    try {
+      await deleteBentoBlock(blockId);
+    } catch (error) {
+      console.error('Error deleting block:', error);
+    }
   }
 };
 
@@ -508,25 +520,29 @@ const closeWysiwygTooltip = () => {
   editingContent.value = "";
 };
 
-const saveWysiwygContent = () => {
-  if (editingBlock.value) {
-    const updatedBlock = {
-      ...editingBlock.value,
-      content: editingContent.value,
-      title: !editingBlock.value.component
-        ? editingContent.value
-        : editingBlock.value.title,
-    };
+const saveWysiwygContent = async () => {
+  try {
+    if (editingBlock.value) {
+      const updatedBlock = {
+        ...editingBlock.value,
+        content: editingContent.value,
+        title: !editingBlock.value.component
+          ? editingContent.value
+          : editingBlock.value.title,
+      };
 
-    updateBentoBlock(editingBlock.value.id, updatedBlock);
+      await updateBentoBlock(editingBlock.value.id, updatedBlock);
+    }
+
+    closeWysiwygTooltip();
+  } catch (error) {
+    console.error('Error saving WYSIWYG content:', error);
   }
-
-  closeWysiwygTooltip();
 };
 
 // Save and return to admin
 const saveAndReturn = () => {
-  // Data is already saved in localStorage through composable
+  // Data is already saved in database through composable
   navigateTo("/admin");
 };
 
@@ -631,8 +647,8 @@ const handleKeydown = (event: KeyboardEvent) => {
 };
 
 // Initialize data on mount
-onMounted(() => {
-  loadFromLocalStorage();
+onMounted(async () => {
+  await fetchBentoBlocks();
 
   // Add keyboard event listeners
   document.addEventListener("keydown", handleKeydown);

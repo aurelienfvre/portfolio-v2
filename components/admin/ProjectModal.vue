@@ -255,7 +255,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-import { usePortfolioData } from '~/composables/usePortfolioData'
+import { usePortfolioDatabase } from '~/composables/usePortfolioDatabase'
 import ImageUpload from './ImageUpload.vue'
 import WysiwygEditor from './WysiwygEditor.vue'
 
@@ -269,20 +269,14 @@ const emit = defineEmits<{
 }>()
 
 // Get skills data for technology suggestions
-const { skillsByCategory, loadFromLocalStorage } = usePortfolioData()
+const { skills, skillsByCategory, fetchSkills } = usePortfolioDatabase()
 
 // Flatten skills for technology selection
 const availableSkills = computed(() => {
-  const flattened: any[] = []
-  Object.entries(skillsByCategory.value).forEach(([category, skills]) => {
-    skills.forEach(skill => {
-      flattened.push({
-        ...skill,
-        category
-      })
-    })
-  })
-  return flattened
+  return skills.value.filter(skill => skill.category === 'Technologies').map(skill => ({
+    ...skill,
+    category: skill.category
+  }))
 })
 
 const isEdit = computed(() => !!props.project)
@@ -385,10 +379,10 @@ const handleEscKey = (event: KeyboardEvent) => {
 }
 
 // Add/remove event listeners
-onMounted(() => {
+onMounted(async () => {
   document.addEventListener('keydown', handleEscKey)
   // Load skills data for technology suggestions
-  loadFromLocalStorage()
+  await fetchSkills()
 })
 
 onUnmounted(() => {
