@@ -5,6 +5,8 @@ const portfolioProjects = ref([])
 const portfolioSkills = ref([])
 const portfolioStudentYears = ref([])
 const portfolioBentoBlocks = ref([])
+const portfolioCompetences = ref([])
+const portfolioApprentissagesCritiques = ref([])
 const isLoading = ref(false)
 const error = ref(null)
 
@@ -248,6 +250,36 @@ export const usePortfolioDatabase = () => {
     }
   }
 
+  const fetchCompetences = async () => {
+    try {
+      isLoading.value = true
+      const response = await $fetch('/api/competences')
+      if (response.success) {
+        portfolioCompetences.value = response.data
+      }
+    } catch (err) {
+      error.value = err
+      console.error('Error fetching competences:', err)
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const fetchApprentissagesCritiques = async () => {
+    try {
+      isLoading.value = true
+      const response = await $fetch('/api/apprentissages-critiques')
+      if (response.success) {
+        portfolioApprentissagesCritiques.value = response.data
+      }
+    } catch (err) {
+      error.value = err
+      console.error('Error fetching apprentissages critiques:', err)
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   const updateStudentAC = async (yearId: number, acUpdates: any[]) => {
     try {
       isLoading.value = true
@@ -281,6 +313,12 @@ export const usePortfolioDatabase = () => {
       }
       categories[category].push(skill)
     })
+    
+    // Trier chaque catégorie par ordre
+    Object.keys(categories).forEach(category => {
+      categories[category].sort((a, b) => (a.order || 0) - (b.order || 0))
+    })
+    
     return categories
   })
 
@@ -300,6 +338,8 @@ export const usePortfolioDatabase = () => {
     skills: portfolioSkills,
     studentYears: portfolioStudentYears,
     bentoBlocks: portfolioBentoBlocks,
+    competences: portfolioCompetences,
+    apprentissagesCritiques: portfolioApprentissagesCritiques,
     isLoading,
     error,
     
@@ -327,6 +367,8 @@ export const usePortfolioDatabase = () => {
     
     // Student
     fetchStudentYears,
+    fetchCompetences,
+    fetchApprentissagesCritiques,
     updateStudentAC,
     
     // Init

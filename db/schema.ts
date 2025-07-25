@@ -111,6 +111,55 @@ export const media = sqliteTable('media', {
   createdAt: text('created_at').default('CURRENT_TIMESTAMP')
 })
 
+// Table Profile pour les données de profil
+export const profile = sqliteTable('profile', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  firstName: text('first_name').notNull(),
+  lastName: text('last_name').notNull(),
+  title: text('title').notNull(),
+  description: text('description'),
+  profileImage: text('profile_image'),
+  email: text('email'),
+  cvUrl: text('cv_url'),
+  updatedAt: text('updated_at').default('CURRENT_TIMESTAMP')
+})
+
+// Table Formation pour les formations
+export const formations = sqliteTable('formations', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  title: text('title').notNull(),
+  institution: text('institution').notNull(),
+  period: text('period').notNull(),
+  description: text('description'),
+  order: integer('order').default(0),
+  visible: integer('visible', { mode: 'boolean' }).default(true),
+  createdAt: text('created_at').default('CURRENT_TIMESTAMP'),
+  updatedAt: text('updated_at').default('CURRENT_TIMESTAMP')
+})
+
+// Table Stage pour les informations de stage
+export const stage = sqliteTable('stage', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  duration: text('duration').notNull(),
+  startDate: text('start_date').notNull(),
+  position: text('position').notNull(),
+  locations: text('locations'), // JSON string
+  updatedAt: text('updated_at').default('CURRENT_TIMESTAMP')
+})
+
+// Table Social Links pour les liens sociaux
+export const socialLinks = sqliteTable('social_links', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  name: text('name').notNull(),
+  url: text('url').notNull(),
+  icon: text('icon').notNull(),
+  title: text('title').notNull(),
+  order: integer('order').default(0),
+  visible: integer('visible', { mode: 'boolean' }).default(true),
+  createdAt: text('created_at').default('CURRENT_TIMESTAMP'),
+  updatedAt: text('updated_at').default('CURRENT_TIMESTAMP')
+})
+
 // Types pour TypeScript
 export type Project = typeof projects.$inferSelect
 export type NewProject = typeof projects.$inferInsert
@@ -135,3 +184,15 @@ export type NewSetting = typeof settings.$inferInsert
 
 export type Media = typeof media.$inferSelect
 export type NewMedia = typeof media.$inferInsert
+
+export type Profile = typeof profile.$inferSelect
+export type NewProfile = typeof profile.$inferInsert
+
+export type Formation = typeof formations.$inferSelect
+export type NewFormation = typeof formations.$inferInsert
+
+export type Stage = typeof stage.$inferSelect
+export type NewStage = typeof stage.$inferInsert
+
+export type SocialLink = typeof socialLinks.$inferSelect
+export type NewSocialLink = typeof socialLinks.$inferInsert

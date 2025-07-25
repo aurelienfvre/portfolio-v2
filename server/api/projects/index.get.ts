@@ -1,12 +1,12 @@
 import { db, projects } from '~/db'
-import { desc } from 'drizzle-orm'
+import { asc } from 'drizzle-orm'
 
 export default defineEventHandler(async (event) => {
   try {
     const allProjects = await db
       .select()
       .from(projects)
-      .orderBy(desc(projects.order), desc(projects.createdAt))
+      .orderBy(asc(projects.order), asc(projects.createdAt))
 
     return {
       success: true,

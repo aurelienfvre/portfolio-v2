@@ -56,6 +56,10 @@ const {
   fetchSkills
 } = usePortfolioDatabase()
 
+// Get direct access to the reactive state for instant updates
+const portfolioDatabase = usePortfolioDatabase()
+const portfolioSkills = portfolioDatabase.skills
+
 // Modal state
 const showSkillModal = ref(false)
 const selectedSkill = ref(null)
@@ -75,12 +79,21 @@ const saveSkill = async (skillData: any) => {
   try {
     if (selectedSkill.value) {
       await updateSkill(selectedSkill.value.id, skillData)
+      // Update local state immediately for modification
+      const skillIndex = portfolioSkills.value.findIndex(s => s.id === selectedSkill.value.id)
+      if (skillIndex !== -1) {
+        portfolioSkills.value[skillIndex] = { ...skillData, id: selectedSkill.value.id }
+      }
+      console.log('✅ Skill updated and local state updated')
     } else {
-      await addSkill(skillData)
+      const result = await addSkill(skillData)
+      // For new skills, fetch fresh data to get the ID
+      await fetchSkills()
+      console.log('✅ Skill added and data refreshed')
     }
     closeSkillModal()
   } catch (error) {
-    console.error('Error saving skill:', error)
+    console.error('❌ Error saving skill:', error)
   }
 }
 
@@ -88,28 +101,82 @@ const handleDeleteSkill = async (skillId: number) => {
   if (confirm('Êtes-vous sûr de vouloir supprimer cette compétence ?')) {
     try {
       await deleteSkill(skillId)
+      // Update local state immediately
+      portfolioSkills.value = portfolioSkills.value.filter(s => s.id !== skillId)
+      console.log('✅ Skill deleted and local state updated')
     } catch (error) {
-      console.error('Error deleting skill:', error)
+      console.error('❌ Error deleting skill:', error)
     }
   }
 }
 
+// Debounce timer for async saving
+let saveOrderTimeout: NodeJS.Timeout | null = null
+
 const updateSkillsOrder = async (updatedSkillsByCategory: Record<string, any[]>) => {
   try {
-    const updatePromises: Promise<any>[] = []
+    console.log('🔄 Updating skills order:', updatedSkillsByCategory)
     
-    // Flatten all skills and update their order
-    Object.values(updatedSkillsByCategory).forEach((skillList) => {
+    // 1. Mise à jour locale INSTANTANÉE pour l'affichage
+    // Flatten all skills and update the reactive state immediately
+    const allSkills = Object.values(updatedSkillsByCategory).flat()
+    portfolioSkills.value = allSkills.map((skill, globalIndex) => {
+      // Find the skill's position within its category
+      const categorySkills = updatedSkillsByCategory[skill.category] || []
+      const categoryIndex = categorySkills.findIndex(s => s.id === skill.id)
+      const newOrder = categoryIndex + 1
+      
+      return {
+        ...skill,
+        order: newOrder
+      }
+    })
+    console.log('✨ Local skills state updated instantly for smooth UX')
+    
+    // 2. Mise à jour des objets individuels pour cohérence
+    Object.entries(updatedSkillsByCategory).forEach(([category, skillList]) => {
       skillList.forEach((skill, index) => {
-        skill.order = index + 1
-        updatePromises.push(updateSkill(skill.id, skill))
+        const newOrder = index + 1
+        console.log(`📝 Setting skill "${skill.name}" (${category}) order from ${skill.order} to ${newOrder}`)
+        skill.order = newOrder
       })
     })
     
-    await Promise.all(updatePromises)
-    console.log('Skills order updated successfully')
+    // 3. Clear existing timeout
+    if (saveOrderTimeout) {
+      clearTimeout(saveOrderTimeout)
+    }
+    
+    // 4. Sauvegarde BDD en arrière-plan (debounced)
+    saveOrderTimeout = setTimeout(async () => {
+      try {
+        const updatePromises: Promise<any>[] = []
+        
+        // Update order for each category separately
+        Object.entries(updatedSkillsByCategory).forEach(([category, skillList]) => {
+          skillList.forEach((skill, index) => {
+            const newOrder = index + 1
+            console.log(`💾 Saving skill "${skill.name}" (${category}) with order ${newOrder} to database`)
+            updatePromises.push(updateSkill(skill.id, { 
+              ...skill, 
+              order: newOrder 
+            }))
+          })
+        })
+        
+        if (updatePromises.length > 0) {
+          await Promise.all(updatePromises)
+          console.log('✅ Skills order saved to database successfully')
+        }
+      } catch (error) {
+        console.error('❌ Error saving skills order to database:', error)
+        // En cas d'erreur, on pourrait recharger les données
+        // await fetchSkills()
+      }
+    }, 1000) // Save to DB after 1 second of inactivity
+    
   } catch (error) {
-    console.error('Error updating skills order:', error)
+    console.error('❌ Error updating skills order:', error)
   }
 }
 

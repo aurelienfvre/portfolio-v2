@@ -22,11 +22,11 @@ export const portfolioConfigs: Record<'pro' | 'student', PortfolioConfig> = {
     title: 'Aurélien Fèvre - Étudiant BUT MMI',
     description: 'Étudiant en BUT MMI recherchant une alternance en développement web. Parcours de 3 années avec compétences, projets et stages.',
     navigation: [
-      { name: 'Accueil', path: '/' },
-      { name: '1ère année', path: '/#year1' },
-      { name: '2ème année', path: '/#year2' },
-      { name: '3ème année', path: '/#year3' },
-      { name: 'Contact', path: '/#contact' }
+      { name: 'Accueil', path: '/student' },
+      { name: '1ère année', path: '/student#year1' },
+      { name: '2ème année', path: '/student#year2' },
+      { name: '3ème année', path: '/student#year3' },
+      { name: 'Contact', path: '/student#contact' }
     ],
     seo: {
       title: 'Aurélien Fèvre - Étudiant BUT MMI | Recherche Alternance Développement Web',

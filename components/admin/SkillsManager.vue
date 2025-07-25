@@ -64,7 +64,7 @@
                     Modifier
                   </button>
                   <button
-                    @click="$emit('deleteSkill', skill.name)"
+                    @click="$emit('deleteSkill', skill.id)"
                     class="px-2 py-1 bg-red-500 text-white text-xs rounded-md hover:bg-red-600 font-medium"
                   >
                     Supprimer
@@ -89,7 +89,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   openSkillModal: []
   editSkill: [skill: any]
-  deleteSkill: [skillName: string]
+  deleteSkill: [skillId: number]
   updateSkills: [skills: Record<string, any[]>]
 }>()
 

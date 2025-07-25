@@ -137,9 +137,18 @@ const { theme, toggleTheme } = useTheme()
 const { portfolioMode, setMode, isPro, isStudent, initMode } = usePortfolioMode()
 const initialTheme = ref(process.client ? localStorage.getItem('theme') || 'light' : 'light')
 
-// Check if current page is admin
+// Check if current page is admin or set mode based on route
 const route = useRoute()
 const isAdminPage = computed(() => route.path.startsWith('/admin'))
+
+// Auto-detect mode based on current route
+watch(() => route.path, (newPath) => {
+  if (newPath === '/student') {
+    setMode('student')
+  } else if (newPath === '/') {
+    setMode('pro')
+  }
+}, { immediate: true })
 
 // Portfolio mode management
 const showModeDropdown = ref(false)
@@ -155,8 +164,12 @@ const switchToMode = async (mode: 'pro' | 'student') => {
   setMode(mode)
   showModeDropdown.value = false
   
-  // Juste recharger la page actuelle avec le nouveau mode
-  // Pas besoin de naviguer, l'index se charge du rendu selon le mode
+  // Naviguer vers la bonne page selon le mode
+  if (mode === 'pro') {
+    await navigateTo('/')
+  } else {
+    await navigateTo('/student')
+  }
 }
 
 // Close dropdown when clicking outside
@@ -172,36 +185,43 @@ const activeBackgroundStyle = computed(() => ({
   top: '2px'
 }))
 const getVisibleSection = (): string => {
+  // Déterminer la page de base selon la route
+  const basePath = route.path === '/student' ? '/student' : '/'
+  
   if (!hasScrolled.value || window.scrollY < 50) {
-    return '/'
+    return basePath
   }
+  
   const windowHeight = window.innerHeight
   const documentHeight = document.documentElement.scrollHeight
   const scrollTop = window.scrollY
   
   // Si on est proche du bas de la page
   if (scrollTop + windowHeight >= documentHeight - 100) {
-    return '/#contact'
+    return `${basePath}#contact`
   }
   
-  // Sections à vérifier selon le mode
+  // Sections à vérifier selon la page
   let sectionsToCheck: Array<{id: string, path: string}> = []
   
-  if (isStudent.value) {
+  if (route.path === '/student') {
     sectionsToCheck = [
-      { id: 'contact', path: '/#contact' },
-      { id: 'year3', path: '/#year3' },
-      { id: 'year2', path: '/#year2' },
-      { id: 'year1', path: '/#year1' },
-      { id: 'intro', path: '/' }
+      { id: 'contact', path: '/student#contact' },
+      { id: 'year3', path: '/student#year3' },
+      { id: 'year2', path: '/student#year2' },
+      { id: 'year1', path: '/student#year1' },
+      { id: 'intro', path: '/student' }
     ]
   } else {
     // Mode pro - utiliser la navigation existante
     sectionsToCheck = currentNavigation.value
-      .map(item => ({
-        id: item.path.replace('/#', '') || '',
-        path: item.path
-      }))
+      .map(item => {
+        const hash = item.path.includes('#') ? item.path.split('#')[1] : ''
+        return {
+          id: hash,
+          path: item.path
+        }
+      })
       .filter(item => item.id !== '') // Exclure les éléments sans ID
       .reverse()
   }
@@ -215,7 +235,7 @@ const getVisibleSection = (): string => {
     }
   }
   
-  return '/'
+  return basePath
 }
 const updateActiveLinkPosition = (path = activeSection.value) => {
   if (!menuRef.value) return

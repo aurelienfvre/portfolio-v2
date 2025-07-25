@@ -55,6 +55,10 @@ const {
   fetchProjects
 } = usePortfolioDatabase()
 
+// Get direct access to the reactive state for instant updates
+const portfolioDatabase = usePortfolioDatabase()
+const portfolioProjects = portfolioDatabase.projects
+
 // Modal state
 const showProjectModal = ref(false)
 const selectedProject = ref(null)
@@ -70,33 +74,91 @@ const closeProjectModal = () => {
   selectedProject.value = null
 }
 
-const saveProject = (projectData: any) => {
-  if (selectedProject.value) {
-    updateProject(selectedProject.value.id, projectData)
-  } else {
-    addProject(projectData)
+const saveProject = async (projectData: any) => {
+  try {
+    if (selectedProject.value) {
+      await updateProject(selectedProject.value.id, projectData)
+      // Update local state immediately for modification
+      const projectIndex = portfolioProjects.value.findIndex(p => p.id === selectedProject.value.id)
+      if (projectIndex !== -1) {
+        portfolioProjects.value[projectIndex] = { ...projectData, id: selectedProject.value.id }
+      }
+      console.log('✅ Project updated and local state updated')
+    } else {
+      await addProject(projectData)
+      // For new projects, fetch fresh data to get the ID
+      await fetchProjects()
+      console.log('✅ Project added and data refreshed')
+    }
+    closeProjectModal()
+  } catch (error) {
+    console.error('❌ Error saving project:', error)
   }
-  closeProjectModal()
 }
 
-const handleDeleteProject = (projectId: string) => {
+const handleDeleteProject = async (projectId: string) => {
   if (confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')) {
-    deleteProject(projectId)
+    try {
+      await deleteProject(projectId)
+      // Update local state immediately
+      portfolioProjects.value = portfolioProjects.value.filter(p => p.id !== projectId)
+      console.log('✅ Project deleted and local state updated')
+    } catch (error) {
+      console.error('❌ Error deleting project:', error)
+    }
   }
 }
+
+// Debounce timer for async saving
+let saveProjectOrderTimeout: NodeJS.Timeout | null = null
 
 const updateProjectsOrder = async (newProjects: any[]) => {
   try {
-    // Update projects order in parallel
-    const updatePromises = newProjects.map(async (project, index) => {
-      project.order = index + 1
-      return updateProject(project.id, project)
+    console.log('🔄 Updating projects order:', newProjects.map(p => ({ id: p.id, title: p.title, newIndex: newProjects.indexOf(p) })))
+    
+    // 1. Mise à jour locale INSTANTANÉE pour l'affichage
+    // Met à jour directement le state réactif du composable
+    portfolioProjects.value = newProjects.map((project, index) => ({
+      ...project,
+      order: index + 1
+    }))
+    console.log('✨ Local state updated instantly for smooth UX')
+    
+    // 2. Mise à jour des objets individuels pour cohérence
+    newProjects.forEach((project, index) => {
+      const newOrder = index + 1
+      console.log(`📝 Setting project "${project.title}" order from ${project.order} to ${newOrder}`)
+      project.order = newOrder
     })
     
-    await Promise.all(updatePromises)
-    console.log('Projects order updated successfully')
+    // 3. Clear existing timeout
+    if (saveProjectOrderTimeout) {
+      clearTimeout(saveProjectOrderTimeout)
+    }
+    
+    // 4. Sauvegarde BDD en arrière-plan (debounced)
+    saveProjectOrderTimeout = setTimeout(async () => {
+      try {
+        const updatePromises = newProjects.map(async (project, index) => {
+          const newOrder = index + 1
+          console.log(`💾 Saving project "${project.title}" with order ${newOrder} to database`)
+          return updateProject(project.id, { 
+            ...project, 
+            order: newOrder 
+          })
+        })
+        
+        await Promise.all(updatePromises)
+        console.log('✅ Projects order saved to database successfully')
+      } catch (error) {
+        console.error('❌ Error saving projects order to database:', error)
+        // En cas d'erreur, on pourrait recharger les données
+        // await fetchProjects()
+      }
+    }, 1000) // Save to DB after 1 second of inactivity
+    
   } catch (error) {
-    console.error('Error updating projects order:', error)
+    console.error('❌ Error updating projects order:', error)
   }
 }
 
