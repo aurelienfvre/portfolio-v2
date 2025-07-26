@@ -23,9 +23,18 @@
 
 <script setup lang="ts">
 import { Link2 } from 'lucide-vue-next'
-import { socialLinks } from '@/data/social'
 import BentoItem from '~/components/common/BentoItem.vue'
 import SocialLink from '~/components/common/SocialLink.vue'
+import { usePortfolioDatabase } from '~/composables/usePortfolioDatabase'
+
+const { socialLinks, fetchSocialLinks } = usePortfolioDatabase()
+
+// Fetch social links data on mount
+onMounted(async () => {
+  if (!socialLinks.value || socialLinks.value.length === 0) {
+    await fetchSocialLinks()
+  }
+})
 </script>
 
 <style scoped>

@@ -79,9 +79,8 @@
 
     <!-- Portfolio Bento Grid Éditable avec Preview -->
     <div class="pt-24 pb-8">
-      <div class="flex gap-8 max-w-[140rem] mx-auto px-4">
+      <div class="max-w-[1400px] mx-auto px-6">
         <!-- Éditeur principal -->
-        <div class="w-1/2 bento-grid-editable">
           <div class="relative">
             <div
               class="absolute -top-16 left-4 text-sm text-gray-600 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-xl z-20 border border-gray-200 shadow-md"
@@ -244,9 +243,95 @@
                   </button>
                 </div>
               </div>
+              
+              <!-- Custom Blocks Section -->
+              <div
+                v-for="(block, index) in customBlocks"
+                :key="`custom-${block.id}`"
+                :class="`col-span-${block.colSpan || 6} relative group cursor-move`"
+                @dblclick="handleDoubleClick(block, $event)"
+              >
+                <!-- Composant CustomBlock -->
+                <CustomBlock
+                  :block="block"
+                  class="h-full min-h-[200px] portfolio-block-editable"
+                />
+
+                <!-- Overlay d'édition en hover -->
+                <div
+                  class="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-all duration-200 rounded-2xl border-2 border-transparent group-hover:border-accent group-hover:border-dashed pointer-events-none"
+                ></div>
+
+                <!-- Boutons d'édition -->
+                <div
+                  class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-200 flex space-x-2 pointer-events-auto z-20"
+                >
+                  <!-- Éditer -->
+                  <button
+                    @click.stop="openBentoModal(block)"
+                    class="bg-accent hover:bg-accent/90 text-bg-primary rounded-full p-2 shadow-lg hover:scale-105 transition-all"
+                    title="Éditer le bloc"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                      />
+                    </svg>
+                  </button>
+
+                  <!-- Redimensionner -->
+                  <button
+                    @click.stop="openResizeModal(block)"
+                    class="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-2 shadow-lg hover:scale-105 transition-all"
+                    title="Redimensionner"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
+                      />
+                    </svg>
+                  </button>
+
+                  <!-- Supprimer -->
+                  <button
+                    @click.stop="deleteCustomBlock(block.id)"
+                    class="bg-red-500 hover:bg-red-600 text-white rounded-full p-2 shadow-lg hover:scale-105 transition-all"
+                    title="Supprimer"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
             </VueDraggable>
           </div>
-        </div>
       </div>
     </div>
 
@@ -264,6 +349,369 @@
       @close="closeResizeModal"
       @save="saveBlockSize"
     />
+
+    <!-- Profile Editor Modal -->
+    <Teleport to="body">
+      <div 
+        v-if="showProfileEditor"
+        class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+        @click="closeContextualEditors"
+      >
+        <div 
+          class="bg-bg-primary border border-border-primary rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          @click.stop
+        >
+          <div class="p-8">
+            <div class="flex justify-between items-center mb-8">
+              <h3 class="text-2xl font-bold text-text-primary">Éditer le Profil</h3>
+              <button 
+                @click="closeContextualEditors" 
+                class="text-text-tertiary hover:text-text-primary hover:bg-bg-secondary rounded-xl p-2 transition-all duration-200"
+              >
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <form @submit.prevent="saveProfileData" class="space-y-6">
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-semibold text-text-primary mb-3">
+                    Prénom *
+                  </label>
+                  <input
+                    v-model="profileForm.firstName"
+                    type="text"
+                    required
+                    class="w-full px-4 py-3 border border-border-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-bg-secondary text-text-primary"
+                    style="direction: ltr; text-align: left;"
+                  >
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-semibold text-text-primary mb-3">
+                    Nom *
+                  </label>
+                  <input
+                    v-model="profileForm.lastName"
+                    type="text"
+                    required
+                    class="w-full px-4 py-3 border border-border-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-bg-secondary text-text-primary"
+                    style="direction: ltr; text-align: left;"
+                  >
+                </div>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-semibold text-text-primary mb-3">
+                  Titre/Poste *
+                </label>
+                <input
+                  v-model="profileForm.title"
+                  type="text"
+                  required
+                  class="w-full px-4 py-3 border border-border-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-bg-secondary text-text-primary"
+                  style="direction: ltr; text-align: left;"
+                  placeholder="ex: Développeur Front-end"
+                >
+              </div>
+              
+              <div>
+                <label class="block text-sm font-semibold text-text-primary mb-3">
+                  Description
+                </label>
+                <textarea
+                  v-model="profileForm.description"
+                  rows="3"
+                  class="w-full px-4 py-3 border border-border-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-bg-secondary text-text-primary resize-none"
+                  style="direction: ltr; text-align: left;"
+                  placeholder="Décrivez-vous en quelques mots..."
+                ></textarea>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-semibold text-text-primary mb-3">
+                  Email
+                </label>
+                <input
+                  v-model="profileForm.email"
+                  type="email"
+                  class="w-full px-4 py-3 border border-border-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-bg-secondary text-text-primary"
+                  style="direction: ltr; text-align: left;"
+                  placeholder="votre@email.com"
+                >
+              </div>
+              
+              <div>
+                <label class="block text-sm font-semibold text-text-primary mb-3">
+                  URL du CV
+                </label>
+                <input
+                  v-model="profileForm.cvUrl"
+                  type="url"
+                  class="w-full px-4 py-3 border border-border-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-bg-secondary text-text-primary"
+                  style="direction: ltr; text-align: left;"
+                  placeholder="/files/CV-MonNom.pdf"
+                >
+              </div>
+              
+              <!-- Actions -->
+              <div class="flex justify-end space-x-4 pt-6 border-t border-border-primary">
+                <button
+                  type="button"
+                  @click="closeContextualEditors"
+                  class="px-6 py-3 text-text-secondary border border-border-primary rounded-2xl hover:bg-bg-secondary hover:text-text-primary transition-all duration-200 font-medium"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  class="px-6 py-3 bg-accent text-bg-primary rounded-2xl hover:bg-accent/90 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl"
+                >
+                  Sauvegarder
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- Formation Editor Modal -->
+    <Teleport to="body">
+      <div 
+        v-if="showFormationEditor"
+        class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+        @click="closeContextualEditors"
+      >
+        <div 
+          class="bg-bg-primary border border-border-primary rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          @click.stop
+        >
+          <div class="p-8">
+            <div class="flex justify-between items-center mb-8">
+              <h3 class="text-2xl font-bold text-text-primary">Éditer les Formations</h3>
+              <button 
+                @click="closeContextualEditors" 
+                class="text-text-tertiary hover:text-text-primary hover:bg-bg-secondary rounded-xl p-2 transition-all duration-200"
+              >
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div class="space-y-6">
+              <!-- Liste des formations existantes -->
+              <div v-if="formations && formations.length > 0">
+                <h4 class="text-lg font-semibold text-text-primary mb-4">Formations existantes</h4>
+                <div class="space-y-3 max-h-60 overflow-y-auto">
+                  <div 
+                    v-for="formation in formations" 
+                    :key="formation.id"
+                    class="flex items-center justify-between p-3 bg-bg-secondary rounded-xl border border-border-primary"
+                  >
+                    <div class="flex-1">
+                      <div class="font-medium text-text-primary">{{ formation.title }}</div>
+                      <div class="text-sm text-text-secondary">{{ formation.institution }} ({{ formation.period }})</div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <button
+                        @click="editFormation(formation)"
+                        class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="Modifier"
+                      >
+                        ✏️
+                      </button>
+                      <button
+                        @click="deleteFormationItem(formation.id)"
+                        class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Supprimer"
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Formulaire d'ajout/édition -->
+              <div>
+                <h4 class="text-lg font-semibold text-text-primary mb-4">
+                  {{ editingFormationId ? 'Modifier la formation' : 'Ajouter une formation' }}
+                </h4>
+                
+                <form @submit.prevent="saveFormation" class="space-y-4">
+                  <div>
+                    <label class="block text-sm font-semibold text-text-primary mb-2">
+                      Titre de la formation *
+                    </label>
+                    <input
+                      v-model="formationForm.title"
+                      type="text"
+                      required
+                      class="w-full px-4 py-3 border border-border-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-bg-secondary text-text-primary"
+                      style="direction: ltr; text-align: left;"
+                      placeholder="ex: BUT MMI - 3e année"
+                    >
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-semibold text-text-primary mb-2">
+                      Institution *
+                    </label>
+                    <input
+                      v-model="formationForm.institution"
+                      type="text"
+                      required
+                      class="w-full px-4 py-3 border border-border-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-bg-secondary text-text-primary"
+                      style="direction: ltr; text-align: left;"
+                      placeholder="ex: IUT de Troyes"
+                    >
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-semibold text-text-primary mb-2">
+                      Période *
+                    </label>
+                    <input
+                      v-model="formationForm.period"
+                      type="text"
+                      required
+                      class="w-full px-4 py-3 border border-border-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-bg-secondary text-text-primary"
+                      style="direction: ltr; text-align: left;"
+                      placeholder="ex: 2022-2025"
+                    >
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-semibold text-text-primary mb-2">
+                      Description
+                    </label>
+                    <textarea
+                      v-model="formationForm.description"
+                      rows="2"
+                      class="w-full px-4 py-3 border border-border-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-bg-secondary text-text-primary resize-none"
+                      style="direction: ltr; text-align: left;"
+                      placeholder="Description optionnelle..."
+                    ></textarea>
+                  </div>
+                  
+                  <div class="flex justify-end space-x-3 pt-4">
+                    <button
+                      type="button"
+                      @click="editingFormationId = null; formationForm = { title: '', institution: '', period: '', description: '', order: formations.length }"
+                      class="px-4 py-2 text-text-secondary border border-border-primary rounded-xl hover:bg-bg-secondary transition-colors"
+                    >
+                      {{ editingFormationId ? 'Annuler' : 'Reset' }}
+                    </button>
+                    <button
+                      type="submit"
+                      class="px-6 py-2 bg-accent text-bg-primary rounded-xl hover:bg-accent/90 transition-colors font-semibold"
+                    >
+                      {{ editingFormationId ? 'Modifier' : 'Ajouter' }}
+                    </button>
+                  </div>
+                </form>
+              </div>
+              
+              <!-- Actions de fermeture -->
+              <div class="flex justify-end pt-6 border-t border-border-primary">
+                <button
+                  @click="closeContextualEditors()"
+                  class="px-6 py-3 bg-gray-500 text-white rounded-2xl hover:bg-gray-600 transition-all duration-200 font-semibold"
+                >
+                  Fermer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- Stage Editor Modal -->
+    <Teleport to="body">
+      <div 
+        v-if="showStageEditor"
+        class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+        @click="closeContextualEditors"
+      >
+        <div 
+          class="bg-bg-primary border border-border-primary rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          @click.stop
+        >
+          <div class="p-8">
+            <div class="flex justify-between items-center mb-8">
+              <h3 class="text-2xl font-bold text-text-primary">Éditer les Infos de Stage</h3>
+              <button 
+                @click="closeContextualEditors" 
+                class="text-text-tertiary hover:text-text-primary hover:bg-bg-secondary rounded-xl p-2 transition-all duration-200"
+              >
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div class="text-center py-8">
+              <p class="text-text-secondary">Les informations de stage sont stockées dans la base de données.</p>
+              <p class="text-text-tertiary text-sm mt-2">Modifiez directement les données via les scripts ou l'interface admin.</p>
+              <div class="mt-6">
+                <button
+                  @click="closeContextualEditors()"
+                  class="px-6 py-3 bg-gray-500 text-white rounded-2xl hover:bg-gray-600 transition-all duration-200 font-semibold"
+                >
+                  Fermer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- Social Links Editor Modal -->
+    <Teleport to="body">
+      <div 
+        v-if="showSocialLinksEditor"
+        class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+        @click="closeContextualEditors"
+      >
+        <div 
+          class="bg-bg-primary border border-border-primary rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          @click.stop
+        >
+          <div class="p-8">
+            <div class="flex justify-between items-center mb-8">
+              <h3 class="text-2xl font-bold text-text-primary">Éditer les Liens Sociaux</h3>
+              <button 
+                @click="closeContextualEditors" 
+                class="text-text-tertiary hover:text-text-primary hover:bg-bg-secondary rounded-xl p-2 transition-all duration-200"
+              >
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div class="text-center py-8">
+              <p class="text-text-secondary">Les liens sociaux sont stockés dans la base de données.</p>
+              <p class="text-text-tertiary text-sm mt-2">Modifiez directement les données via les scripts ou l'interface admin.</p>
+              <div class="mt-6">
+                <button
+                  @click="closeContextualEditors()"
+                  class="px-6 py-3 bg-gray-500 text-white rounded-2xl hover:bg-gray-600 transition-all duration-200 font-semibold"
+                >
+                  Fermer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
 
     <!-- WYSIWYG Editor Tooltip (Style Notion) -->
     <Transition
@@ -341,10 +789,10 @@
         </div>
 
         <!-- Éditeur WYSIWYG -->
-        <WysiwygEditor
+        <TipTapEditor
           v-model="editingContent"
           label="Contenu du bloc"
-          class="min-h-[250px]"
+          placeholder="Tapez votre contenu ici..."
         />
 
         <!-- Actions avec design moderne -->
@@ -390,7 +838,7 @@ import { ref, onMounted, onUnmounted, nextTick } from "vue";
 import { usePortfolioDatabase } from "~/composables/usePortfolioDatabase";
 import BentoModal from "~/components/admin/BentoModal.vue";
 import ResizeModal from "~/components/admin/ResizeModal.vue";
-import WysiwygEditor from "~/components/admin/WysiwygEditor.vue";
+import TipTapEditor from "~/components/admin/TipTapEditor.vue";
 import { VueDraggable } from "vue-draggable-plus";
 
 // Import portfolio sections
@@ -402,6 +850,7 @@ import FormationSection from "~/components/sections/FormationSection.vue";
 import SkillsSection from "~/components/sections/SkillsSection.vue";
 import ProjectsSection from "~/components/sections/ProjectsSection.vue";
 import ContactSection from "~/components/sections/ContactSection.vue";
+import CustomBlock from "~/components/sections/CustomBlock.vue";
 
 // Portfolio data management
 const {
@@ -411,6 +860,23 @@ const {
   updateBentoBlock,
   deleteBentoBlock,
   fetchBentoBlocks,
+  profile,
+  fetchProfile,
+  updateProfile,
+  formations,
+  fetchFormations,
+  addFormation,
+  updateFormation,
+  deleteFormation,
+  stage,
+  fetchStage,
+  socialLinks,
+  fetchSocialLinks,
+  customBlocks,
+  fetchCustomBlocks,
+  addCustomBlock,
+  updateCustomBlock,
+  deleteCustomBlock,
 } = usePortfolioDatabase();
 
 // Modal states
@@ -425,12 +891,48 @@ const editingBlock = ref<any>(null);
 const editingContent = ref("");
 const tooltipPosition = ref({ top: "0px", left: "0px" });
 
+// Contextual editors state
+const showProfileEditor = ref(false);
+const showFormationEditor = ref(false);
+const showStageEditor = ref(false);
+const showSocialLinksEditor = ref(false);
+
+// Form data for editing
+const profileForm = ref({
+  firstName: '',
+  lastName: '',
+  title: '',
+  description: '',
+  email: '',
+  cvUrl: ''
+});
+
+const formationForm = ref({
+  title: '',
+  institution: '',
+  period: '',
+  description: '',
+  order: 0
+});
+
+const editingFormationId = ref<number | null>(null);
+
 // Drag and drop state (vue-draggable-plus)
 const bentoContainer = ref(null);
 
 // Modal management
 const openBentoModal = (block = null) => {
-  selectedBentoBlock.value = block;
+  // If it's a custom block, convert it to the modal format
+  if (block && block.type && !block.component) {
+    selectedBentoBlock.value = {
+      ...block,
+      component: 'CustomBlock',
+      type: 'CustomBlock',
+      isCustomBlock: true
+    };
+  } else {
+    selectedBentoBlock.value = block;
+  }
   showBentoModal.value = true;
 };
 
@@ -441,14 +943,41 @@ const closeBentoModal = () => {
 
 const saveBentoBlock = async (blockData: any) => {
   try {
+    // Determine if this is a custom block
+    const isCustomBlock = blockData.component === 'CustomBlock' || blockData.type === 'CustomBlock';
+    
     if (selectedBentoBlock.value) {
-      await updateBentoBlock(selectedBentoBlock.value.id, blockData);
-    } else {
-      // Ajouter la taille par défaut si pas spécifiée
-      if (!blockData.colSpan && blockData.component) {
-        blockData.colSpan = getDefaultColSpan(blockData.component)
+      if (isCustomBlock) {
+        // Update custom block
+        await updateCustomBlock(selectedBentoBlock.value.id, {
+          type: blockData.type || 'custom-text',
+          title: blockData.title,
+          content: blockData.content,
+          colSpan: blockData.colSpan,
+          order: blockData.order || 0,
+          visible: blockData.visible !== false
+        });
+      } else {
+        await updateBentoBlock(selectedBentoBlock.value.id, blockData);
       }
-      await addBentoBlock(blockData);
+    } else {
+      if (isCustomBlock) {
+        // Create custom block
+        await addCustomBlock({
+          type: blockData.type || 'custom-text',
+          title: blockData.title,
+          content: blockData.content,
+          colSpan: blockData.colSpan || 6,
+          order: blockData.order || 0,
+          visible: blockData.visible !== false
+        });
+      } else {
+        // Ajouter la taille par défaut si pas spécifiée
+        if (!blockData.colSpan && blockData.component) {
+          blockData.colSpan = getDefaultColSpan(blockData.component)
+        }
+        await addBentoBlock(blockData);
+      }
     }
     closeBentoModal();
   } catch (error) {
@@ -490,13 +1019,44 @@ const deleteBlock = async (blockId: number) => {
   }
 };
 
-// Double click handler for WYSIWYG editing
+// Double click handler for contextual editing
 const handleDoubleClick = (block: any, event: MouseEvent) => {
   console.log('Double-clic sur:', block.component, block)
   
-  // Tous les composants sont éditables maintenant
-  const editableComponents = ["IntroSection", "ProfileSection", "ContactSection", "SkillsSection", "ProjectsSection", "StageSection", "LinksSection", "FormationSection"];
-
+  // Redirection vers les bonnes pages d'admin pour certains composants
+  if (block.component === 'SkillsSection') {
+    navigateTo('/admin/skills')
+    return
+  }
+  
+  if (block.component === 'ProjectsSection') {
+    navigateTo('/admin/projects')
+    return
+  }
+  
+  // Édition contextuelle pour les composants avec des données spécifiques
+  if (['ProfileSection', 'IntroSection'].includes(block.component)) {
+    openProfileEditor(block, event)
+    return
+  }
+  
+  if (block.component === 'FormationSection') {
+    openFormationEditor(block, event)
+    return
+  }
+  
+  if (block.component === 'StageSection') {
+    openStageEditor(block, event)
+    return
+  }
+  
+  if (block.component === 'LinksSection') {
+    openSocialLinksEditor(block, event)
+    return
+  }
+  
+  // Pour les autres composants, utiliser l'éditeur WYSIWYG simple
+  const editableComponents = ["ContactSection"];
   if (editableComponents.includes(block.component) || !block.component) {
     editingBlock.value = block;
     editingContent.value = block.content || block.title || "";
@@ -512,6 +1072,115 @@ const handleDoubleClick = (block: any, event: MouseEvent) => {
   } else {
     console.log('Composant non éditable:', block.component)
   }
+};
+
+// Contextual editors
+const openProfileEditor = async (block: any, event: MouseEvent) => {
+  editingBlock.value = block;
+  
+  // Charger les données du profil
+  if (!profile.value) {
+    await fetchProfile();
+  }
+  
+  // Remplir le formulaire avec les données existantes
+  if (profile.value) {
+    profileForm.value = {
+      firstName: profile.value.firstName || '',
+      lastName: profile.value.lastName || '',
+      title: profile.value.title || '',
+      description: profile.value.description || '',
+      email: profile.value.email || '',
+      cvUrl: profile.value.cvUrl || ''
+    };
+  }
+  
+  showProfileEditor.value = true;
+};
+
+const openFormationEditor = async (block: any, event: MouseEvent) => {
+  editingBlock.value = block;
+  editingFormationId.value = null;
+  
+  // Charger les formations si nécessaire
+  if (!formations.value || formations.value.length === 0) {
+    await fetchFormations();
+  }
+  
+  // Reset form
+  formationForm.value = {
+    title: '',
+    institution: '',
+    period: '',
+    description: '',
+    order: formations.value.length
+  };
+  
+  showFormationEditor.value = true;
+};
+
+const openStageEditor = (block: any, event: MouseEvent) => {
+  editingBlock.value = block;
+  showStageEditor.value = true;
+};
+
+const openSocialLinksEditor = (block: any, event: MouseEvent) => {
+  editingBlock.value = block;
+  showSocialLinksEditor.value = true;
+};
+
+const saveProfileData = async () => {
+  try {
+    await updateProfile(profileForm.value);
+    closeContextualEditors();
+    console.log('Profil mis à jour avec succès');
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde du profil:', error);
+  }
+};
+
+const saveFormation = async () => {
+  try {
+    if (editingFormationId.value) {
+      await updateFormation(editingFormationId.value, formationForm.value);
+    } else {
+      await addFormation(formationForm.value);
+    }
+    closeContextualEditors();
+    console.log('Formation sauvegardée avec succès');
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde de la formation:', error);
+  }
+};
+
+const editFormation = (formation: any) => {
+  editingFormationId.value = formation.id;
+  formationForm.value = {
+    title: formation.title,
+    institution: formation.institution,
+    period: formation.period,
+    description: formation.description || '',
+    order: formation.order
+  };
+};
+
+const deleteFormationItem = async (formationId: number) => {
+  if (confirm('Êtes-vous sûr de vouloir supprimer cette formation ?')) {
+    try {
+      await deleteFormation(formationId);
+      console.log('Formation supprimée avec succès');
+    } catch (error) {
+      console.error('Erreur lors de la suppression de la formation:', error);
+    }
+  }
+};
+
+const closeContextualEditors = () => {
+  showProfileEditor.value = false;
+  showFormationEditor.value = false;
+  showStageEditor.value = false;
+  showSocialLinksEditor.value = false;
+  editingBlock.value = null;
 };
 
 const closeWysiwygTooltip = () => {
@@ -563,6 +1232,7 @@ const componentMap = {
   SkillsSection: SkillsSection,
   ProjectsSection: ProjectsSection,
   ContactSection: ContactSection,
+  CustomBlock: CustomBlock,
 };
 
 // Function to get component dynamically
@@ -580,7 +1250,8 @@ const getDefaultColSpan = (componentName: string): number => {
     'FormationSection': 4,     // col-span-12 md:col-span-4
     'SkillsSection': 8,        // col-span-12 md:col-span-8
     'ProjectsSection': 12,     // col-span-12
-    'ContactSection': 12       // col-span-12
+    'ContactSection': 12,      // col-span-12
+    'CustomBlock': 6           // col-span-12 md:col-span-6 par défaut
   }
   return defaultSizes[componentName] || 6
 };
@@ -600,11 +1271,34 @@ const getBlockColor = (component: string) => {
   return colors[component] || "#6b7280"; // gray fallback
 };
 
+// Combine regular bento blocks and custom blocks
+const allSortedBlocks = computed(() => {
+  const regulars = sortedBentoBlocks.value.map(block => ({
+    ...block,
+    isCustomBlock: false
+  }));
+  
+  const customs = customBlocks.value.map(block => ({
+    ...block,
+    component: 'CustomBlock',
+    isCustomBlock: true,
+    // Convert custom block format to bento block format
+    backgroundColor: 'bg-slate-700' // Default for custom blocks
+  }));
+  
+  return [...regulars, ...customs].sort((a, b) => (a.order || 0) - (b.order || 0));
+});
+
 const totalColumns = computed(() => {
-  return sortedBentoBlocks.value.reduce(
+  const bentoTotal = sortedBentoBlocks.value.reduce(
     (total, block) => total + block.colSpan,
     0
   );
+  const customTotal = customBlocks.value.reduce(
+    (total, block) => total + (block.colSpan || 6),
+    0
+  );
+  return bentoTotal + customTotal;
 });
 
 const lastUpdateTime = computed(() => {
@@ -649,6 +1343,14 @@ const handleKeydown = (event: KeyboardEvent) => {
 // Initialize data on mount
 onMounted(async () => {
   await fetchBentoBlocks();
+  
+  // Précharger les données pour l'édition contextuelle
+  await Promise.all([
+    fetchProfile(),
+    fetchFormations(),
+    fetchStage(),
+    fetchSocialLinks()
+  ]);
 
   // Add keyboard event listeners
   document.addEventListener("keydown", handleKeydown);

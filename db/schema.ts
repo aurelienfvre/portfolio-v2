@@ -196,3 +196,19 @@ export type NewStage = typeof stage.$inferInsert
 
 export type SocialLink = typeof socialLinks.$inferSelect
 export type NewSocialLink = typeof socialLinks.$inferInsert
+
+// Table pour les blocs custom (expériences, projets custom, etc.)
+export const customBlocks = sqliteTable('custom_blocks', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  type: text('type').notNull(), // 'experience', 'custom-text', 'gallery', etc.
+  title: text('title').notNull(),
+  content: text('content'), // JSON string avec les données du bloc
+  colSpan: integer('col_span').default(6),
+  order: integer('order').default(0),
+  visible: integer('visible', { mode: 'boolean' }).default(true),
+  createdAt: text('created_at').default('CURRENT_TIMESTAMP'),
+  updatedAt: text('updated_at').default('CURRENT_TIMESTAMP')
+})
+
+export type CustomBlock = typeof customBlocks.$inferSelect
+export type NewCustomBlock = typeof customBlocks.$inferInsert

@@ -11,7 +11,7 @@
       <div class="space-y-6">
         <div
             v-for="formation in formations"
-            :key="formation.title"
+            :key="formation.id"
             class="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-3 before:w-2 before:h-2 before:rounded-full before:bg-text-primary"
         >
           <p class="font-medium">{{ formation.title }}</p>
@@ -27,6 +27,15 @@
 
 <script setup lang="ts">
 import { GraduationCap } from 'lucide-vue-next'
-import { formations } from '@/data/formation'
 import BentoItem from '~/components/common/BentoItem.vue'
+import { usePortfolioDatabase } from '~/composables/usePortfolioDatabase'
+
+const { formations, fetchFormations } = usePortfolioDatabase()
+
+// Fetch formations data on mount
+onMounted(async () => {
+  if (!formations.value || formations.value.length === 0) {
+    await fetchFormations()
+  }
+})
 </script>

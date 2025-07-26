@@ -7,6 +7,11 @@ const portfolioStudentYears = ref([])
 const portfolioBentoBlocks = ref([])
 const portfolioCompetences = ref([])
 const portfolioApprentissagesCritiques = ref([])
+const portfolioProfile = ref(null)
+const portfolioFormations = ref([])
+const portfolioStage = ref(null)
+const portfolioSocialLinks = ref([])
+const portfolioCustomBlocks = ref([])
 const isLoading = ref(false)
 const error = ref(null)
 
@@ -297,6 +302,166 @@ export const usePortfolioDatabase = () => {
     }
   }
 
+  // Profile Management avec API
+  const fetchProfile = async () => {
+    try {
+      isLoading.value = true
+      const response = await $fetch('/api/profile')
+      if (response.success) {
+        portfolioProfile.value = response.data
+      }
+    } catch (err) {
+      error.value = err
+      console.error('Error fetching profile:', err)
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const updateProfile = async (profileData: any) => {
+    try {
+      isLoading.value = true
+      const response = await $fetch('/api/profile', {
+        method: 'PUT',
+        body: profileData
+      })
+      if (response.success) {
+        portfolioProfile.value = response.data
+      }
+      return response
+    } catch (err) {
+      error.value = err
+      console.error('Error updating profile:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  // Formations Management avec API
+  const fetchFormations = async () => {
+    try {
+      isLoading.value = true
+      const response = await $fetch('/api/formations')
+      if (response.success) {
+        portfolioFormations.value = response.data
+      }
+    } catch (err) {
+      error.value = err
+      console.error('Error fetching formations:', err)
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const addFormation = async (formation: any) => {
+    try {
+      isLoading.value = true
+      const response = await $fetch('/api/formations', {
+        method: 'POST',
+        body: formation
+      })
+      if (response.success) {
+        await fetchFormations() // Refresh list
+      }
+      return response
+    } catch (err) {
+      error.value = err
+      console.error('Error adding formation:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const updateFormation = async (formationId: number, updatedFormation: any) => {
+    try {
+      isLoading.value = true
+      const response = await $fetch(`/api/formations/${formationId}`, {
+        method: 'PUT',
+        body: updatedFormation
+      })
+      if (response.success) {
+        await fetchFormations() // Refresh list
+      }
+      return response
+    } catch (err) {
+      error.value = err
+      console.error('Error updating formation:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const deleteFormation = async (formationId: number) => {
+    try {
+      isLoading.value = true
+      await $fetch(`/api/formations/${formationId}`, {
+        method: 'DELETE'
+      })
+      await fetchFormations() // Refresh list
+    } catch (err) {
+      error.value = err
+      console.error('Error deleting formation:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  // Stage Management avec API
+  const fetchStage = async () => {
+    try {
+      isLoading.value = true
+      const response = await $fetch('/api/stage')
+      if (response.success) {
+        portfolioStage.value = response.data
+      }
+    } catch (err) {
+      error.value = err
+      console.error('Error fetching stage:', err)
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const updateStage = async (stageData: any) => {
+    try {
+      isLoading.value = true
+      const response = await $fetch('/api/stage', {
+        method: 'PUT',
+        body: stageData
+      })
+      if (response.success) {
+        portfolioStage.value = response.data
+      }
+      return response
+    } catch (err) {
+      error.value = err
+      console.error('Error updating stage:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  // Social Links Management avec API
+  const fetchSocialLinks = async () => {
+    try {
+      isLoading.value = true
+      const response = await $fetch('/api/social-links')
+      if (response.success) {
+        portfolioSocialLinks.value = response.data
+      }
+    } catch (err) {
+      error.value = err
+      console.error('Error fetching social links:', err)
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   // Computed getters
   const sortedBentoBlocks = computed(() => {
     return [...portfolioBentoBlocks.value]
@@ -328,8 +493,88 @@ export const usePortfolioDatabase = () => {
       fetchProjects(),
       fetchSkills(),
       fetchBentoBlocks(),
-      fetchStudentYears()
+      fetchStudentYears(),
+      fetchProfile(),
+      fetchFormations(),
+      fetchStage(),
+      fetchSocialLinks(),
+      fetchCustomBlocks()
     ])
+  }
+
+  // Custom Blocks Management
+  const fetchCustomBlocks = async () => {
+    try {
+      isLoading.value = true
+      const response = await $fetch('/api/custom-blocks')
+      if (response.success) {
+        portfolioCustomBlocks.value = response.data
+      }
+    } catch (err) {
+      error.value = err
+      console.error('Error fetching custom blocks:', err)
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const addCustomBlock = async (block: any) => {
+    try {
+      isLoading.value = true
+      const response = await $fetch('/api/custom-blocks', {
+        method: 'POST',
+        body: block
+      })
+      if (response.success) {
+        await fetchCustomBlocks() // Refresh list
+      }
+      return response
+    } catch (err) {
+      error.value = err
+      console.error('Error adding custom block:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const updateCustomBlock = async (id: number, block: any) => {
+    try {
+      isLoading.value = true
+      const response = await $fetch(`/api/custom-blocks/${id}`, {
+        method: 'PUT',
+        body: block
+      })
+      if (response.success) {
+        await fetchCustomBlocks() // Refresh list
+      }
+      return response
+    } catch (err) {
+      error.value = err
+      console.error('Error updating custom block:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const deleteCustomBlock = async (id: number) => {
+    try {
+      isLoading.value = true
+      const response = await $fetch(`/api/custom-blocks/${id}`, {
+        method: 'DELETE'
+      })
+      if (response.success) {
+        await fetchCustomBlocks() // Refresh list
+      }
+      return response
+    } catch (err) {
+      error.value = err
+      console.error('Error deleting custom block:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
   }
 
   return {
@@ -340,6 +585,11 @@ export const usePortfolioDatabase = () => {
     bentoBlocks: portfolioBentoBlocks,
     competences: portfolioCompetences,
     apprentissagesCritiques: portfolioApprentissagesCritiques,
+    profile: portfolioProfile,
+    formations: portfolioFormations,
+    stage: portfolioStage,
+    socialLinks: portfolioSocialLinks,
+    customBlocks: portfolioCustomBlocks,
     isLoading,
     error,
     
@@ -370,6 +620,23 @@ export const usePortfolioDatabase = () => {
     fetchCompetences,
     fetchApprentissagesCritiques,
     updateStudentAC,
+    
+    // Profile & Static Data
+    fetchProfile,
+    updateProfile,
+    fetchFormations,
+    addFormation,
+    updateFormation,
+    deleteFormation,
+    fetchStage,
+    updateStage,
+    fetchSocialLinks,
+    
+    // Custom Blocks
+    fetchCustomBlocks,
+    addCustomBlock,
+    updateCustomBlock,
+    deleteCustomBlock,
     
     // Init
     initializeData

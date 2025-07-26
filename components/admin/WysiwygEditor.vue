@@ -30,8 +30,10 @@
       contenteditable="true"
       @input="handleInput"
       @paste="handlePaste"
+      @keydown="handleKeydown"
       class="min-h-[200px] p-4 border border-border-primary rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-bg-primary text-text-primary"
       :class="{ 'empty': isEmpty }"
+      style="direction: ltr; text-align: left;"
       v-html="modelValue"
     ></div>
     
@@ -57,6 +59,8 @@ const emit = defineEmits<{
 const editor = ref<HTMLElement>()
 
 const tools = [
+  { command: 'undo', label: '↶', title: 'Annuler (Ctrl+Z)' },
+  { command: 'redo', label: '↷', title: 'Rétablir (Ctrl+Y)' },
   { command: 'bold', label: 'G', title: 'Gras', icon: '<strong>B</strong>' },
   { command: 'italic', label: 'I', title: 'Italique', icon: '<em>I</em>' },
   { command: 'underline', label: 'U', title: 'Souligné', icon: '<u>U</u>' },
@@ -109,7 +113,33 @@ const isActive = (command: string) => {
 
 const handleInput = () => {
   if (editor.value) {
+    // Préserver la position du curseur
+    const selection = window.getSelection()
+    const range = selection && selection.rangeCount > 0 ? selection.getRangeAt(0) : null
+    const cursorPosition = range ? range.startOffset : 0
+    const parentNode = range?.startContainer
+    
     emit('update:modelValue', editor.value.innerHTML)
+    
+    // Restaurer la position du curseur après la mise à jour
+    nextTick(() => {
+      if (editor.value && parentNode && selection) {
+        try {
+          const newRange = document.createRange()
+          newRange.setStart(parentNode, Math.min(cursorPosition, parentNode.textContent?.length || 0))
+          newRange.collapse(true)
+          selection.removeAllRanges()
+          selection.addRange(newRange)
+        } catch (e) {
+          // Si la restauration échoue, placer le curseur à la fin
+          const newRange = document.createRange()
+          newRange.selectNodeContents(editor.value)
+          newRange.collapse(false)
+          selection.removeAllRanges()
+          selection.addRange(newRange)
+        }
+      }
+    })
   }
 }
 
@@ -130,9 +160,49 @@ const handlePaste = (e: ClipboardEvent) => {
   })
 }
 
+const handleKeydown = (e: KeyboardEvent) => {
+  // Gestion des raccourcis clavier
+  if (e.ctrlKey || e.metaKey) {
+    switch (e.key.toLowerCase()) {
+      case 'z':
+        if (e.shiftKey) {
+          // Ctrl+Shift+Z = Redo
+          e.preventDefault()
+          execCommand('redo')
+        } else {
+          // Ctrl+Z = Undo
+          e.preventDefault()
+          execCommand('undo')
+        }
+        break
+      case 'y':
+        // Ctrl+Y = Redo
+        e.preventDefault()
+        execCommand('redo')
+        break
+      case 'b':
+        // Ctrl+B = Bold
+        e.preventDefault()
+        execCommand('bold')
+        break
+      case 'i':
+        // Ctrl+I = Italic
+        e.preventDefault()
+        execCommand('italic')
+        break
+      case 'u':
+        // Ctrl+U = Underline
+        e.preventDefault()
+        execCommand('underline')
+        break
+    }
+  }
+}
+
 // Watch for external changes
 watch(() => props.modelValue, (newValue) => {
-  if (editor.value && editor.value.innerHTML !== newValue) {
+  if (editor.value && editor.value.innerHTML !== newValue && document.activeElement !== editor.value) {
+    // Ne mettre à jour que si l'éditeur n'est pas en cours d'édition
     editor.value.innerHTML = newValue || ''
   }
 })

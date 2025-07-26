@@ -8,18 +8,18 @@
       </div>
 
       <!-- Informations du stage -->
-      <div class="space-y-4">
+      <div class="space-y-4" v-if="stage">
         <div>
           <p class="text-lg font-medium">
-            {{ stageInfo.duration }} à partir de {{ stageInfo.startDate }}
+            {{ stage.duration }} à partir de {{ stage.startDate }}
           </p>
-          <p class="text-gray-400">{{ stageInfo.position }}</p>
+          <p class="text-gray-400">{{ stage.position }}</p>
         </div>
 
         <!-- Villes -->
-        <div class="flex flex-wrap gap-2">
+        <div class="flex flex-wrap gap-2" v-if="stage.locations && stage.locations.length">
           <TechPill
-              v-for="location in stageInfo.locations"
+              v-for="location in stage.locations"
               :key="location.name"
               :label="location.name"
               class="tech-pill-location"
@@ -36,9 +36,18 @@
 
 <script setup lang="ts">
 import { Search, MapPin } from 'lucide-vue-next'
-import { stageInfo } from '@/data/stage'
 import BentoItem from '~/components/common/BentoItem.vue'
 import TechPill from '~/components/common/TechPill.vue'
+import { usePortfolioDatabase } from '~/composables/usePortfolioDatabase'
+
+const { stage, fetchStage } = usePortfolioDatabase()
+
+// Fetch stage data on mount
+onMounted(async () => {
+  if (!stage.value) {
+    await fetchStage()
+  }
+})
 </script>
 
 <style scoped>

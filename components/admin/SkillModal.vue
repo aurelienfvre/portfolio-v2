@@ -35,6 +35,7 @@
               type="text"
               required
               class="w-full px-4 py-3 border border-border-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-bg-secondary text-text-primary placeholder-text-tertiary transition-all duration-200"
+              style="direction: ltr; text-align: left;"
               placeholder="Ex: Vue.js, PHP, Design..."
             >
           </div>
@@ -48,6 +49,7 @@
                 v-model="form.category"
                 required
                 class="w-full px-4 py-3 border border-border-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-bg-secondary text-text-primary placeholder-text-tertiary transition-all duration-200"
+                style="direction: ltr; text-align: left;"
                 @change="handleCategoryChange"
               >
                 <option value="">Sélectionner une catégorie</option>
@@ -63,6 +65,7 @@
                   type="text"
                   placeholder="Nom de la nouvelle catégorie"
                   class="flex-1 px-4 py-3 border border-border-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-bg-secondary text-text-primary placeholder-text-tertiary transition-all duration-200"
+                  style="direction: ltr; text-align: left;"
                   @keydown.enter="handleNewCategory"
                 >
                 <button
@@ -91,6 +94,7 @@
               v-model="form.icon"
               type="url"
               class="w-full px-4 py-3 border border-border-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-bg-secondary text-text-primary placeholder-text-tertiary transition-all duration-200"
+              style="direction: ltr; text-align: left;"
               placeholder="https://cdn.jsdelivr.net/gh/devicons/devicon/..."
             >
             <p class="text-xs text-text-tertiary mt-2">
@@ -141,6 +145,7 @@
             <select
               v-model="form.level"
               class="w-full px-4 py-3 border border-border-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-bg-secondary text-text-primary placeholder-text-tertiary transition-all duration-200"
+              style="direction: ltr; text-align: left;"
             >
               <option value="">Non spécifié</option>
               <option value="Débutant">Débutant</option>

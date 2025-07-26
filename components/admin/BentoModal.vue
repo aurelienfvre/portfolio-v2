@@ -88,6 +88,7 @@
                   <option value="Form">Formulaire</option>
                   <option value="Info">Information</option>
                   <option value="Custom">Personnalisé</option>
+                  <option value="CustomBlock">Bloc Personnalisé</option>
                 </select>
               </div>
 
@@ -428,6 +429,63 @@ const blockTemplates = ref([
     backgroundColor: 'bg-gray-500',
     component: '',
     content: 'Bloc vide prêt à être personnalisé'
+  },
+  {
+    id: 'experience',
+    name: 'Expériences',
+    description: 'Bloc des expériences professionnelles',
+    icon: '💼',
+    title: 'Mes Expériences',
+    type: 'Custom',
+    colSpan: 8,
+    backgroundColor: 'bg-emerald-500',
+    component: 'CustomBlock',
+    content: JSON.stringify({
+      type: 'experience',
+      experiences: [
+        {
+          position: 'Développeur Frontend',
+          company: 'Nom de l\'entreprise',
+          period: '2023 - Présent',
+          description: 'Description du poste et des missions'
+        }
+      ]
+    })
+  },
+  {
+    id: 'gallery',
+    name: 'Galerie',
+    description: 'Galerie d\'images',
+    icon: '🖼️',
+    title: 'Ma Galerie',
+    type: 'Custom',
+    colSpan: 6,
+    backgroundColor: 'bg-violet-500',
+    component: 'CustomBlock',
+    content: JSON.stringify({
+      type: 'gallery',
+      images: [
+        {
+          url: '/images/placeholder.jpg',
+          alt: 'Image exemple'
+        }
+      ]
+    })
+  },
+  {
+    id: 'custom-rich-text',
+    name: 'Texte Riche',
+    description: 'Bloc de texte avec formatage',
+    icon: '📝',
+    title: 'Mon Contenu',
+    type: 'Custom',
+    colSpan: 6,
+    backgroundColor: 'bg-amber-500',
+    component: 'CustomBlock',
+    content: JSON.stringify({
+      type: 'custom-text',
+      html: '<p>Votre contenu formaté ici...</p>'
+    })
   }
 ])
 
