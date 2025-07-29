@@ -20,18 +20,12 @@ export const portfolioConfigs: Record<'pro' | 'student', PortfolioConfig> = {
   student: {
     mode: 'student',
     title: 'Aurélien Fèvre - Étudiant BUT MMI',
-    description: 'Étudiant en BUT MMI recherchant une alternance en développement web. Parcours de 3 années avec compétences, projets et stages.',
-    navigation: [
-      { name: 'Accueil', path: '/student' },
-      { name: '1ère année', path: '/student#year1' },
-      { name: '2ème année', path: '/student#year2' },
-      { name: '3ème année', path: '/student#year3' },
-      { name: 'Contact', path: '/student#contact' }
-    ],
+    description: 'Étudiant en BUT MMI. Portfolio de compétences avec preuves concrètes de progression.',
+    navigation: [], // Navigation gérée directement dans les pages étudiantes
     seo: {
-      title: 'Aurélien Fèvre - Étudiant BUT MMI | Recherche Alternance Développement Web',
-      description: 'Étudiant en BUT MMI (3ème année) recherche alternance en développement web. Compétences en Vue.js, projets étudiants et professionnels.',
-      keywords: 'alternance développeur web, BUT MMI, étudiant développement, Vue.js, Nuxt.js, portfolio étudiant, Aurélien Fèvre'
+      title: 'Aurélien Fèvre - Étudiant BUT MMI | Portfolio de Compétences',
+      description: 'Étudiant en BUT MMI (3ème année). Explorez mes compétences à travers des preuves concrètes de ma progression.',
+      keywords: 'portfolio étudiant, BUT MMI, compétences, développement web, Vue.js, Nuxt.js, Aurélien Fèvre'
     }
   }
 }

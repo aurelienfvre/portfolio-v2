@@ -4,8 +4,8 @@
       <!-- Header -->
       <div class="mb-8 flex items-center justify-between">
         <div>
-          <h1 class="text-3xl font-bold text-text-primary mb-2">Mode Étudiant</h1>
-          <p class="text-text-tertiary">Gérez vos apprentissages critiques par année</p>
+          <h1 class="text-3xl font-bold text-text-primary mb-2">Système Compétence/Preuve</h1>
+          <p class="text-text-tertiary">Gérez vos compétences principales et preuves (Focus 3ème année)</p>
         </div>
         <div class="flex items-center gap-3">
           <NuxtLink 
@@ -20,24 +20,38 @@
         </div>
       </div>
 
-      <!-- Student Manager -->
-      <StudentManager
-        :studentYears="studentYears"
-        @openACModal="editAC"
-        @editAC="editAC"
-        @deleteAC="handleDeleteAC"
-        @updateStudentYears="handleUpdateStudentYears"
+      <!-- Compétences Principales -->
+      <CompetenceProofManager
+        :mainCompetences="mainCompetences"
+        :proofCategories="proofCategories"
+        :proofItems="proofItems"
+        @openCategoryModal="editCategory"
+        @editCategory="editCategory"
+        @deleteCategory="handleDeleteCategory"
+        @reorderCategories="handleReorderCategories"
+        @openItemModal="editItem"
+        @editItem="editItem"
+        @deleteItem="handleDeleteItem"
+        @reorderItems="handleReorderItems"
       />
     </div>
 
-    <!-- AC Modal -->
-    <ACModal
-      v-if="showACModal"
-      :ac="selectedAC"
-      :indices="selectedACIndices"
-      :available-years="studentYears"
-      @close="closeACModal"
-      @save="saveAC"
+    <!-- Category Modal -->
+    <ProofCategoryModal
+      v-if="showCategoryModal"
+      :category="selectedCategory"
+      :mainCompetences="mainCompetences"
+      @close="closeCategoryModal"
+      @save="saveCategory"
+    />
+
+    <!-- Item Modal -->
+    <ProofItemModal
+      v-if="showItemModal"
+      :item="selectedItem"
+      :proofCategories="proofCategories"
+      @close="closeItemModal"
+      @save="saveItem"
     />
   </div>
 </template>
@@ -45,98 +59,136 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { usePortfolioDatabase } from '~/composables/usePortfolioDatabase'
-import StudentManager from '~/components/admin/StudentManager.vue'
-import ACModal from '~/components/admin/ACModal.vue'
+import CompetenceProofManager from '~/components/admin/CompetenceProofManager.vue'
+import ProofCategoryModal from '~/components/admin/ProofCategoryModal.vue'
+import ProofItemModal from '~/components/admin/ProofItemModal.vue'
 
 // Portfolio data management
 const {
-  studentYears,
-  updateStudentAC,
-  fetchStudentYears
+  mainCompetences,
+  proofCategories,
+  proofItems,
+  fetchMainCompetences,
+  fetchProofCategories,
+  fetchProofItems,
+  addProofCategory,
+  updateProofCategory,
+  deleteProofCategory,
+  reorderProofCategories,
+  addProofItem,
+  updateProofItem,
+  deleteProofItem,
+  reorderProofItems
 } = usePortfolioDatabase()
 
-// Modal state
-const showACModal = ref(false)
-const selectedAC = ref(null)
-const selectedACIndices = ref({ yearIndex: -1, competenceIndex: -1, acIndex: -1 })
+// Category Modal state
+const showCategoryModal = ref(false)
+const selectedCategory = ref(null)
 
-// Helper function to find AC indices
-const findACIndices = (targetAC: any) => {
-  for (let yearIndex = 0; yearIndex < studentYears.value.length; yearIndex++) {
-    const year = studentYears.value[yearIndex]
-    for (let competenceIndex = 0; competenceIndex < year.skills.length; competenceIndex++) {
-      const competence = year.skills[competenceIndex]
-      for (let acIndex = 0; acIndex < competence.ac.length; acIndex++) {
-        const ac = competence.ac[acIndex]
-        if (ac.title === targetAC.title && ac.description === targetAC.description) {
-          return { yearIndex, competenceIndex, acIndex }
-        }
-      }
-    }
-  }
-  return { yearIndex: -1, competenceIndex: -1, acIndex: -1 }
+// Item Modal state
+const showItemModal = ref(false)
+const selectedItem = ref(null)
+
+// Category Management
+const editCategory = (category: any = {}) => {
+  selectedCategory.value = category
+  showCategoryModal.value = true
 }
 
-// Student AC Management
-const editAC = (ac: any = {}) => {
-  selectedAC.value = ac
-  if (ac.title) {
-    // Editing existing AC
-    selectedACIndices.value = findACIndices(ac)
-  } else {
-    // New AC - default to first year, first competence
-    selectedACIndices.value = { yearIndex: 0, competenceIndex: 0, acIndex: -1 }
-  }
-  showACModal.value = true
+const closeCategoryModal = () => {
+  showCategoryModal.value = false
+  selectedCategory.value = null
 }
 
-const closeACModal = () => {
-  showACModal.value = false
-  selectedAC.value = null
-  selectedACIndices.value = { yearIndex: -1, competenceIndex: -1, acIndex: -1 }
-}
-
-const saveAC = async (acData: any, yearIndex: number, competenceIndex: number) => {
+const saveCategory = async (categoryData: any) => {
   try {
-    // For now, we'll focus on drag & drop updates which use updateStudentAC
-    // Adding new ACs can be implemented later
-    console.log('AC save functionality - to be implemented')
-    closeACModal()
+    if (categoryData.id) {
+      // Update existing category
+      await updateProofCategory(categoryData.id, categoryData)
+    } else {
+      // Create new category
+      await addProofCategory(categoryData)
+    }
+    closeCategoryModal()
   } catch (error) {
-    console.error('Error saving AC:', error)
+    console.error('Error saving category:', error)
   }
 }
 
-const handleDeleteAC = async (ac: any) => {
-  if (confirm('Êtes-vous sûr de vouloir supprimer cet AC ?')) {
+const handleDeleteCategory = async (category: any) => {
+  if (confirm('Êtes-vous sûr de vouloir supprimer cette catégorie de preuve ? Tous les éléments associés seront également supprimés.')) {
     try {
-      // AC deletion functionality - to be implemented
-      console.log('AC delete functionality - to be implemented')
+      await deleteProofCategory(category.id)
     } catch (error) {
-      console.error('Error deleting AC:', error)
+      console.error('Error deleting category:', error)
     }
   }
 }
 
-const handleUpdateStudentYears = async (updatedData: any) => {
+const handleReorderCategories = async (reorderData: { id: number, order: number }[]) => {
   try {
-    // Handle drag & drop updates for AC order
-    if (updatedData.acUpdates && updatedData.yearId) {
-      await updateStudentAC(updatedData.yearId, updatedData.acUpdates)
-    }
+    await reorderProofCategories(reorderData)
   } catch (error) {
-    console.error('Error updating student years:', error)
+    console.error('Error reordering categories:', error)
+  }
+}
+
+// Item Management
+const editItem = (item: any = {}) => {
+  selectedItem.value = item
+  showItemModal.value = true
+}
+
+const closeItemModal = () => {
+  showItemModal.value = false
+  selectedItem.value = null
+}
+
+const saveItem = async (itemData: any) => {
+  try {
+    if (itemData.id) {
+      // Update existing item
+      await updateProofItem(itemData.id, itemData)
+    } else {
+      // Create new item
+      await addProofItem(itemData)
+    }
+    closeItemModal()
+  } catch (error) {
+    console.error('Error saving item:', error)
+  }
+}
+
+const handleDeleteItem = async (item: any) => {
+  if (confirm('Êtes-vous sûr de vouloir supprimer cet élément de preuve ?')) {
+    try {
+      await deleteProofItem(item.id)
+    } catch (error) {
+      console.error('Error deleting item:', error)
+    }
+  }
+}
+
+const handleReorderItems = async (reorderData: { id: number, order: number }[]) => {
+  try {
+    await reorderProofItems(reorderData)
+  } catch (error) {
+    console.error('Error reordering items:', error)
   }
 }
 
 // Initialize data on mount
 onMounted(async () => {
-  await fetchStudentYears()
+  await Promise.all([
+    fetchMainCompetences(),
+    fetchProofCategories(),
+    fetchProofItems()
+  ])
 })
 
 // SEO
 useHead({
-  title: 'Mode Étudiant - Portfolio Admin',
+  title: 'Système Compétence/Preuve - Portfolio Admin',
   meta: [
     { name: 'robots', content: 'noindex, nofollow' }
   ]
