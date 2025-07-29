@@ -12,6 +12,12 @@ const portfolioFormations = ref([])
 const portfolioStage = ref(null)
 const portfolioSocialLinks = ref([])
 const portfolioCustomBlocks = ref([])
+
+// Nouveau système Compétence/Preuve
+const portfolioMainCompetences = ref([])
+const portfolioProofCategories = ref([])
+const portfolioProofItems = ref([])
+
 const isLoading = ref(false)
 const error = ref(null)
 
@@ -577,6 +583,272 @@ export const usePortfolioDatabase = () => {
     }
   }
 
+  // ===================================================================
+  // NOUVEAU SYSTÈME COMPÉTENCE/PREUVE
+  // ===================================================================
+
+  // Main Competences Management
+  const fetchMainCompetences = async () => {
+    try {
+      isLoading.value = true
+      const response = await $fetch('/api/main-competences')
+      if (response.success) {
+        portfolioMainCompetences.value = response.data
+      }
+    } catch (err) {
+      error.value = err
+      console.error('Error fetching main competences:', err)
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const addMainCompetence = async (competence: any) => {
+    try {
+      isLoading.value = true
+      const response = await $fetch('/api/main-competences', {
+        method: 'POST',
+        body: competence
+      })
+      if (response.success) {
+        await fetchMainCompetences() // Refresh list
+      }
+      return response
+    } catch (err) {
+      error.value = err
+      console.error('Error adding main competence:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const updateMainCompetence = async (competenceId: number, updatedCompetence: any) => {
+    try {
+      isLoading.value = true
+      const response = await $fetch(`/api/main-competences/${competenceId}`, {
+        method: 'PUT',
+        body: updatedCompetence
+      })
+      if (response.success) {
+        await fetchMainCompetences() // Refresh list
+      }
+      return response
+    } catch (err) {
+      error.value = err
+      console.error('Error updating main competence:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const deleteMainCompetence = async (competenceId: number) => {
+    try {
+      isLoading.value = true
+      await $fetch(`/api/main-competences/${competenceId}`, {
+        method: 'DELETE'
+      })
+      await fetchMainCompetences() // Refresh list
+    } catch (err) {
+      error.value = err
+      console.error('Error deleting main competence:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  // Proof Categories Management
+  const fetchProofCategories = async (mainCompetenceId?: number) => {
+    try {
+      isLoading.value = true
+      const url = mainCompetenceId 
+        ? `/api/proof-categories?mainCompetenceId=${mainCompetenceId}`
+        : '/api/proof-categories'
+      const response = await $fetch(url)
+      if (response.success) {
+        portfolioProofCategories.value = response.data
+      }
+    } catch (err) {
+      error.value = err
+      console.error('Error fetching proof categories:', err)
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const addProofCategory = async (category: any) => {
+    try {
+      isLoading.value = true
+      const response = await $fetch('/api/proof-categories', {
+        method: 'POST',
+        body: category
+      })
+      if (response.success) {
+        await fetchProofCategories() // Refresh list
+      }
+      return response
+    } catch (err) {
+      error.value = err
+      console.error('Error adding proof category:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const updateProofCategory = async (categoryId: number, updatedCategory: any) => {
+    try {
+      isLoading.value = true
+      const response = await $fetch(`/api/proof-categories/${categoryId}`, {
+        method: 'PUT',
+        body: updatedCategory
+      })
+      if (response.success) {
+        await fetchProofCategories() // Refresh list
+      }
+      return response
+    } catch (err) {
+      error.value = err
+      console.error('Error updating proof category:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const deleteProofCategory = async (categoryId: number) => {
+    try {
+      isLoading.value = true
+      await $fetch(`/api/proof-categories/${categoryId}`, {
+        method: 'DELETE'
+      })
+      await fetchProofCategories() // Refresh list
+    } catch (err) {
+      error.value = err
+      console.error('Error deleting proof category:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const reorderProofCategories = async (reorderData: { id: number, order: number }[]) => {
+    try {
+      isLoading.value = true
+      const response = await $fetch('/api/proof-categories/reorder', {
+        method: 'PATCH',
+        body: reorderData
+      })
+      if (response.success) {
+        await fetchProofCategories() // Refresh list
+      }
+      return response
+    } catch (err) {
+      error.value = err
+      console.error('Error reordering proof categories:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  // Proof Items Management
+  const fetchProofItems = async (proofCategoryId?: number) => {
+    try {
+      isLoading.value = true
+      const url = proofCategoryId 
+        ? `/api/proof-items?proofCategoryId=${proofCategoryId}`
+        : '/api/proof-items'
+      const response = await $fetch(url)
+      if (response.success) {
+        portfolioProofItems.value = response.data
+      }
+    } catch (err) {
+      error.value = err
+      console.error('Error fetching proof items:', err)
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const addProofItem = async (item: any) => {
+    try {
+      isLoading.value = true
+      const response = await $fetch('/api/proof-items', {
+        method: 'POST',
+        body: item
+      })
+      if (response.success) {
+        await fetchProofItems() // Refresh list
+      }
+      return response
+    } catch (err) {
+      error.value = err
+      console.error('Error adding proof item:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const updateProofItem = async (itemId: number, updatedItem: any) => {
+    try {
+      isLoading.value = true
+      const response = await $fetch(`/api/proof-items/${itemId}`, {
+        method: 'PUT',
+        body: updatedItem
+      })
+      if (response.success) {
+        await fetchProofItems() // Refresh list
+      }
+      return response
+    } catch (err) {
+      error.value = err
+      console.error('Error updating proof item:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const deleteProofItem = async (itemId: number) => {
+    try {
+      isLoading.value = true
+      await $fetch(`/api/proof-items/${itemId}`, {
+        method: 'DELETE'
+      })
+      await fetchProofItems() // Refresh list
+    } catch (err) {
+      error.value = err
+      console.error('Error deleting proof item:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const reorderProofItems = async (reorderData: { id: number, order: number }[]) => {
+    try {
+      isLoading.value = true
+      const response = await $fetch('/api/proof-items/reorder', {
+        method: 'PATCH',
+        body: reorderData
+      })
+      if (response.success) {
+        await fetchProofItems() // Refresh list
+      }
+      return response
+    } catch (err) {
+      error.value = err
+      console.error('Error reordering proof items:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   return {
     // Data
     projects: portfolioProjects,
@@ -590,6 +862,12 @@ export const usePortfolioDatabase = () => {
     stage: portfolioStage,
     socialLinks: portfolioSocialLinks,
     customBlocks: portfolioCustomBlocks,
+    
+    // Nouveau système Compétence/Preuve
+    mainCompetences: portfolioMainCompetences,
+    proofCategories: portfolioProofCategories,
+    proofItems: portfolioProofItems,
+    
     isLoading,
     error,
     
@@ -615,11 +893,27 @@ export const usePortfolioDatabase = () => {
     updateBentoBlock,
     deleteBentoBlock,
     
-    // Student
+    // Student (ancien système)
     fetchStudentYears,
     fetchCompetences,
     fetchApprentissagesCritiques,
     updateStudentAC,
+    
+    // Nouveau système Compétence/Preuve
+    fetchMainCompetences,
+    addMainCompetence,
+    updateMainCompetence,
+    deleteMainCompetence,
+    fetchProofCategories,
+    addProofCategory,
+    updateProofCategory,
+    deleteProofCategory,
+    reorderProofCategories,
+    fetchProofItems,
+    addProofItem,
+    updateProofItem,
+    deleteProofItem,
+    reorderProofItems,
     
     // Profile & Static Data
     fetchProfile,

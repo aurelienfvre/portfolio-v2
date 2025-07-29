@@ -74,7 +74,7 @@
               class="block w-full px-4 py-3 bg-bg-primary border border-border-primary rounded-xl hover:bg-bg-tertiary transition-colors text-text-primary font-medium"
             >
               <div class="flex items-center justify-between">
-                <span>Apprentissages Critiques</span>
+                <span>Compétences & Preuves</span>
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                 </svg>
@@ -125,8 +125,8 @@
           <div class="text-text-tertiary text-sm">Blocs Bento</div>
         </div>
         <div class="bg-bg-secondary border border-border-primary rounded-2xl p-4">
-          <div class="text-2xl font-bold text-text-primary">{{ totalACs }}</div>
-          <div class="text-text-tertiary text-sm">Apprentissages Critiques</div>
+          <div class="text-2xl font-bold text-text-primary">{{ totalProofItems }}</div>
+          <div class="text-text-tertiary text-sm">Éléments de Preuve</div>
         </div>
       </div>
     </div>
@@ -137,37 +137,23 @@
 import { computed, onMounted } from 'vue'
 import { usePortfolioDatabase } from '~/composables/usePortfolioDatabase'
 
-// Portfolio data management  
+// Portfolio data management
 const {
   projects,
   skills,
   sortedBentoBlocks,
-  studentYears,
+  skillsByCategory,
   fetchProjects,
   fetchSkills,
   fetchBentoBlocks,
-  fetchStudentYears
+  fetchStudentYears,
+  proofItems,
+  fetchProofItems
 } = usePortfolioDatabase()
 
-// Group skills by category
-const skillsByCategory = computed(() => {
-  const grouped = {}
-  skills.value.forEach(skill => {
-    if (!grouped[skill.category]) {
-      grouped[skill.category] = []
-    }
-    grouped[skill.category].push(skill)
-  })
-  return grouped
-})
-
-// Calculate total ACs
-const totalACs = computed(() => {
-  return studentYears.value.reduce((total, year) => {
-    return total + year.skills.reduce((yearTotal, competence) => {
-      return yearTotal + competence.ac.length
-    }, 0)
-  }, 0)
+// Calculate total proof items
+const totalProofItems = computed(() => {
+  return proofItems.value?.length || 0
 })
 
 // Initialize data on mount
@@ -176,7 +162,8 @@ onMounted(async () => {
     fetchProjects(),
     fetchSkills(),
     fetchBentoBlocks(),
-    fetchStudentYears()
+    fetchStudentYears(),
+    fetchProofItems()
   ])
 })
 

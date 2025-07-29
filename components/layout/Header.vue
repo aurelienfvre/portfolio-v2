@@ -1,6 +1,6 @@
 <template>
   <header 
-    v-if="!isAdminPage" 
+    v-if="!isAdminPage && !isStudentPage" 
     class="fixed top-10 left-1/2 -translate-x-1/2 z-50 w-full px-5" 
     :class="isPro ? 'max-w-[600px]' : 'max-w-[750px]'"
   >
@@ -56,20 +56,21 @@
       </div>
 
       <div class="relative flex justify-between items-center flex-1" ref="menuRef">
-        <NuxtLink
-            v-for="item in currentNavigation"
-            :key="item.path"
-            :to="item.path"
-            class="relative z-[2] px-4 py-2 text-sm whitespace-nowrap transition-colors"
-            :class="[
-            activeSection === item.path
-              ? 'text-bg-primary'
-              : 'text-text-secondary hover:text-text-primary'
-          ]"
-            @click="handleClick(item.path, $event)"
-        >
-          {{ item.name }}
-        </NuxtLink>
+        <template v-for="item in currentNavigation" :key="item?.path || Math.random()">
+          <NuxtLink
+              v-if="item && item.path"
+              :to="item.path"
+              class="relative z-[2] px-4 py-2 text-sm whitespace-nowrap transition-colors"
+              :class="[
+              activeSection === item.path
+                ? 'text-bg-primary'
+                : 'text-text-secondary hover:text-text-primary'
+            ]"
+              @click="handleClick(item.path, $event)"
+          >
+            {{ item.name }}
+          </NuxtLink>
+        </template>
         <!-- Active Background -->
         <div
             ref="activeBackgroundRef"
@@ -135,9 +136,10 @@ const { theme, toggleTheme } = useTheme()
 const { portfolioMode, setMode, isPro, isStudent, initMode } = usePortfolioMode()
 const initialTheme = ref(process.client ? localStorage.getItem('theme') || 'light' : 'light')
 
-// Check if current page is admin or set mode based on route
+// Check if current page is admin or student page
 const route = useRoute()
 const isAdminPage = computed(() => route.path.startsWith('/admin'))
+const isStudentPage = computed(() => route.path.startsWith('/student'))
 
 // Auto-detect mode based on current route
 watch(() => route.path, (newPath) => {
@@ -151,7 +153,7 @@ watch(() => route.path, (newPath) => {
 // Portfolio mode management
 const showModeDropdown = ref(false)
 const currentNavigation = computed(() => {
-  return portfolioConfigs[portfolioMode.value].navigation
+  return portfolioConfigs[portfolioMode.value]?.navigation || []
 })
 
 const toggleModeDropdown = () => {
@@ -205,14 +207,14 @@ const getVisibleSection = (): string => {
   if (route.path === '/student') {
     sectionsToCheck = [
       { id: 'contact', path: '/student#contact' },
-      { id: 'year3', path: '/student#year3' },
-      { id: 'year2', path: '/student#year2' },
-      { id: 'year1', path: '/student#year1' },
+      { id: 'parcours', path: '/student#parcours' },
+      { id: 'competences', path: '/student#competences' },
       { id: 'intro', path: '/student' }
     ]
   } else {
     // Mode pro - utiliser la navigation existante
     sectionsToCheck = currentNavigation.value
+      .filter(item => item && item.path) // Filtrer les éléments invalides
       .map(item => {
         const hash = item.path.includes('#') ? item.path.split('#')[1] : ''
         return {
@@ -347,13 +349,14 @@ watch(theme, (newTheme) => {
 // Watch portfolio mode changes to update navigation
 watch(portfolioMode, () => {
   // Reset to home section when mode changes
-  activeSection.value = '/'
+  const basePath = portfolioMode.value === 'student' ? '/student' : '/'
+  activeSection.value = basePath
   hasScrolled.value = false
   isNavigating.value = false // Reset navigation flag
   
   // Update navigation position after mode change
   nextTick(() => {
-    updateActiveLinkPosition('/')
+    updateActiveLinkPosition(basePath)
   })
 })
 </script>

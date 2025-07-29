@@ -213,3 +213,54 @@ export const customBlocks = sqliteTable('custom_blocks', {
 
 export type CustomBlock = typeof customBlocks.$inferSelect
 export type NewCustomBlock = typeof customBlocks.$inferInsert
+
+// ===================================================================
+// NOUVEAU SYSTÈME COMPÉTENCE/PREUVE (Focus 3ème année uniquement)
+// ===================================================================
+
+// Table des Compétences Principales (Développer, Entreprendre)
+export const mainCompetences = sqliteTable('main_competences', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  title: text('title').notNull(), // Ex: "Développer"
+  slug: text('slug').notNull().unique(), // Ex: "developper"
+  subtitle: text('subtitle'), // Ex: "Maîtrise technique et apprentissage continu."
+  order: integer('order').default(0),
+  createdAt: text('created_at').default('CURRENT_TIMESTAMP'),
+  updatedAt: text('updated_at').default('CURRENT_TIMESTAMP')
+})
+
+// Table des Catégories de Preuves (équivalent des diapos)
+export const proofCategories = sqliteTable('proof_categories', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  mainCompetenceId: integer('main_competence_id').references(() => mainCompetences.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(), // Ex: "Maîtrise des Frameworks Front-End"
+  subtitle: text('subtitle'), // Ex: "De Vue.js à React, jusqu'à l'exploration de React Native."
+  slug: text('slug').notNull().unique(),
+  order: integer('order').default(0), // Pour le drag & drop des catégories
+  createdAt: text('created_at').default('CURRENT_TIMESTAMP'),
+  updatedAt: text('updated_at').default('CURRENT_TIMESTAMP')
+})
+
+// Table des Éléments de Preuve (exemples concrets)
+export const proofItems = sqliteTable('proof_items', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  proofCategoryId: integer('proof_category_id').references(() => proofCategories.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(), // Ex: "[STAGE] Adaptation à l'écosystème React"
+  description: text('description'), // Le texte enrichi qui raconte l'histoire
+  mediaUrl: text('media_url'), // URL de l'image ou de la vidéo associée
+  mediaType: text('media_type').default('image'), // 'image' ou 'video'
+  originTag: text('origin_tag').notNull(), // 'STAGE', 'PERSONNEL', 'SCOLAIRE', 'INITIATIVE'
+  order: integer('order').default(0), // Pour le drag & drop des items
+  createdAt: text('created_at').default('CURRENT_TIMESTAMP'),
+  updatedAt: text('updated_at').default('CURRENT_TIMESTAMP')
+})
+
+// Types TypeScript pour les nouvelles tables
+export type MainCompetence = typeof mainCompetences.$inferSelect
+export type NewMainCompetence = typeof mainCompetences.$inferInsert
+
+export type ProofCategory = typeof proofCategories.$inferSelect
+export type NewProofCategory = typeof proofCategories.$inferInsert
+
+export type ProofItem = typeof proofItems.$inferSelect
+export type NewProofItem = typeof proofItems.$inferInsert
