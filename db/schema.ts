@@ -137,12 +137,13 @@ export const formations = sqliteTable('formations', {
   updatedAt: text('updated_at').default('CURRENT_TIMESTAMP')
 })
 
-// Table Stage pour les informations de stage
+// Table Stage pour les informations de situation actuelle
 export const stage = sqliteTable('stage', {
   id: integer('id').primaryKey({ autoIncrement: true }),
-  duration: text('duration').notNull(),
-  startDate: text('start_date').notNull(),
-  position: text('position').notNull(),
+  duration: text('duration').notNull(), // Ex: "Alternant depuis septembre 2024"
+  startDate: text('start_date'), // Optionnel maintenant
+  position: text('position').notNull(), // Ex: "Développeur Full Stack"
+  company: text('company'), // Ex: "Mon Entreprise"
   locations: text('locations'), // JSON string
   updatedAt: text('updated_at').default('CURRENT_TIMESTAMP')
 })

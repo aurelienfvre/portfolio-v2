@@ -1,5 +1,5 @@
 <template>
-  <BentoItem className="col-span-12 md:col-span-4">
+  <BentoItem :className="`col-span-12 md:col-span-${colSpan || 4}`">
     <div class="p-8">
       <!-- Header de la section -->
       <div class="flex items-center gap-3 mb-6">
@@ -19,6 +19,9 @@
             {{ formation.institution }}
             {{ formation.institution ? `(${formation.period})` : formation.period }}
           </p>
+          <p v-if="formation.description" class="text-sm text-text-secondary mt-1">
+            {{ formation.description }}
+          </p>
         </div>
       </div>
     </div>
@@ -29,6 +32,11 @@
 import { GraduationCap } from 'lucide-vue-next'
 import BentoItem from '~/components/common/BentoItem.vue'
 import { usePortfolioDatabase } from '~/composables/usePortfolioDatabase'
+
+// Props
+defineProps<{
+  colSpan?: number
+}>()
 
 const { formations, fetchFormations } = usePortfolioDatabase()
 

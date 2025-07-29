@@ -110,6 +110,10 @@
               :animation="200"
               @change="onBentoChange"
               item-key="id"
+              :ignore="'.no-drag'"
+              :force-fallback="false"
+              :delay="100"
+              :delay-on-touch-only="true"
             >
               <!-- Rendu des VRAIS composants du portfolio -->
               <div
@@ -139,11 +143,12 @@
                   >
                     {{ block.colSpan }}/12
                   </div>
+                  
                 </div>
 
                 <!-- Actions flottantes -->
                 <div
-                  class="absolute -top-3 -right-3 opacity-0 group-hover:opacity-100 transition-all duration-200 flex gap-1 z-20 pointer-events-auto"
+                  class="absolute -top-3 -right-3 opacity-0 group-hover:opacity-100 transition-all duration-200 flex gap-1 z-20 pointer-events-auto no-drag"
                 >
                   <!-- Édition rapide -->
                   <button
@@ -260,11 +265,21 @@
                 <!-- Overlay d'édition en hover -->
                 <div
                   class="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-all duration-200 rounded-2xl border-2 border-transparent group-hover:border-accent group-hover:border-dashed pointer-events-none"
-                ></div>
+                >
+                  <!-- Drag Handle pour custom blocks -->
+                  <div
+                    class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-accent/80 text-white p-2 rounded-lg pointer-events-auto cursor-move drag-handle"
+                    title="Glisser pour déplacer"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+                    </svg>
+                  </div>
+                </div>
 
                 <!-- Boutons d'édition -->
                 <div
-                  class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-200 flex space-x-2 pointer-events-auto z-20"
+                  class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-200 flex space-x-2 pointer-events-auto z-20 no-drag"
                 >
                   <!-- Éditer -->
                   <button
@@ -506,15 +521,28 @@
               <!-- Liste des formations existantes -->
               <div v-if="formations && formations.length > 0">
                 <h4 class="text-lg font-semibold text-text-primary mb-4">Formations existantes</h4>
-                <div class="space-y-3 max-h-60 overflow-y-auto">
+                <VueDraggable
+                  v-model="formations"
+                  :animation="200"
+                  @change="onFormationOrderChange"
+                  item-key="id"
+                  class="space-y-3 max-h-60 overflow-y-auto"
+                >
                   <div 
                     v-for="formation in formations" 
                     :key="formation.id"
-                    class="flex items-center justify-between p-3 bg-bg-secondary rounded-xl border border-border-primary"
+                    class="flex items-center justify-between p-3 bg-bg-secondary rounded-xl border border-border-primary cursor-move"
                   >
-                    <div class="flex-1">
-                      <div class="font-medium text-text-primary">{{ formation.title }}</div>
-                      <div class="text-sm text-text-secondary">{{ formation.institution }} ({{ formation.period }})</div>
+                    <div class="flex items-center gap-3 flex-1">
+                      <div class="cursor-move text-text-tertiary hover:text-text-primary transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+                        </svg>
+                      </div>
+                      <div class="flex-1">
+                        <div class="font-medium text-text-primary">{{ formation.title }}</div>
+                        <div class="text-sm text-text-secondary">{{ formation.institution }} ({{ formation.period }})</div>
+                      </div>
                     </div>
                     <div class="flex items-center gap-2">
                       <button
@@ -533,7 +561,7 @@
                       </button>
                     </div>
                   </div>
-                </div>
+                </VueDraggable>
               </div>
               
               <!-- Formulaire d'ajout/édition -->
@@ -644,7 +672,7 @@
         >
           <div class="p-8">
             <div class="flex justify-between items-center mb-8">
-              <h3 class="text-2xl font-bold text-text-primary">Éditer les Infos de Stage</h3>
+              <h3 class="text-2xl font-bold text-text-primary">Éditer la Situation Actuelle</h3>
               <button 
                 @click="closeContextualEditors" 
                 class="text-text-tertiary hover:text-text-primary hover:bg-bg-secondary rounded-xl p-2 transition-all duration-200"
@@ -655,18 +683,64 @@
               </button>
             </div>
             
-            <div class="text-center py-8">
-              <p class="text-text-secondary">Les informations de stage sont stockées dans la base de données.</p>
-              <p class="text-text-tertiary text-sm mt-2">Modifiez directement les données via les scripts ou l'interface admin.</p>
-              <div class="mt-6">
+            <form @submit.prevent="saveStageData" class="space-y-6">
+              <div>
+                <label class="block text-sm font-semibold text-text-primary mb-3">
+                  Poste / Situation *
+                </label>
+                <input
+                  v-model="stageForm.position"
+                  type="text"
+                  required
+                  placeholder="Ex: Alternant Développeur Full Stack"
+                  class="w-full px-4 py-3 border border-border-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-bg-secondary text-text-primary placeholder-text-tertiary"
+                  style="direction: ltr; text-align: left;"
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-text-primary mb-3">
+                  Entreprise / Organisation
+                </label>
+                <input
+                  v-model="stageForm.company"
+                  type="text"
+                  placeholder="Ex: Mon Entreprise"
+                  class="w-full px-4 py-3 border border-border-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-bg-secondary text-text-primary placeholder-text-tertiary"
+                  style="direction: ltr; text-align: left;"
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-text-primary mb-3">
+                  Durée / Période *
+                </label>
+                <input
+                  v-model="stageForm.duration"
+                  type="text"
+                  required
+                  placeholder="Ex: Depuis septembre 2024"
+                  class="w-full px-4 py-3 border border-border-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-bg-secondary text-text-primary placeholder-text-tertiary"
+                  style="direction: ltr; text-align: left;"
+                />
+              </div>
+
+              <div class="flex justify-end space-x-4 pt-6 border-t border-border-primary">
                 <button
-                  @click="closeContextualEditors()"
-                  class="px-6 py-3 bg-gray-500 text-white rounded-2xl hover:bg-gray-600 transition-all duration-200 font-semibold"
+                  type="button"
+                  @click="closeContextualEditors"
+                  class="px-6 py-3 text-text-secondary border border-border-primary rounded-2xl hover:bg-bg-secondary hover:text-text-primary transition-all duration-200 font-medium"
                 >
-                  Fermer
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  class="px-6 py-3 bg-accent text-bg-primary rounded-2xl hover:bg-accent/90 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl"
+                >
+                  Sauvegarder
                 </button>
               </div>
-            </div>
+            </form>
           </div>
         </div>
       </div>
@@ -696,18 +770,231 @@
               </button>
             </div>
             
-            <div class="text-center py-8">
-              <p class="text-text-secondary">Les liens sociaux sont stockés dans la base de données.</p>
-              <p class="text-text-tertiary text-sm mt-2">Modifiez directement les données via les scripts ou l'interface admin.</p>
-              <div class="mt-6">
+            <form @submit.prevent="saveSocialLinksData" class="space-y-6">
+              <div class="flex items-center justify-between mb-4">
+                <h4 class="text-lg font-semibold text-text-primary">Mes Liens Sociaux</h4>
                 <button
-                  @click="closeContextualEditors()"
-                  class="px-6 py-3 bg-gray-500 text-white rounded-2xl hover:bg-gray-600 transition-all duration-200 font-semibold"
+                  @click="addSocialLink"
+                  type="button"
+                  class="bg-accent text-white px-3 py-1 rounded-lg hover:bg-accent/90 transition-colors text-sm"
                 >
-                  Fermer
+                  + Ajouter
                 </button>
               </div>
+              
+              <div class="space-y-4" v-if="socialLinksForm.length">
+                <div
+                  v-for="(link, index) in socialLinksForm"
+                  :key="index"
+                  class="border border-border-primary rounded-xl p-4 space-y-3 bg-bg-secondary"
+                >
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1 space-y-3">
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label class="block text-sm font-medium text-text-primary mb-1">
+                            Réseau Social *
+                          </label>
+                          <select
+                            v-model="link.name"
+                            @change="updateSocialLinkIcon(index)"
+                            class="w-full px-3 py-2 border border-border-primary rounded-lg focus:outline-none focus:ring-2 focus:ring-accent bg-bg-primary text-text-primary"
+                          >
+                            <option value="">Choisir un réseau</option>
+                            <option value="GitHub">GitHub</option>
+                            <option value="LinkedIn">LinkedIn</option>
+                            <option value="Twitter">Twitter / X</option>
+                            <option value="Instagram">Instagram</option>
+                            <option value="Facebook">Facebook</option>
+                            <option value="YouTube">YouTube</option>
+                            <option value="TikTok">TikTok</option>
+                            <option value="Discord">Discord</option>
+                            <option value="Twitch">Twitch</option>
+                            <option value="Portfolio">Portfolio</option>
+                            <option value="Email">Email</option>
+                            <option value="Custom">Personnalisé</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label class="block text-sm font-medium text-text-primary mb-1">
+                            Titre Affiché
+                          </label>
+                          <input
+                            v-model="link.title"
+                            type="text"
+                            placeholder="Ex: Mon GitHub"
+                            class="w-full px-3 py-2 border border-border-primary rounded-lg focus:outline-none focus:ring-2 focus:ring-accent bg-bg-primary text-text-primary"
+                            style="direction: ltr; text-align: left;"
+                          />
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <label class="block text-sm font-medium text-text-primary mb-1">
+                          URL / Lien *
+                        </label>
+                        <input
+                          v-model="link.url"
+                          type="url"
+                          required
+                          placeholder="https://github.com/votre-profil"
+                          class="w-full px-3 py-2 border border-border-primary rounded-lg focus:outline-none focus:ring-2 focus:ring-accent bg-bg-primary text-text-primary"
+                          style="direction: ltr; text-align: left;"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label class="block text-sm font-medium text-text-primary mb-1">
+                          Icône (classe Lucide)
+                        </label>
+                        <input
+                          v-model="link.icon"
+                          type="text"
+                          placeholder="Ex: Github, Linkedin, Twitter"
+                          class="w-full px-3 py-2 border border-border-primary rounded-lg focus:outline-none focus:ring-2 focus:ring-accent bg-bg-primary text-text-primary"
+                          style="direction: ltr; text-align: left;"
+                        />
+                        <p class="text-xs text-text-tertiary mt-1">L'icône sera automatiquement définie selon le réseau choisi</p>
+                      </div>
+                    </div>
+                    
+                    <button
+                      @click="removeSocialLink(index)"
+                      type="button"
+                      class="ml-3 text-red-500 hover:text-red-600 p-1"
+                      title="Supprimer"
+                    >
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <div v-else class="text-center py-8 text-text-tertiary">
+                <p>Aucun lien social ajouté</p>
+                <p class="text-sm">Cliquez sur "Ajouter" pour commencer</p>
+              </div>
+
+              <div class="flex justify-end space-x-4 pt-6 border-t border-border-primary">
+                <button
+                  type="button"
+                  @click="closeContextualEditors"
+                  class="px-6 py-3 text-text-secondary border border-border-primary rounded-2xl hover:bg-bg-secondary hover:text-text-primary transition-all duration-200 font-medium"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  class="px-6 py-3 bg-accent text-bg-primary rounded-2xl hover:bg-accent/90 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl"
+                >
+                  Sauvegarder
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- Photo Editor Modal -->
+    <Teleport to="body">
+      <div 
+        v-if="showPhotoEditor"
+        class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+        @click="closeContextualEditors"
+      >
+        <div 
+          class="bg-bg-primary border border-border-primary rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          @click.stop
+        >
+          <div class="p-8">
+            <div class="flex justify-between items-center mb-8">
+              <h3 class="text-2xl font-bold text-text-primary">Éditer la Photo de Profil</h3>
+              <button 
+                @click="closeContextualEditors" 
+                class="text-text-tertiary hover:text-text-primary hover:bg-bg-secondary rounded-xl p-2 transition-all duration-200"
+              >
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
+            
+            <form @submit.prevent="savePhotoData" class="space-y-6">
+              <!-- Aperçu de la photo actuelle -->
+              <div class="text-center mb-6" v-if="photoForm.profileImage">
+                <div class="w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-border-primary bg-bg-secondary mb-4">
+                  <img 
+                    :src="photoForm.profileImage" 
+                    :alt="`${photoForm.firstName} ${photoForm.lastName}`"
+                    class="w-full h-full object-cover"
+                    @error="$event.target.src = '/images/profile.jpg'"
+                  />
+                </div>
+                <p class="text-sm text-text-secondary">Aperçu actuel</p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-text-primary mb-3">
+                  URL de l'Image *
+                </label>
+                <input
+                  v-model="photoForm.profileImage"
+                  type="url"
+                  required
+                  placeholder="https://exemple.com/ma-photo.jpg"
+                  class="w-full px-4 py-3 border border-border-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-bg-secondary text-text-primary placeholder-text-tertiary"
+                  style="direction: ltr; text-align: left;"
+                />
+                <p class="text-xs text-text-tertiary mt-2">Utilisez une URL d'image (JPG, PNG, WebP)</p>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-semibold text-text-primary mb-3">
+                    Prénom
+                  </label>
+                  <input
+                    v-model="photoForm.firstName"
+                    type="text"
+                    placeholder="Votre prénom"
+                    class="w-full px-4 py-3 border border-border-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-bg-secondary text-text-primary placeholder-text-tertiary"
+                    style="direction: ltr; text-align: left;"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-semibold text-text-primary mb-3">
+                    Nom
+                  </label>
+                  <input
+                    v-model="photoForm.lastName"
+                    type="text"
+                    placeholder="Votre nom"
+                    class="w-full px-4 py-3 border border-border-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-bg-secondary text-text-primary placeholder-text-tertiary"
+                    style="direction: ltr; text-align: left;"
+                  />
+                </div>
+              </div>
+
+              <div class="flex justify-end space-x-4 pt-6 border-t border-border-primary">
+                <button
+                  type="button"
+                  @click="closeContextualEditors"
+                  class="px-6 py-3 text-text-secondary border border-border-primary rounded-2xl hover:bg-bg-secondary hover:text-text-primary transition-all duration-200 font-medium"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  class="px-6 py-3 bg-accent text-bg-primary rounded-2xl hover:bg-accent/90 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl"
+                >
+                  Sauvegarder
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
@@ -896,6 +1183,7 @@ const showProfileEditor = ref(false);
 const showFormationEditor = ref(false);
 const showStageEditor = ref(false);
 const showSocialLinksEditor = ref(false);
+const showPhotoEditor = ref(false);
 
 // Form data for editing
 const profileForm = ref({
@@ -906,6 +1194,22 @@ const profileForm = ref({
   email: '',
   cvUrl: ''
 });
+
+const stageForm = ref({
+  position: '',
+  company: '',
+  duration: '',
+  startDate: '',
+  locations: []
+});
+
+const photoForm = ref({
+  profileImage: '',
+  firstName: '',
+  lastName: ''
+});
+
+const socialLinksForm = ref([]);
 
 const formationForm = ref({
   title: '',
@@ -1035,7 +1339,12 @@ const handleDoubleClick = (block: any, event: MouseEvent) => {
   }
   
   // Édition contextuelle pour les composants avec des données spécifiques
-  if (['ProfileSection', 'IntroSection'].includes(block.component)) {
+  if (block.component === 'ProfileSection') {
+    openPhotoEditor(block, event)
+    return
+  }
+  
+  if (block.component === 'IntroSection') {
     openProfileEditor(block, event)
     return
   }
@@ -1119,14 +1428,74 @@ const openFormationEditor = async (block: any, event: MouseEvent) => {
   showFormationEditor.value = true;
 };
 
-const openStageEditor = (block: any, event: MouseEvent) => {
+const openStageEditor = async (block: any, event: MouseEvent) => {
   editingBlock.value = block;
+  
+  // Charger les données de stage
+  if (!stage.value) {
+    await fetchStage();
+  }
+  
+  // Initialiser le formulaire avec les données existantes
+  if (stage.value) {
+    stageForm.value = {
+      position: stage.value.position || '',
+      company: stage.value.company || '',
+      duration: stage.value.duration || '',
+      startDate: stage.value.startDate || '',
+      locations: typeof stage.value.locations === 'string' 
+        ? JSON.parse(stage.value.locations || '[]') 
+        : stage.value.locations || []
+    };
+  }
+  
   showStageEditor.value = true;
 };
 
-const openSocialLinksEditor = (block: any, event: MouseEvent) => {
+const openSocialLinksEditor = async (block: any, event: MouseEvent) => {
   editingBlock.value = block;
+  
+  // Charger les données des liens sociaux
+  if (!socialLinks.value || socialLinks.value.length === 0) {
+    await fetchSocialLinks();
+  }
+  
+  // Initialiser le formulaire avec les données existantes
+  socialLinksForm.value = socialLinks.value.map(link => ({
+    name: link.name,
+    title: link.title,
+    url: link.url,
+    icon: link.icon,
+    order: link.order || 0,
+    visible: link.visible !== false
+  }));
+  
+  // Si aucun lien, en ajouter un par défaut
+  if (socialLinksForm.value.length === 0) {
+    addSocialLink();
+  }
+  
   showSocialLinksEditor.value = true;
+};
+
+const openPhotoEditor = async (block: any, event: MouseEvent) => {
+  editingBlock.value = block;
+  
+  // Charger les données du profil pour la photo
+  if (!profile.value) {
+    await fetchProfile();
+  }
+  
+  // Initialiser le formulaire photo avec les données existantes
+  if (profile.value) {
+    photoForm.value = {
+      profileImage: profile.value.profileImage || '',
+      firstName: profile.value.firstName || '',
+      lastName: profile.value.lastName || ''
+    };
+  }
+  
+  showPhotoEditor.value = true;
 };
 
 const saveProfileData = async () => {
@@ -1136,6 +1505,96 @@ const saveProfileData = async () => {
     console.log('Profil mis à jour avec succès');
   } catch (error) {
     console.error('Erreur lors de la sauvegarde du profil:', error);
+  }
+};
+
+const saveStageData = async () => {
+  try {
+    await updateStage(stageForm.value);
+    closeContextualEditors();
+    console.log('Situation actuelle mise à jour avec succès');
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde de la situation actuelle:', error);
+  }
+};
+
+const savePhotoData = async () => {
+  try {
+    await updateProfile(photoForm.value);
+    closeContextualEditors();
+    console.log('Photo de profil mise à jour avec succès');
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde de la photo:', error);
+  }
+};
+
+// Social Links functions
+const addSocialLink = () => {
+  socialLinksForm.value.push({
+    name: '',
+    title: '',
+    url: '',
+    icon: '',
+    order: socialLinksForm.value.length,
+    visible: true
+  });
+};
+
+const removeSocialLink = (index: number) => {
+  socialLinksForm.value.splice(index, 1);
+};
+
+const updateSocialLinkIcon = (index: number) => {
+  const link = socialLinksForm.value[index];
+  const iconMap = {
+    'GitHub': 'Github',
+    'LinkedIn': 'Linkedin',
+    'Twitter': 'Twitter',
+    'Instagram': 'Instagram',
+    'Facebook': 'Facebook',
+    'YouTube': 'Youtube',
+    'TikTok': 'Music',
+    'Discord': 'MessageCircle',
+    'Twitch': 'Tv',
+    'Portfolio': 'Globe',
+    'Email': 'Mail',
+    'Custom': 'ExternalLink'
+  };
+  
+  if (link.name && iconMap[link.name]) {
+    link.icon = iconMap[link.name];
+    if (!link.title && link.name !== 'Custom') {
+      link.title = `Mon ${link.name}`;
+    }
+  }
+};
+
+const saveSocialLinksData = async () => {
+  try {
+    // Create or update each social link
+    const promises = socialLinksForm.value.map(async (link, index) => {
+      const linkData = {
+        name: link.name,
+        title: link.title || link.name,
+        url: link.url,
+        icon: link.icon,
+        order: index,
+        visible: link.visible
+      };
+      
+      // For now, we'll create new links (you might want to implement update logic)
+      return $fetch('/api/social-links', {
+        method: 'POST',
+        body: linkData
+      });
+    });
+    
+    await Promise.all(promises);
+    await fetchSocialLinks(); // Refresh the list
+    closeContextualEditors();
+    console.log('Liens sociaux mis à jour avec succès');
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde des liens sociaux:', error);
   }
 };
 
@@ -1175,11 +1634,25 @@ const deleteFormationItem = async (formationId: number) => {
   }
 };
 
+const onFormationOrderChange = async () => {
+  try {
+    console.log('🔄 Mise à jour de l\'ordre des formations...');
+    const updates = formations.value.map((formation, index) => {
+      return updateFormation(formation.id, { ...formation, order: index });
+    });
+    await Promise.all(updates);
+    console.log('✅ Ordre des formations sauvegardé');
+  } catch (error) {
+    console.error('❌ Erreur lors de la sauvegarde de l\'ordre des formations:', error);
+  }
+};
+
 const closeContextualEditors = () => {
   showProfileEditor.value = false;
   showFormationEditor.value = false;
   showStageEditor.value = false;
   showSocialLinksEditor.value = false;
+  showPhotoEditor.value = false;
   editingBlock.value = null;
 };
 
@@ -1216,10 +1689,36 @@ const saveAndReturn = () => {
 };
 
 // Drag and Drop Management avec vue-draggable-plus
+let saveOrderTimeout: NodeJS.Timeout | null = null
+
 const onBentoChange = () => {
-  // Sauvegarder automatiquement après le drag & drop
-  // Les blocs sont déjà mis à jour dans bentoBlocks par v-model
-  console.log('Drag & drop terminé, ordre sauvegardé:', bentoBlocks.value)
+  // Cancel previous timeout if it exists
+  if (saveOrderTimeout) {
+    clearTimeout(saveOrderTimeout)
+  }
+  
+  // Immediate visual feedback - the blocks are already reordered in the UI
+  console.log('Ordre mis à jour visuellement')
+  
+  // Debounced save to database after 1 second
+  saveOrderTimeout = setTimeout(async () => {
+    try {
+      console.log('Sauvegarde en cours...')
+      
+      // Update order of all blocks based on their new position
+      const updates = bentoBlocks.value.map((block, index) => {
+        return updateBentoBlock(block.id, {
+          ...block,
+          order: index
+        })
+      })
+      
+      await Promise.all(updates)
+      console.log('✅ Ordre sauvegardé en base de données')
+    } catch (error) {
+      console.error('❌ Erreur lors de la sauvegarde:', error)
+    }
+  }, 1000) // 1 second delay
 };
 
 // Map component names to actual components

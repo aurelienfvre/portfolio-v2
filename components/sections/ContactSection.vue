@@ -1,5 +1,5 @@
 <template>
-  <BentoItem id="contact" className="col-span-12">
+  <BentoItem id="contact" :className="`col-span-${colSpan || 12}`">
     <div class="p-8">
       <!-- Header de la section -->
       <div class="flex items-center gap-3 mb-8">
@@ -70,6 +70,11 @@ import { Mail, Globe, MapPin } from 'lucide-vue-next'
 import { socialLinks } from '@/data/social'
 import BentoItem from '~/components/common/BentoItem.vue'
 import SocialLink from '~/components/common/SocialLink.vue'
+
+// Props
+defineProps<{
+  colSpan?: number
+}>()
 </script>
 
 <style scoped>

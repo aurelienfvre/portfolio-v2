@@ -36,6 +36,11 @@ import { usePortfolioDatabase } from '~/composables/usePortfolioDatabase'
 import BentoItem from '~/components/common/BentoItem.vue'
 import TechPill from '~/components/common/TechPill.vue'
 
+// Props
+defineProps<{
+  colSpan?: number
+}>()
+
 // Get skills from database
 const { skillsByCategory: skills, fetchSkills } = usePortfolioDatabase()
 

@@ -1,5 +1,5 @@
 <template>
-  <BentoItem className="col-span-12 md:col-span-4 profile-photo">
+  <BentoItem :className="`col-span-12 md:col-span-${colSpan || 4} profile-photo`">
     <div class="w-full aspect-square">
       <NuxtImg
           :src="profile?.profileImage || '/images/profile.jpg'"
@@ -20,6 +20,11 @@
 <script setup lang="ts">
 import BentoItem from '~/components/common/BentoItem.vue'
 import { usePortfolioDatabase } from '~/composables/usePortfolioDatabase'
+
+// Props
+defineProps<{
+  colSpan?: number
+}>()
 
 const { profile, fetchProfile } = usePortfolioDatabase()
 

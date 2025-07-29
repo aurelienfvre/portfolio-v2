@@ -191,17 +191,40 @@
           </div>
 
           <!-- Content -->
-          <div v-if="!form.component">
-            <label class="block text-sm font-semibold text-text-primary mb-3">
-              Contenu du Bloc
-            </label>
-            <textarea
-              v-model="form.content"
-              rows="4"
-              class="w-full px-4 py-3 border border-border-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-bg-secondary text-text-primary placeholder-text-tertiary transition-all duration-200 resize-vertical"
-              placeholder="Contenu de votre bloc personnalisé..."
-            ></textarea>
-            <p class="text-xs text-text-tertiary mt-2">Ce contenu sera modifiable en double-cliquant sur le bloc</p>
+          <div v-if="!form.component || form.component === 'CustomBlock'">
+            <!-- Custom Block Editor -->
+            <div v-if="form.component === 'CustomBlock' && customBlockType">
+              <div class="flex items-center justify-between mb-4">
+                <label class="block text-sm font-semibold text-text-primary">
+                  Configuration du Bloc Personnalisé
+                </label>
+                <div class="flex items-center gap-2 text-sm text-text-secondary">
+                  <span>Type:</span>
+                  <span class="bg-accent/10 text-accent px-2 py-1 rounded-full font-medium">
+                    {{ getCustomBlockTypeName(customBlockType) }}
+                  </span>
+                </div>
+              </div>
+              <CustomBlockEditor
+                :block-type="customBlockType"
+                v-model="form.content"
+              />
+            </div>
+            
+            <!-- Fallback Simple Content -->
+            <div v-else>
+              <label class="block text-sm font-semibold text-text-primary mb-3">
+                Contenu du Bloc
+              </label>
+              <textarea
+                v-model="form.content"
+                rows="4"
+                class="w-full px-4 py-3 border border-border-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-bg-secondary text-text-primary placeholder-text-tertiary transition-all duration-200 resize-vertical"
+                placeholder="Contenu de votre bloc personnalisé..."
+                style="direction: ltr; text-align: left;"
+              ></textarea>
+              <p class="text-xs text-text-tertiary mt-2">Ce contenu sera modifiable en double-cliquant sur le bloc</p>
+            </div>
           </div>
 
           <!-- Fields Configuration -->
@@ -306,6 +329,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+import CustomBlockEditor from './CustomBlockEditor.vue'
 
 const props = defineProps<{
   block?: any
@@ -317,6 +341,25 @@ const emit = defineEmits<{
 }>()
 
 const isEdit = computed(() => !!props.block)
+
+// Determine custom block type from content or form  
+const customBlockType = computed(() => {
+  if (form.value.component !== 'CustomBlock') return null
+  
+  // Try to get type from existing content
+  if (form.value.content) {
+    try {
+      const parsed = JSON.parse(form.value.content)
+      return parsed.type
+    } catch (e) {
+      // If content is not JSON, default to custom-text
+      return 'custom-text'
+    }
+  }
+  
+  // Default for new custom blocks
+  return 'experience'
+})
 
 // Form data
 const form = ref({
@@ -544,6 +587,16 @@ const addField = () => {
 
 const removeField = (index: number) => {
   form.value.fields.splice(index, 1)
+}
+
+// Helper to get custom block type display name
+const getCustomBlockTypeName = (type: string) => {
+  const typeNames = {
+    'experience': 'Expériences',
+    'gallery': 'Galerie',
+    'custom-text': 'Texte Personnalisé'
+  }
+  return typeNames[type] || type
 }
 
 // UX: Handle backdrop click

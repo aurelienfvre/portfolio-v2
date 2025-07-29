@@ -1,5 +1,5 @@
 <template>
-  <BentoItem className="col-span-12 md:col-span-6">
+  <BentoItem :className="`col-span-12 md:col-span-${colSpan || 6}`">
     <div class="p-8">
       <!-- Titre de la section -->
       <div class="flex items-center gap-3 mb-4">
@@ -26,6 +26,11 @@ import { Link2 } from 'lucide-vue-next'
 import BentoItem from '~/components/common/BentoItem.vue'
 import SocialLink from '~/components/common/SocialLink.vue'
 import { usePortfolioDatabase } from '~/composables/usePortfolioDatabase'
+
+// Props
+defineProps<{
+  colSpan?: number
+}>()
 
 const { socialLinks, fetchSocialLinks } = usePortfolioDatabase()
 

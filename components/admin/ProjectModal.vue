@@ -225,9 +225,12 @@
 
           <!-- Detailed Content -->
           <div>
-            <WysiwygEditor
+            <label class="block text-sm font-semibold text-text-primary mb-3">
+              Contenu Détaillé
+            </label>
+            <TipTapEditor
               v-model="form.detailedContent"
-              label="Contenu Détaillé"
+              placeholder="Décrivez votre projet en détail..."
             />
           </div>
 
@@ -257,7 +260,7 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { usePortfolioDatabase } from '~/composables/usePortfolioDatabase'
 import ImageUpload from './ImageUpload.vue'
-import WysiwygEditor from './WysiwygEditor.vue'
+import TipTapEditor from './TipTapEditor.vue'
 
 const props = defineProps<{
   project?: any

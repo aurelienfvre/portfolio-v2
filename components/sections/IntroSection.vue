@@ -1,5 +1,5 @@
 <template>
-  <BentoItem id="accueil" className="col-span-12 md:col-span-8">
+  <BentoItem id="accueil" :className="`col-span-12 md:col-span-${colSpan || 8}`">
     <div class="p-8 pt-20">
       <!-- En-tête -->
       <h1 class="text-4xl md:text-5xl font-bold mb-4">
@@ -39,6 +39,11 @@
 import { Mail, FileDown } from 'lucide-vue-next'
 import BentoItem from '~/components/common/BentoItem.vue'
 import { usePortfolioDatabase } from '~/composables/usePortfolioDatabase'
+
+// Props
+defineProps<{
+  colSpan?: number
+}>()
 
 const { profile, fetchProfile } = usePortfolioDatabase()
 

@@ -64,9 +64,7 @@
             :class="[
             activeSection === item.path
               ? 'text-bg-primary'
-              : theme === 'dark'
-                ? 'text-gray-400 hover:text-gray-100'
-                : 'text-gray-600 hover:text-gray-900'
+              : 'text-text-secondary hover:text-text-primary'
           ]"
             @click="handleClick(item.path, $event)"
         >

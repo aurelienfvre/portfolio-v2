@@ -135,16 +135,31 @@
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
-import { usePortfolioData } from '~/composables/usePortfolioData'
+import { usePortfolioDatabase } from '~/composables/usePortfolioDatabase'
 
-// Portfolio data management
+// Portfolio data management  
 const {
   projects,
-  skillsByCategory,
+  skills,
   sortedBentoBlocks,
   studentYears,
-  loadFromLocalStorage
-} = usePortfolioData()
+  fetchProjects,
+  fetchSkills,
+  fetchBentoBlocks,
+  fetchStudentYears
+} = usePortfolioDatabase()
+
+// Group skills by category
+const skillsByCategory = computed(() => {
+  const grouped = {}
+  skills.value.forEach(skill => {
+    if (!grouped[skill.category]) {
+      grouped[skill.category] = []
+    }
+    grouped[skill.category].push(skill)
+  })
+  return grouped
+})
 
 // Calculate total ACs
 const totalACs = computed(() => {
@@ -156,8 +171,13 @@ const totalACs = computed(() => {
 })
 
 // Initialize data on mount
-onMounted(() => {
-  loadFromLocalStorage()
+onMounted(async () => {
+  await Promise.all([
+    fetchProjects(),
+    fetchSkills(),
+    fetchBentoBlocks(),
+    fetchStudentYears()
+  ])
 })
 
 // SEO for admin page

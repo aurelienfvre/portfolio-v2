@@ -158,9 +158,9 @@
         </button>
       </div>
       
-      <WysiwygEditor
-        :content="editingContent"
-        @update="updateContent"
+      <TipTapEditor
+        v-model="editingContent"
+        placeholder="Éditer le contenu..."
         class="min-h-[200px]"
       />
       
@@ -194,7 +194,7 @@
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { usePortfolioData } from '~/composables/usePortfolioData'
 import BentoModal from '~/components/admin/BentoModal.vue'
-import WysiwygEditor from '~/components/admin/WysiwygEditor.vue'
+import TipTapEditor from '~/components/admin/TipTapEditor.vue'
 import BentoItem from '~/components/common/BentoItem.vue'
 
 // Import portfolio sections
@@ -298,9 +298,7 @@ const closeWysiwygTooltip = () => {
   editingContent.value = ''
 }
 
-const updateContent = (content: string) => {
-  editingContent.value = content
-}
+// Content is now handled by v-model on TipTapEditor
 
 const saveWysiwygContent = () => {
   if (editingBlock.value) {
