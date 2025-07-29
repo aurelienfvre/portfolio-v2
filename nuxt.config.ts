@@ -4,6 +4,10 @@ export default defineNuxtConfig({
     '@nuxt/image',
   ],
 
+  tailwindcss: {
+    configPath: './tailwind.config.ts'
+  },
+
   css: ['~/assets/css/main.css'],
 
   image: {

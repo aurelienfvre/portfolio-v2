@@ -97,6 +97,10 @@
               <div class="text-xs text-gray-500 mt-1">
                 Drag & drop, double-clic pour éditer
               </div>
+              <!-- DEBUG INFO -->
+              <div class="text-xs text-red-600 mt-2 max-w-md">
+                DEBUG: {{ sortedBentoBlocks.map(b => `${b.component}:${b.colSpan}col`).join(', ') }}
+              </div>
             </div>
             <!-- Grille draggable avec vue-draggable-plus -->
             <VueDraggable

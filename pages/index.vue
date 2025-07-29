@@ -7,7 +7,7 @@
         v-for="block in sortedBentoBlocks"
         :key="block.id"
         :is="getComponent(block.component)"
-        :colSpan="block.col_span"
+        :colSpan="block.colSpan"
         v-show="block.visible"
       />
       
