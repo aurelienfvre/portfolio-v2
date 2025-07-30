@@ -138,17 +138,14 @@
             </div>
           </div>
 
-          <!-- URL du média -->
+          <!-- Upload du média -->
           <div>
-            <label class="block text-sm font-medium text-text-primary mb-2">
-              URL du Média
-            </label>
-            <input
+            <ImageUpload
               v-model="form.mediaUrl"
-              type="url"
-              placeholder="/images/proof/exemple.jpg"
-              class="w-full px-4 py-3 border border-border-secondary rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-            >
+              :label="form.mediaType === 'video' ? 'Vidéo ou Image' : 'Image'"
+              :file-type="form.mediaType === 'video' ? 'any' : 'image'"
+              :max-size-m-b="20"
+            />
           </div>
         </div>
 
@@ -218,6 +215,7 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
+import ImageUpload from './ImageUpload.vue'
 
 interface ProofCategory {
   id: number

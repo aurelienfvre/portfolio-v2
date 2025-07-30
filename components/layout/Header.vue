@@ -58,7 +58,7 @@
       <div class="relative flex justify-between items-center flex-1" ref="menuRef">
         <template v-for="item in currentNavigation" :key="item?.path || Math.random()">
           <NuxtLink
-              v-if="item && item.path"
+              v-if="item && item.path && item.name"
               :to="item.path"
               class="relative z-[2] px-4 py-2 text-sm whitespace-nowrap transition-colors"
               :class="[
@@ -161,15 +161,25 @@ const toggleModeDropdown = () => {
 }
 
 const switchToMode = async (mode: 'pro' | 'student') => {
-  setMode(mode)
   showModeDropdown.value = false
   
-  // Naviguer vers la bonne page selon le mode
-  if (mode === 'pro') {
-    await navigateTo('/')
-  } else {
-    await navigateTo('/student')
-  }
+  // Pré-calculer la nouvelle navigation avant de changer le mode
+  const targetPath = mode === 'pro' ? '/' : '/student'
+  
+  // Changer le mode immédiatement pour éviter le flickering
+  setMode(mode)
+  
+  // Reset navigation state immédiatement
+  activeSection.value = targetPath
+  hasScrolled.value = false
+  isNavigating.value = false
+  
+  // Naviguer immédiatement sans attendre
+  await navigateTo(targetPath, { replace: true })
+  
+  // Forcer une mise à jour immédiate de la position
+  await nextTick()
+  updateActiveLinkPosition(targetPath)
 }
 
 // Close dropdown when clicking outside
@@ -347,18 +357,25 @@ watch(theme, (newTheme) => {
 })
 
 // Watch portfolio mode changes to update navigation
-watch(portfolioMode, () => {
+watch(portfolioMode, (newMode, oldMode) => {
+  // Éviter les doubles updates si le mode n'a pas vraiment changé
+  if (newMode === oldMode) return
+  
   // Reset to home section when mode changes
-  const basePath = portfolioMode.value === 'student' ? '/student' : '/'
+  const basePath = newMode === 'student' ? '/student' : '/'
   activeSection.value = basePath
   hasScrolled.value = false
-  isNavigating.value = false // Reset navigation flag
+  isNavigating.value = false
   
-  // Update navigation position after mode change
+  // Update navigation position immediately without waiting
   nextTick(() => {
     updateActiveLinkPosition(basePath)
+    // Force refresh after a short delay to ensure everything is updated
+    setTimeout(() => {
+      updateActiveLinkPosition(basePath)
+    }, 50)
   })
-})
+}, { flush: 'sync' })
 </script>
 <style scoped>
 nav {

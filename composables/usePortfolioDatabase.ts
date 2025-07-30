@@ -28,11 +28,8 @@ export const usePortfolioDatabase = () => {
       isLoading.value = true
       const response = await $fetch('/api/projects')
       if (response.success) {
-        portfolioProjects.value = response.data.map((project: any) => ({
-          ...project,
-          technologies: typeof project.technologies === 'string' ? JSON.parse(project.technologies || '[]') : project.technologies,
-          tags: typeof project.tags === 'string' ? JSON.parse(project.tags || '[]') : project.tags
-        }))
+        // L'API parse déjà les champs JSON, plus besoin de le faire ici
+        portfolioProjects.value = response.data
       }
     } catch (err) {
       error.value = err
@@ -344,6 +341,29 @@ export const usePortfolioDatabase = () => {
     }
   }
 
+  const updateContact = async (contactData: any) => {
+    try {
+      isLoading.value = true
+      const response = await $fetch('/api/profile', {
+        method: 'PUT',
+        body: {
+          ...portfolioProfile.value,
+          ...contactData
+        }
+      })
+      if (response.success) {
+        portfolioProfile.value = response.data
+      }
+      return response
+    } catch (err) {
+      error.value = err
+      console.error('Error updating contact:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   // Formations Management avec API
   const fetchFormations = async () => {
     try {
@@ -477,13 +497,15 @@ export const usePortfolioDatabase = () => {
 
   const skillsByCategory = computed(() => {
     const categories: Record<string, any[]> = {}
-    portfolioSkills.value.forEach(skill => {
-      const category = skill.category || 'Autres'
-      if (!categories[category]) {
-        categories[category] = []
-      }
-      categories[category].push(skill)
-    })
+    portfolioSkills.value
+      .filter(skill => skill.visible !== false) // Filter only visible skills
+      .forEach(skill => {
+        const category = skill.category || 'Autres'
+        if (!categories[category]) {
+          categories[category] = []
+        }
+        categories[category].push(skill)
+      })
     
     // Trier chaque catégorie par ordre
     Object.keys(categories).forEach(category => {
@@ -918,6 +940,7 @@ export const usePortfolioDatabase = () => {
     // Profile & Static Data
     fetchProfile,
     updateProfile,
+    updateContact,
     fetchFormations,
     addFormation,
     updateFormation,

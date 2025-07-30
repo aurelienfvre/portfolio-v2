@@ -103,16 +103,33 @@
             </p>
           </div>
 
-          <div class="flex items-center">
-            <input
-              v-model="form.invert"
-              type="checkbox"
-              id="invert"
-              class="mr-2"
-            >
-            <label for="invert" class="text-sm text-text-primary">
-              Inverser les couleurs (pour le mode sombre)
-            </label>
+          <div class="space-y-3">
+            <div class="flex items-center">
+              <input
+                v-model="form.invert"
+                type="checkbox"
+                id="invert"
+                class="mr-2"
+              >
+              <label for="invert" class="text-sm text-text-primary">
+                Inverser les couleurs (pour le mode sombre)
+              </label>
+            </div>
+            
+            <div class="flex items-center">
+              <input
+                v-model="form.visible"
+                type="checkbox"
+                id="visible"
+                class="mr-2"
+              >
+              <label for="visible" class="text-sm text-text-primary">
+                Afficher dans la section Compétences
+              </label>
+            </div>
+            <p class="text-xs text-text-tertiary">
+              Si décoché, la technologie sera disponible uniquement pour les projets
+            </p>
           </div>
 
           <!-- Preview -->
@@ -198,6 +215,7 @@ const form = ref({
   category: '',
   icon: '',
   invert: false,
+  visible: true,
   level: ''
 })
 
@@ -214,6 +232,7 @@ watch(() => props.skill, (skill) => {
       category: skill.category || '',
       icon: skill.icon || '',
       invert: skill.invert || false,
+      visible: skill.visible !== undefined ? skill.visible : true,
       level: skill.level || ''
     }
   } else {
@@ -223,6 +242,7 @@ watch(() => props.skill, (skill) => {
       category: '',
       icon: '',
       invert: false,
+      visible: true,
       level: ''
     }
   }

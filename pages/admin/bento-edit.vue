@@ -97,10 +97,6 @@
               <div class="text-xs text-gray-500 mt-1">
                 Drag & drop, double-clic pour éditer
               </div>
-              <!-- DEBUG INFO -->
-              <div class="text-xs text-red-600 mt-2 max-w-md">
-                DEBUG: {{ sortedBentoBlocks.map(b => `${b.component}:${b.colSpan}col`).join(', ') }}
-              </div>
             </div>
             <!-- Grille draggable avec vue-draggable-plus -->
             <VueDraggable
@@ -287,7 +283,7 @@
                 >
                   <!-- Éditer -->
                   <button
-                    @click.stop="openBentoModal(block)"
+                    @click.stop="handleCustomBlockEdit(block)"
                     class="bg-accent hover:bg-accent/90 text-bg-primary rounded-full p-2 shadow-lg hover:scale-105 transition-all"
                     title="Éditer le bloc"
                   >
@@ -329,7 +325,7 @@
 
                   <!-- Supprimer -->
                   <button
-                    @click.stop="deleteCustomBlock(block.id)"
+                    @click.stop="handleDeleteCustomBlock(block.id)"
                     class="bg-red-500 hover:bg-red-600 text-white rounded-full p-2 shadow-lg hover:scale-105 transition-all"
                     title="Supprimer"
                   >
@@ -462,18 +458,11 @@
                 >
               </div>
               
-              <div>
-                <label class="block text-sm font-semibold text-text-primary mb-3">
-                  URL du CV
-                </label>
-                <input
-                  v-model="profileForm.cvUrl"
-                  type="url"
-                  class="w-full px-4 py-3 border border-border-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-bg-secondary text-text-primary"
-                  style="direction: ltr; text-align: left;"
-                  placeholder="/files/CV-MonNom.pdf"
-                >
-              </div>
+              <PdfUpload
+                v-model="profileForm.cvUrl"
+                label="CV (Fichier PDF)"
+                :max-size-m-b="10"
+              />
               
               <!-- Actions -->
               <div class="flex justify-end space-x-4 pt-6 border-t border-border-primary">
@@ -528,7 +517,7 @@
                 <VueDraggable
                   v-model="formations"
                   :animation="200"
-                  @change="onFormationOrderChange"
+                  @end="onFormationOrderChange"
                   item-key="id"
                   class="space-y-3 max-h-60 overflow-y-auto"
                 >
@@ -727,6 +716,54 @@
                   class="w-full px-4 py-3 border border-border-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-bg-secondary text-text-primary placeholder-text-tertiary"
                   style="direction: ltr; text-align: left;"
                 />
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-text-primary mb-3">
+                  Localisation
+                </label>
+                <div class="space-y-3">
+                  <div 
+                    v-for="(location, index) in stageForm.locations" 
+                    :key="index"
+                    class="flex items-center gap-3 p-3 border border-border-primary rounded-xl bg-bg-secondary"
+                  >
+                    <input
+                      v-model="location.name"
+                      type="text"
+                      placeholder="Ex: Lille et ses alentours"
+                      class="flex-1 px-3 py-2 border border-border-secondary rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-bg-primary text-text-primary placeholder-text-tertiary"
+                    />
+                    <label class="flex items-center gap-2 text-sm">
+                      <input
+                        v-model="location.isPrimary"
+                        type="checkbox"
+                        class="rounded"
+                      />
+                      Principal
+                    </label>
+                    <button
+                      type="button"
+                      @click="stageForm.locations.splice(index, 1)"
+                      class="text-red-500 hover:text-red-600 p-1 rounded transition-colors"
+                      title="Supprimer"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    @click="stageForm.locations.push({ name: '', isPrimary: false })"
+                    class="text-accent hover:text-accent/80 text-sm font-medium flex items-center gap-2"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Ajouter une localisation
+                  </button>
+                </div>
               </div>
 
               <div class="flex justify-end space-x-4 pt-6 border-t border-border-primary">
@@ -1004,6 +1041,14 @@
       </div>
     </Teleport>
 
+    <!-- Experience Modal -->
+    <ExperienceModal
+      v-if="showExperienceModal"
+      :block="selectedBentoBlock"
+      @close="closeExperienceModal"
+      @save="saveExperienceBlock"
+    />
+
     <!-- WYSIWYG Editor Tooltip (Style Notion) -->
     <Transition
       enter-active-class="transition-all duration-200 ease-out"
@@ -1130,6 +1175,8 @@ import { usePortfolioDatabase } from "~/composables/usePortfolioDatabase";
 import BentoModal from "~/components/admin/BentoModal.vue";
 import ResizeModal from "~/components/admin/ResizeModal.vue";
 import TipTapEditor from "~/components/admin/TipTapEditor.vue";
+import ExperienceModal from "~/components/admin/ExperienceModal.vue";
+import PdfUpload from "~/components/admin/PdfUpload.vue";
 import { VueDraggable } from "vue-draggable-plus";
 
 // Import portfolio sections
@@ -1161,6 +1208,7 @@ const {
   deleteFormation,
   stage,
   fetchStage,
+  updateStage,
   socialLinks,
   fetchSocialLinks,
   customBlocks,
@@ -1169,6 +1217,18 @@ const {
   updateCustomBlock,
   deleteCustomBlock,
 } = usePortfolioDatabase();
+
+// Initialize data on mount
+onMounted(async () => {
+  await Promise.all([
+    fetchBentoBlocks(),
+    fetchCustomBlocks(),
+    fetchProfile(),
+    fetchFormations(),
+    fetchStage(),
+    fetchSocialLinks()
+  ])
+})
 
 // Modal states
 const showBentoModal = ref(false);
@@ -1188,6 +1248,8 @@ const showFormationEditor = ref(false);
 const showStageEditor = ref(false);
 const showSocialLinksEditor = ref(false);
 const showPhotoEditor = ref(false);
+const showContactEditor = ref(false);
+const showExperienceModal = ref(false);
 
 // Form data for editing
 const profileForm = ref({
@@ -1214,6 +1276,10 @@ const photoForm = ref({
 });
 
 const socialLinksForm = ref([]);
+
+const contactForm = ref({
+  location: 'Lille, France'
+});
 
 const formationForm = ref({
   title: '',
@@ -1368,9 +1434,26 @@ const handleDoubleClick = (block: any, event: MouseEvent) => {
     return
   }
   
+  if (block.component === 'ContactSection') {
+    openContactEditor(block, event)
+    return
+  }
+  
+  // Check if it's a custom block and handle specific types
+  if (block.type === 'experience' || (block.component === 'CustomBlock' && block.type === 'experience')) {
+    openExperienceModal(block);
+    return;
+  }
+  
+  // Si c'est un custom block générique, utiliser le modal principal
+  if (block.component === 'CustomBlock' && block.type !== 'experience') {
+    openBentoModal(block);
+    return;
+  }
+  
   // Pour les autres composants, utiliser l'éditeur WYSIWYG simple
   const editableComponents = ["ContactSection"];
-  if (editableComponents.includes(block.component) || !block.component) {
+  if (editableComponents.includes(block.component)) {
     editingBlock.value = block;
     editingContent.value = block.content || block.title || "";
 
@@ -1480,6 +1563,17 @@ const openSocialLinksEditor = async (block: any, event: MouseEvent) => {
   }
   
   showSocialLinksEditor.value = true;
+};
+
+const openContactEditor = async (block: any, event: MouseEvent) => {
+  editingBlock.value = block;
+  
+  // Pour l'instant, initialisons avec des valeurs par défaut
+  contactForm.value = {
+    location: 'Lille, France'
+  };
+  
+  showContactEditor.value = true;
 };
 
 const openPhotoEditor = async (block: any, event: MouseEvent) => {
@@ -1651,12 +1745,58 @@ const onFormationOrderChange = async () => {
   }
 };
 
+const openExperienceModal = (block: any) => {
+  selectedBentoBlock.value = block;
+  showExperienceModal.value = true;
+};
+
+const closeExperienceModal = () => {
+  showExperienceModal.value = false;
+  selectedBentoBlock.value = null;
+};
+
+const saveExperienceBlock = async (blockData: any) => {
+  try {
+    if (selectedBentoBlock.value) {
+      // Update existing custom block
+      await updateCustomBlock(selectedBentoBlock.value.id, blockData);
+    } else {
+      // Create new custom block
+      await addCustomBlock(blockData);
+    }
+    closeExperienceModal();
+  } catch (error) {
+    console.error('Error saving experience block:', error);
+  }
+};
+
+const handleCustomBlockEdit = (block: any) => {
+  if (block.type === 'experience') {
+    openExperienceModal(block);
+  } else {
+    // For other custom block types, use the generic modal
+    openBentoModal(block);
+  }
+};
+
+const handleDeleteCustomBlock = async (blockId: number) => {
+  if (confirm("Êtes-vous sûr de vouloir supprimer ce bloc personnalisé ?")) {
+    try {
+      await deleteCustomBlock(blockId);
+    } catch (error) {
+      console.error('Error deleting custom block:', error);
+    }
+  }
+};
+
 const closeContextualEditors = () => {
   showProfileEditor.value = false;
   showFormationEditor.value = false;
   showStageEditor.value = false;
   showSocialLinksEditor.value = false;
   showPhotoEditor.value = false;
+  showContactEditor.value = false;
+  showExperienceModal.value = false;
   editingBlock.value = null;
 };
 
@@ -1669,6 +1809,15 @@ const closeWysiwygTooltip = () => {
 const saveWysiwygContent = async () => {
   try {
     if (editingBlock.value) {
+      // Ne pas sauvegarder si c'est un bloc avec des données structurées
+      if (editingBlock.value.type === 'experience' || 
+          editingBlock.value.component === 'CustomBlock' ||
+          ['SkillsSection', 'ProjectsSection', 'ProfileSection', 'IntroSection', 'FormationSection', 'StageSection', 'LinksSection'].includes(editingBlock.value.component)) {
+        console.warn('Impossible de sauvegarder ce type de bloc avec l\'éditeur WYSIWYG');
+        closeWysiwygTooltip();
+        return;
+      }
+      
       const updatedBlock = {
         ...editingBlock.value,
         content: editingContent.value,

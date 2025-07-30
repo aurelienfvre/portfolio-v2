@@ -22,6 +22,8 @@ export default defineEventHandler(async (event) => {
         title: body.title,
         description: body.description || null,
         email: body.email || null,
+        website: body.website || null,
+        locations: typeof body.locations === 'string' ? body.locations : JSON.stringify(body.locations || []),
         cvUrl: body.cvUrl || null,
         updatedAt: new Date().toISOString()
       })
@@ -38,6 +40,8 @@ export default defineEventHandler(async (event) => {
           title: body.title,
           description: body.description || null,
           email: body.email || null,
+          website: body.website || null,
+          locations: typeof body.locations === 'string' ? body.locations : JSON.stringify(body.locations || []),
           cvUrl: body.cvUrl || null
         })
         .returning()

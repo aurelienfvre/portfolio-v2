@@ -44,6 +44,7 @@
             <div
               v-for="category in getProofCategoriesForCompetence(competence.id)"
               :key="category.id"
+              :data-category-id="category.id"
               class="proof-category bg-bg-secondary rounded-xl p-4 border border-border-secondary"
             >
               <!-- Header Catégorie -->
@@ -101,6 +102,7 @@
                   <div
                     v-for="item in getProofItemsForCategory(category.id)"
                     :key="item.id"
+                    :data-item-id="item.id"
                     class="proof-item bg-white rounded-lg p-3 border border-border-tertiary hover:border-border-secondary transition-colors cursor-move"
                   >
                     <div class="flex items-start justify-between">

@@ -8,8 +8,9 @@ export const projects = sqliteTable('projects', {
   image: text('image'),
   technologies: text('technologies'), // JSON string
   detailedContent: text('detailed_content'),
-  githubUrl: text('github_url'),
-  liveUrl: text('live_url'),
+  githubUrl: text('github_url'), // Deprecated: kept for backward compatibility
+  liveUrl: text('live_url'), // Deprecated: kept for backward compatibility
+  links: text('links'), // JSON string: { website?: string, github?: string[] }
   status: text('status').default('published'),
   tags: text('tags'), // JSON string
   featured: integer('featured', { mode: 'boolean' }).default(false),
@@ -120,6 +121,8 @@ export const profile = sqliteTable('profile', {
   description: text('description'),
   profileImage: text('profile_image'),
   email: text('email'),
+  website: text('website'),
+  locations: text('locations'), // JSON string
   cvUrl: text('cv_url'),
   updatedAt: text('updated_at').default('CURRENT_TIMESTAMP')
 })

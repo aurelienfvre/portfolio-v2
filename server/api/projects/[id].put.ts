@@ -17,6 +17,7 @@ export default defineEventHandler(async (event) => {
       ...body,
       technologies: typeof body.technologies === 'object' ? JSON.stringify(body.technologies) : body.technologies,
       tags: typeof body.tags === 'object' ? JSON.stringify(body.tags) : body.tags,
+      links: body.links ? JSON.stringify(body.links) : body.links,
       updatedAt: new Date().toISOString()
     }
 

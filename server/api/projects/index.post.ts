@@ -26,8 +26,11 @@ export default defineEventHandler(async (event) => {
       image: body.image || null,
       technologies: typeof body.technologies === 'object' ? JSON.stringify(body.technologies) : (body.technologies || null),
       detailedContent: body.detailedContent || null,
+      // Backward compatibility with old fields
       githubUrl: body.githubUrl || null,
       liveUrl: body.liveUrl || null,
+      // New links structure
+      links: body.links ? JSON.stringify(body.links) : null,
       status: body.status || 'published',
       tags: typeof body.tags === 'object' ? JSON.stringify(body.tags) : (body.tags || null),
       featured: body.featured || false,

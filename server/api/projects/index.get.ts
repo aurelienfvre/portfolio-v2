@@ -8,9 +8,21 @@ export default defineEventHandler(async (event) => {
       .from(projects)
       .orderBy(asc(projects.order), asc(projects.createdAt))
 
+    // Parse JSON fields and handle links migration
+    const parsedProjects = allProjects.map(project => ({
+      ...project,
+      technologies: project.technologies ? JSON.parse(project.technologies) : [],
+      tags: project.tags ? JSON.parse(project.tags) : [],
+      // Handle links field - if new links exist, use them, otherwise fallback to old fields
+      links: project.links ? JSON.parse(project.links) : {
+        website: project.liveUrl || undefined,
+        github: project.githubUrl ? [project.githubUrl] : []
+      }
+    }))
+
     return {
       success: true,
-      data: allProjects
+      data: parsedProjects
     }
   } catch (error) {
     console.error('Error fetching projects:', error)

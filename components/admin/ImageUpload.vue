@@ -83,7 +83,7 @@
       <div class="flex space-x-2">
         <input
           v-model="urlInput"
-          type="url"
+          type="text"
           placeholder="Ou collez une URL d'image"
           class="flex-1 px-4 py-3 border border-border-primary rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-bg-secondary text-text-primary placeholder-text-tertiary"
         />
@@ -206,20 +206,40 @@ const handleFileSelect = (e: Event) => {
 };
 
 // Process file
-const handleFile = (file: File) => {
+const handleFile = async (file: File) => {
   if (!file.type.startsWith("image/")) {
     alert("Veuillez sélectionner un fichier image");
     return;
   }
 
-  // Create preview URL
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    if (e.target?.result) {
-      emit("update:modelValue", e.target.result as string);
+  // Validate file size (max 10MB)
+  const maxSize = 10 * 1024 * 1024; // 10MB
+  if (file.size > maxSize) {
+    alert("La taille du fichier ne doit pas dépasser 10MB");
+    return;
+  }
+
+  try {
+    // Create FormData for upload
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('type', 'images');
+    
+    // Upload file to server
+    const response = await $fetch('/api/upload', {
+      method: 'POST',
+      body: formData
+    });
+    
+    if (response.success) {
+      emit("update:modelValue", response.url);
+    } else {
+      throw new Error((response as any).error || 'Erreur lors de l\'upload');
     }
-  };
-  reader.readAsDataURL(file);
+  } catch (error) {
+    console.error('Upload error:', error);
+    alert(error instanceof Error ? error.message : 'Erreur lors de l\'upload du fichier');
+  }
 };
 
 // Use URL input
