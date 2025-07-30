@@ -37,14 +37,27 @@
                   v-for="template in blockTemplates"
                   :key="template.id"
                   @click="applyTemplate(template)"
-                  class="cursor-pointer border border-border-primary rounded-2xl p-4 hover:border-accent hover:shadow-md transition-all duration-200 bg-bg-secondary"
+                  class="cursor-pointer border-2 rounded-2xl p-4 transition-all duration-200 bg-bg-secondary hover:scale-105 hover:shadow-lg"
+                  :class="[
+                    selectedTemplateId === template.id 
+                      ? 'border-accent bg-accent/5 shadow-accent/20 shadow-lg' 
+                      : 'border-border-primary hover:border-accent'
+                  ]"
                 >
-                  <div class="text-center">
+                  <div class="text-center relative">
+                    <!-- Badge de sélection -->
+                    <div 
+                      v-if="selectedTemplateId === template.id"
+                      class="absolute -top-2 -right-2 w-6 h-6 bg-accent rounded-full flex items-center justify-center text-white text-xs font-bold"
+                    >
+                      ✓
+                    </div>
+                    
                     <div class="text-2xl mb-2">{{ template.icon }}</div>
                     <div class="font-semibold text-text-primary mb-1">{{ template.name }}</div>
                     <div class="text-xs text-text-tertiary mb-2">{{ template.description }}</div>
                     <div 
-                      :class="`${template.backgroundColor} rounded-lg p-2 text-white text-xs`"
+                      :class="`${template.backgroundColor} rounded-lg p-2 text-white text-xs font-medium`"
                     >
                       {{ template.colSpan }} colonnes
                     </div>
@@ -375,6 +388,9 @@ const form = ref({
   content: ''
 })
 
+// Template selection state
+const selectedTemplateId = ref(null)
+
 // Block templates for quick creation
 const blockTemplates = ref([
   {
@@ -534,6 +550,9 @@ const blockTemplates = ref([
 
 // Apply template to form
 const applyTemplate = (template: any) => {
+  // Set selected template for visual feedback
+  selectedTemplateId.value = template.id
+  
   form.value = {
     title: template.title,
     type: template.type,
@@ -602,9 +621,15 @@ const getCustomBlockTypeName = (type: string) => {
 // UX: Handle backdrop click
 const handleBackdropClick = (event: MouseEvent) => {
   if (event.target === event.currentTarget) {
+    selectedTemplateId.value = null
     emit('close')
   }
 }
+
+// Reset selection when modal is opened
+watch(() => props.block, () => {
+  selectedTemplateId.value = null
+}, { immediate: true })
 
 // Form submission
 const handleSubmit = () => {
@@ -616,6 +641,7 @@ const handleSubmit = () => {
     fields: form.value.fields.filter(field => field.label.trim() && field.key.trim())
   }
   
+  selectedTemplateId.value = null
   emit('save', cleanedForm)
 }
 </script>

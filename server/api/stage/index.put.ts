@@ -19,6 +19,7 @@ export default defineEventHandler(async (event) => {
         duration: body.duration,
         startDate: body.startDate,
         position: body.position,
+        company: body.company || null,
         locations: typeof body.locations === 'string' ? body.locations : JSON.stringify(body.locations || []),
         updatedAt: new Date().toISOString()
       })
@@ -33,6 +34,7 @@ export default defineEventHandler(async (event) => {
           duration: body.duration,
           startDate: body.startDate,
           position: body.position,
+          company: body.company || null,
           locations: typeof body.locations === 'string' ? body.locations : JSON.stringify(body.locations || [])
         })
         .returning()

@@ -70,11 +70,35 @@ import { Mail, Globe, MapPin } from 'lucide-vue-next'
 import { socialLinks } from '@/data/social'
 import BentoItem from '~/components/common/BentoItem.vue'
 import SocialLink from '~/components/common/SocialLink.vue'
+import { usePortfolioDatabase } from '~/composables/usePortfolioDatabase'
 
 // Props
 defineProps<{
   colSpan?: number
 }>()
+
+const { profile, fetchProfile } = usePortfolioDatabase()
+
+// Fetch profile data on mount
+onMounted(async () => {
+  if (!profile.value) {
+    await fetchProfile()
+  }
+})
+
+// Get location text from profile or fallback
+const getLocationText = () => {
+  if (profile.value?.locations) {
+    try {
+      const locations = JSON.parse(profile.value.locations)
+      const primaryLocation = locations.find((loc: any) => loc.isPrimary)
+      return primaryLocation?.name || locations[0]?.name || 'Lille, France'
+    } catch (e) {
+      console.error('Error parsing locations:', e)
+    }
+  }
+  return 'Lille, France' // Fallback
+}
 </script>
 
 <style scoped>
