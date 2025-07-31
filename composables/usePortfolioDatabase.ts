@@ -488,6 +488,66 @@ export const usePortfolioDatabase = () => {
     }
   }
 
+  const addSocialLink = async (linkData: any) => {
+    try {
+      isLoading.value = true
+      const response = await $fetch('/api/social-links', {
+        method: 'POST',
+        body: linkData
+      })
+      if (response.success) {
+        await fetchSocialLinks() // Refresh the list
+      }
+      return response
+    } catch (err) {
+      error.value = err
+      console.error('Error adding social link:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const updateSocialLink = async (id: number, linkData: any) => {
+    try {
+      isLoading.value = true
+      const response = await $fetch('/api/social-links', {
+        method: 'PUT',
+        body: { ...linkData, id }
+      })
+      if (response.success) {
+        await fetchSocialLinks() // Refresh the list
+      }
+      return response
+    } catch (err) {
+      error.value = err
+      console.error('Error updating social link:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const deleteSocialLink = async (id: number) => {
+    try {
+      isLoading.value = true
+      const response = await $fetch('/api/social-links', {
+        method: 'DELETE',
+        query: { id }
+      })
+      if (response.success) {
+        await fetchSocialLinks() // Refresh the list
+      }
+      return response
+    } catch (err) {
+      error.value = err
+      console.error('Error deleting social link:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   // Computed getters
   const sortedBentoBlocks = computed(() => {
     return [...portfolioBentoBlocks.value]
@@ -758,7 +818,6 @@ export const usePortfolioDatabase = () => {
 
   const reorderProofCategories = async (reorderData: { id: number, order: number }[]) => {
     try {
-      isLoading.value = true
       const response = await $fetch('/api/proof-categories/reorder', {
         method: 'PATCH',
         body: reorderData
@@ -771,8 +830,6 @@ export const usePortfolioDatabase = () => {
       error.value = err
       console.error('Error reordering proof categories:', err)
       throw err
-    } finally {
-      isLoading.value = false
     }
   }
 
@@ -853,7 +910,6 @@ export const usePortfolioDatabase = () => {
 
   const reorderProofItems = async (reorderData: { id: number, order: number }[]) => {
     try {
-      isLoading.value = true
       const response = await $fetch('/api/proof-items/reorder', {
         method: 'PATCH',
         body: reorderData
@@ -866,8 +922,6 @@ export const usePortfolioDatabase = () => {
       error.value = err
       console.error('Error reordering proof items:', err)
       throw err
-    } finally {
-      isLoading.value = false
     }
   }
 
@@ -948,6 +1002,9 @@ export const usePortfolioDatabase = () => {
     fetchStage,
     updateStage,
     fetchSocialLinks,
+    addSocialLink,
+    updateSocialLink,
+    deleteSocialLink,
     
     // Custom Blocks
     fetchCustomBlocks,

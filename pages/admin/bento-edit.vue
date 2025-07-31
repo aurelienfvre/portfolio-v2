@@ -1041,6 +1041,128 @@
       </div>
     </Teleport>
 
+    <!-- Contact Editor Modal -->
+    <Teleport to="body">
+      <div 
+        v-if="showContactEditor"
+        class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+        @click="closeContextualEditors"
+      >
+        <div 
+          class="bg-bg-primary border border-border-primary rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          @click.stop
+        >
+          <div class="p-8">
+            <div class="flex justify-between items-center mb-8">
+              <h3 class="text-2xl font-bold text-text-primary">Éditer les Informations de Contact</h3>
+              <button 
+                @click="closeContextualEditors" 
+                class="text-text-tertiary hover:text-text-primary hover:bg-bg-secondary rounded-xl p-2 transition-all duration-200"
+              >
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <form @submit.prevent="saveContactData" class="space-y-6">
+              <!-- Email -->
+              <div>
+                <label class="block text-sm font-semibold text-text-primary mb-3">
+                  Email
+                </label>
+                <input
+                  v-model="contactForm.email"
+                  type="email"
+                  placeholder="votre.email@exemple.com"
+                  class="w-full px-4 py-3 border border-border-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-bg-secondary text-text-primary placeholder-text-tertiary"
+                />
+              </div>
+
+              <!-- Site Web -->
+              <div>
+                <label class="block text-sm font-semibold text-text-primary mb-3">
+                  Site Web
+                </label>
+                <input
+                  v-model="contactForm.website"
+                  type="text"
+                  placeholder="https://votre-site.com"
+                  class="w-full px-4 py-3 border border-border-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-bg-secondary text-text-primary placeholder-text-tertiary"
+                />
+              </div>
+
+              <!-- Localisations -->
+              <div>
+                <label class="block text-sm font-semibold text-text-primary mb-3">
+                  Localisations
+                </label>
+                <div class="space-y-3">
+                  <div 
+                    v-for="(location, index) in contactForm.locations" 
+                    :key="index"
+                    class="flex items-center space-x-3 p-3 bg-bg-secondary rounded-2xl border border-border-primary"
+                  >
+                    <input
+                      v-model="location.name"
+                      type="text"
+                      placeholder="Nom de la localisation"
+                      class="flex-1 px-3 py-2 border border-border-primary rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-bg-primary text-text-primary placeholder-text-tertiary"
+                    />
+                    <label class="flex items-center space-x-2 text-sm text-text-secondary">
+                      <input
+                        v-model="location.isPrimary"
+                        type="checkbox"
+                        class="rounded border-border-primary text-accent focus:ring-accent focus:ring-2"
+                      />
+                      <span>Principal</span>
+                    </label>
+                    <button
+                      type="button"
+                      @click="removeContactLocation(index)"
+                      class="p-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-colors duration-200"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  <!-- Bouton Ajouter une localisation -->
+                  <button
+                    type="button"
+                    @click="addContactLocation"
+                    class="w-full py-3 px-4 border-2 border-dashed border-border-primary rounded-2xl text-text-secondary hover:text-text-primary hover:border-accent transition-all duration-200 flex items-center justify-center space-x-2"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    <span>Ajouter une localisation</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="flex justify-end space-x-4 pt-6 border-t border-border-primary">
+                <button
+                  type="button"
+                  @click="closeContextualEditors"
+                  class="px-6 py-3 text-text-secondary border border-border-primary rounded-2xl hover:bg-bg-secondary hover:text-text-primary transition-all duration-200 font-medium"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  class="px-6 py-3 bg-accent text-bg-primary rounded-2xl hover:bg-accent/90 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl"
+                >
+                  Sauvegarder
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
     <!-- Experience Modal -->
     <ExperienceModal
       v-if="showExperienceModal"
@@ -1211,6 +1333,8 @@ const {
   updateStage,
   socialLinks,
   fetchSocialLinks,
+  updateSocialLink,
+  deleteSocialLink,
   customBlocks,
   fetchCustomBlocks,
   addCustomBlock,
@@ -1278,7 +1402,9 @@ const photoForm = ref({
 const socialLinksForm = ref([]);
 
 const contactForm = ref({
-  location: 'Lille, France'
+  email: '',
+  website: '',
+  locations: []
 });
 
 const formationForm = ref({
@@ -1410,6 +1536,11 @@ const handleDoubleClick = (block: any, event: MouseEvent) => {
   
   // Édition contextuelle pour les composants avec des données spécifiques
   if (block.component === 'ProfileSection') {
+    openProfileEditor(block, event)
+    return
+  }
+  
+  if (block.component === 'PhotoSection') {
     openPhotoEditor(block, event)
     return
   }
@@ -1475,19 +1606,19 @@ const openProfileEditor = async (block: any, event: MouseEvent) => {
   editingBlock.value = block;
   
   // Charger les données du profil
-  if (!profile.value) {
+  if (!portfolioProfile.value) {
     await fetchProfile();
   }
   
   // Remplir le formulaire avec les données existantes
-  if (profile.value) {
+  if (portfolioProfile.value) {
     profileForm.value = {
-      firstName: profile.value.firstName || '',
-      lastName: profile.value.lastName || '',
-      title: profile.value.title || '',
-      description: profile.value.description || '',
-      email: profile.value.email || '',
-      cvUrl: profile.value.cvUrl || ''
+      firstName: portfolioProfile.value.firstName || '',
+      lastName: portfolioProfile.value.lastName || '',
+      title: portfolioProfile.value.title || '',
+      description: portfolioProfile.value.description || '',
+      email: portfolioProfile.value.email || '',
+      cvUrl: portfolioProfile.value.cvUrl || ''
     };
   }
   
@@ -1568,28 +1699,82 @@ const openSocialLinksEditor = async (block: any, event: MouseEvent) => {
 const openContactEditor = async (block: any, event: MouseEvent) => {
   editingBlock.value = block;
   
-  // Pour l'instant, initialisons avec des valeurs par défaut
-  contactForm.value = {
-    location: 'Lille, France'
-  };
+  // Charger les données de profil actuelles
+  if (portfolioProfile.value) {
+    try {
+      let locations = [];
+      if (portfolioProfile.value.locations) {
+        locations = typeof portfolioProfile.value.locations === 'string' 
+          ? JSON.parse(portfolioProfile.value.locations) 
+          : portfolioProfile.value.locations;
+      }
+      
+      contactForm.value = {
+        email: portfolioProfile.value.email || '',
+        website: portfolioProfile.value.website || '',
+        locations: locations || []
+      };
+    } catch (e) {
+      console.error('Error parsing locations:', e);
+      contactForm.value = {
+        email: portfolioProfile.value.email || '',
+        website: portfolioProfile.value.website || '',
+        locations: []
+      };
+    }
+  }
   
   showContactEditor.value = true;
+};
+
+const addContactLocation = () => {
+  contactForm.value.locations.push({
+    name: '',
+    isPrimary: false
+  });
+};
+
+const removeContactLocation = (index: number) => {
+  contactForm.value.locations.splice(index, 1);
+};
+
+const saveContactData = async () => {
+  try {
+    // Merge contact data with existing profile data
+    const profileData = {
+      ...portfolioProfile.value,
+      email: contactForm.value.email,
+      website: contactForm.value.website,
+      locations: contactForm.value.locations
+    };
+    
+    await updateProfile(profileData);
+    showContactEditor.value = false;
+    showToast.value = true;
+    toastMessage.value = 'Informations de contact mises à jour';
+    setTimeout(() => showToast.value = false, 3000);
+  } catch (error) {
+    console.error('Error saving contact:', error);
+    showToast.value = true;
+    toastMessage.value = 'Erreur lors de la sauvegarde';
+    setTimeout(() => showToast.value = false, 3000);
+  }
 };
 
 const openPhotoEditor = async (block: any, event: MouseEvent) => {
   editingBlock.value = block;
   
   // Charger les données du profil pour la photo
-  if (!profile.value) {
+  if (!portfolioProfile.value) {
     await fetchProfile();
   }
   
   // Initialiser le formulaire photo avec les données existantes
-  if (profile.value) {
+  if (portfolioProfile.value) {
     photoForm.value = {
-      profileImage: profile.value.profileImage || '',
-      firstName: profile.value.firstName || '',
-      lastName: profile.value.lastName || ''
+      profileImage: portfolioProfile.value.profileImage || '',
+      firstName: portfolioProfile.value.firstName || '',
+      lastName: portfolioProfile.value.lastName || ''
     };
   }
   
@@ -1600,9 +1785,14 @@ const saveProfileData = async () => {
   try {
     await updateProfile(profileForm.value);
     closeContextualEditors();
-    console.log('Profil mis à jour avec succès');
+    showToast.value = true;
+    toastMessage.value = 'Profil mis à jour avec succès';
+    setTimeout(() => showToast.value = false, 3000);
   } catch (error) {
     console.error('Erreur lors de la sauvegarde du profil:', error);
+    showToast.value = true;
+    toastMessage.value = 'Erreur lors de la sauvegarde du profil';
+    setTimeout(() => showToast.value = false, 3000);
   }
 };
 
@@ -1610,9 +1800,14 @@ const saveStageData = async () => {
   try {
     await updateStage(stageForm.value);
     closeContextualEditors();
-    console.log('Situation actuelle mise à jour avec succès');
+    showToast.value = true;
+    toastMessage.value = 'Situation actuelle mise à jour avec succès';
+    setTimeout(() => showToast.value = false, 3000);
   } catch (error) {
     console.error('Erreur lors de la sauvegarde de la situation actuelle:', error);
+    showToast.value = true;
+    toastMessage.value = 'Erreur lors de la sauvegarde de la situation actuelle';
+    setTimeout(() => showToast.value = false, 3000);
   }
 };
 
@@ -1620,9 +1815,14 @@ const savePhotoData = async () => {
   try {
     await updateProfile(photoForm.value);
     closeContextualEditors();
-    console.log('Photo de profil mise à jour avec succès');
+    showToast.value = true;
+    toastMessage.value = 'Photo de profil mise à jour avec succès';
+    setTimeout(() => showToast.value = false, 3000);
   } catch (error) {
     console.error('Erreur lors de la sauvegarde de la photo:', error);
+    showToast.value = true;
+    toastMessage.value = 'Erreur lors de la sauvegarde de la photo';
+    setTimeout(() => showToast.value = false, 3000);
   }
 };
 
@@ -1669,7 +1869,13 @@ const updateSocialLinkIcon = (index: number) => {
 
 const saveSocialLinksData = async () => {
   try {
-    // Create or update each social link
+    // Clear all existing links first
+    const existingLinks = socialLinks.value || [];
+    for (const existingLink of existingLinks) {
+      await deleteSocialLink(existingLink.id);
+    }
+    
+    // Create new links from form data
     const promises = socialLinksForm.value.map(async (link, index) => {
       const linkData = {
         name: link.name,
@@ -1677,10 +1883,9 @@ const saveSocialLinksData = async () => {
         url: link.url,
         icon: link.icon,
         order: index,
-        visible: link.visible
+        visible: link.visible !== false
       };
       
-      // For now, we'll create new links (you might want to implement update logic)
       return $fetch('/api/social-links', {
         method: 'POST',
         body: linkData
@@ -1690,9 +1895,14 @@ const saveSocialLinksData = async () => {
     await Promise.all(promises);
     await fetchSocialLinks(); // Refresh the list
     closeContextualEditors();
-    console.log('Liens sociaux mis à jour avec succès');
+    showToast.value = true;
+    toastMessage.value = 'Liens sociaux mis à jour avec succès';
+    setTimeout(() => showToast.value = false, 3000);
   } catch (error) {
     console.error('Erreur lors de la sauvegarde des liens sociaux:', error);
+    showToast.value = true;
+    toastMessage.value = 'Erreur lors de la sauvegarde des liens sociaux';
+    setTimeout(() => showToast.value = false, 3000);
   }
 };
 
@@ -1704,9 +1914,14 @@ const saveFormation = async () => {
       await addFormation(formationForm.value);
     }
     closeContextualEditors();
-    console.log('Formation sauvegardée avec succès');
+    showToast.value = true;
+    toastMessage.value = 'Formation sauvegardée avec succès';
+    setTimeout(() => showToast.value = false, 3000);
   } catch (error) {
     console.error('Erreur lors de la sauvegarde de la formation:', error);
+    showToast.value = true;
+    toastMessage.value = 'Erreur lors de la sauvegarde de la formation';
+    setTimeout(() => showToast.value = false, 3000);
   }
 };
 

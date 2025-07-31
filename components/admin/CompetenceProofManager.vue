@@ -20,7 +20,7 @@
           <div class="flex items-center gap-2">
             <button
               @click="$emit('editCategory', { mainCompetenceId: competence.id })"
-              class="p-2 text-text-secondary hover:text-text-primary hover:bg-bg-secondary rounded-lg transition-colors"
+              class="p-2 text-text-secondary hover:text-text-primary hover:bg-bg-secondary rounded-lg transition-colors w-9 h-9 flex items-center justify-center"
               title="Ajouter une catégorie de preuve"
             >
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -33,12 +33,12 @@
         <!-- Catégories de Preuves pour cette compétence -->
         <div class="space-y-4">
           <VueDraggable
-            :list="getProofCategoriesForCompetence(competence.id)"
-            :animation="200"
+            :model-value="getProofCategoriesForCompetence(competence.id)"
+            @update:model-value="(newCategories) => onCategoriesChange(competence.id, newCategories)"
+            :animation="100"
             ghost-class="ghost-item"
             chosen-class="chosen-item"
             drag-class="drag-item"
-            @end="onCategoriesReorder"
             class="space-y-4"
           >
             <div
@@ -60,7 +60,7 @@
                 <div class="flex items-center gap-1 ml-4">
                   <button
                     @click="$emit('editItem', { proofCategoryId: category.id })"
-                    class="p-1.5 text-text-secondary hover:text-text-primary hover:bg-bg-primary rounded-md transition-colors"
+                    class="p-1.5 text-text-secondary hover:text-text-primary hover:bg-bg-primary rounded-md transition-colors w-7 h-7 flex items-center justify-center"
                     title="Ajouter un élément de preuve"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -69,7 +69,7 @@
                   </button>
                   <button
                     @click="$emit('editCategory', category)"
-                    class="p-1.5 text-text-secondary hover:text-text-primary hover:bg-bg-primary rounded-md transition-colors"
+                    class="p-1.5 text-text-secondary hover:text-text-primary hover:bg-bg-primary rounded-md transition-colors w-7 h-7 flex items-center justify-center"
                     title="Modifier la catégorie"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -78,7 +78,7 @@
                   </button>
                   <button
                     @click="$emit('deleteCategory', category)"
-                    class="p-1.5 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                    class="p-1.5 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors w-7 h-7 flex items-center justify-center"
                     title="Supprimer la catégorie"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -91,19 +91,19 @@
               <!-- Éléments de Preuve pour cette catégorie -->
               <div class="proof-items space-y-2">
                 <VueDraggable
-                  :list="getProofItemsForCategory(category.id)"
-                  :animation="200"
+                  :model-value="getProofItemsForCategory(category.id)"
+                  @update:model-value="(newItems) => onItemsChange(category.id, newItems)"
+                  :animation="100"
                   ghost-class="ghost-item"
                   chosen-class="chosen-item"
                   drag-class="drag-item"
-                  @end="onItemsReorder"
                   class="space-y-2"
                 >
                   <div
                     v-for="item in getProofItemsForCategory(category.id)"
                     :key="item.id"
                     :data-item-id="item.id"
-                    class="proof-item bg-white rounded-lg p-3 border border-border-tertiary hover:border-border-secondary transition-colors cursor-move"
+                    class="proof-item bg-white rounded-lg p-3 border-2 border-border-tertiary hover:border-accent transition-colors duration-200 cursor-move"
                   >
                     <div class="flex items-start justify-between">
                       <div class="flex-1">
@@ -128,7 +128,7 @@
                       <div class="flex items-center gap-1 ml-3">
                         <button
                           @click="$emit('editItem', item)"
-                          class="p-1 text-text-secondary hover:text-text-primary hover:bg-bg-secondary rounded transition-colors"
+                          class="p-1 text-text-secondary hover:text-text-primary hover:bg-bg-secondary rounded transition-colors w-6 h-6 flex items-center justify-center"
                           title="Modifier l'élément"
                         >
                           <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -137,7 +137,7 @@
                         </button>
                         <button
                           @click="$emit('deleteItem', item)"
-                          class="p-1 text-red-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                          class="p-1 text-red-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors w-6 h-6 flex items-center justify-center"
                           title="Supprimer l'élément"
                         >
                           <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -270,20 +270,20 @@ const getOriginTagClass = (tag: string) => {
 }
 
 // Drag & Drop handlers
-const onCategoriesReorder = (event: any) => {
-  const items = event.to.children
-  const reorderData = Array.from(items).map((item: any, index: number) => ({
-    id: parseInt(item.dataset.categoryId || '0'),
+const onCategoriesChange = (competenceId: number, newCategories: any[]) => {
+  // Créer les données de réorganisation basées sur le nouvel ordre
+  const reorderData = newCategories.map((category, index) => ({
+    id: category.id,
     order: index
   }))
   
   emit('reorderCategories', reorderData)
 }
 
-const onItemsReorder = (event: any) => {
-  const items = event.to.children
-  const reorderData = Array.from(items).map((item: any, index: number) => ({
-    id: parseInt(item.dataset.itemId || '0'),
+const onItemsChange = (categoryId: number, newItems: any[]) => {
+  // Créer les données de réorganisation basées sur le nouvel ordre
+  const reorderData = newItems.map((item, index) => ({
+    id: item.id,
     order: index
   }))
   
