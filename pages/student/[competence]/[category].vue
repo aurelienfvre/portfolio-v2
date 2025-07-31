@@ -128,15 +128,30 @@
                 />
                 
                 <!-- Vidéo -->
-                <video 
+                <div 
                   v-else-if="selectedItem?.mediaType === 'video' && selectedItem?.mediaUrl"
-                  :src="selectedItem.mediaUrl"
-                  controls
-                  class="w-full h-full"
-                  @error="onMediaError"
+                  class="w-full h-full flex items-center justify-center"
                 >
-                  Votre navigateur ne supporte pas la lecture vidéo.
-                </video>
+                  <!-- YouTube/Vimeo Embed -->
+                  <iframe
+                    v-if="isYouTubeOrVimeo(selectedItem.mediaUrl)"
+                    :src="getEmbedUrl(selectedItem.mediaUrl)"
+                    class="w-full h-full min-h-[400px]"
+                    frameborder="0"
+                    allowfullscreen
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  ></iframe>
+                  <!-- Regular Video File -->
+                  <video
+                    v-else
+                    :src="selectedItem.mediaUrl"
+                    controls
+                    class="w-full h-full"
+                    @error="onMediaError"
+                  >
+                    Votre navigateur ne supporte pas la lecture vidéo.
+                  </video>
+                </div>
 
                 <!-- Placeholder si aucun média sélectionné -->
                 <div 
@@ -176,6 +191,24 @@
                 
                 <div class="prose prose-sm max-w-none text-text-secondary">
                   <p class="leading-relaxed whitespace-pre-line">{{ selectedItem.description }}</p>
+                </div>
+                
+                <!-- Source Link -->
+                <div 
+                  v-if="selectedItem.sourceUrl"
+                  class="mt-4 pt-4 border-t border-border-secondary"
+                >
+                  <a 
+                    :href="selectedItem.sourceUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center gap-2 text-accent hover:text-accent/80 transition-colors font-medium"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-1M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                    Voir la source
+                  </a>
                 </div>
               </div>
             </div>
@@ -254,6 +287,31 @@ const switchToPro = async () => {
 
 const onMediaError = () => {
   console.warn('Erreur de chargement du média:', selectedItem.value?.mediaUrl)
+}
+
+// Helper functions for video handling
+const isYouTubeOrVimeo = (url: string) => {
+  if (!url) return false
+  const lowerUrl = url.toLowerCase()
+  return lowerUrl.includes('youtube.com') || 
+         lowerUrl.includes('youtu.be') || 
+         lowerUrl.includes('vimeo.com')
+}
+
+const getEmbedUrl = (url: string) => {
+  if (url.includes('youtube.com/watch?v=')) {
+    const videoId = url.split('v=')[1].split('&')[0]
+    return `https://www.youtube.com/embed/${videoId}`
+  }
+  if (url.includes('youtu.be/')) {
+    const videoId = url.split('youtu.be/')[1].split('?')[0]
+    return `https://www.youtube.com/embed/${videoId}`
+  }
+  if (url.includes('vimeo.com/')) {
+    const videoId = url.split('vimeo.com/')[1].split('?')[0]
+    return `https://player.vimeo.com/video/${videoId}`
+  }
+  return url
 }
 
 // Auto-select first item when items change

@@ -15,6 +15,7 @@ export default defineEventHandler(async (event) => {
       mediaUrl: proofItems.mediaUrl,
       mediaType: proofItems.mediaType,
       originTag: proofItems.originTag,
+      sourceUrl: proofItems.sourceUrl,
       order: proofItems.order,
       createdAt: proofItems.createdAt,
       updatedAt: proofItems.updatedAt,

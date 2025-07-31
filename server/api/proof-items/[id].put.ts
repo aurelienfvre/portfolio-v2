@@ -21,6 +21,7 @@ export default defineEventHandler(async (event) => {
     if (body.mediaUrl !== undefined) updateData.mediaUrl = body.mediaUrl
     if (body.mediaType !== undefined) updateData.mediaType = body.mediaType
     if (body.originTag !== undefined) updateData.originTag = body.originTag
+    if (body.sourceUrl !== undefined) updateData.sourceUrl = body.sourceUrl
     if (body.order !== undefined) updateData.order = body.order
     updateData.updatedAt = new Date().toISOString()
     

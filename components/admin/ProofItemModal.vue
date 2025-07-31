@@ -1,6 +1,12 @@
 <template>
-  <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+  <div 
+    class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+    @click="$emit('close')"
+  >
+    <div 
+      class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+      @click.stop
+    >
       <!-- Header -->
       <div class="flex items-center justify-between p-6 border-b border-border-secondary sticky top-0 bg-white">
         <h2 class="text-2xl font-bold text-text-primary">
@@ -95,6 +101,22 @@
           ></textarea>
         </div>
 
+        <!-- Source URL -->
+        <div>
+          <label class="block text-sm font-medium text-text-primary mb-2">
+            Lien Source (optionnel)
+          </label>
+          <input
+            v-model="form.sourceUrl"
+            type="url"
+            placeholder="https://exemple.com/projet ou https://github.com/user/repo"
+            class="w-full px-4 py-3 border border-border-secondary rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+          >
+          <p class="text-xs text-text-tertiary mt-1">
+            Ajoutez un lien vers le site web, dépôt GitHub, ou toute source liée à cette preuve
+          </p>
+        </div>
+
         <!-- Média -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- Type de média -->
@@ -144,7 +166,7 @@
               v-model="form.mediaUrl"
               :label="form.mediaType === 'video' ? 'Vidéo ou Image' : 'Image'"
               :file-type="form.mediaType === 'video' ? 'any' : 'image'"
-              :max-size-m-b="20"
+              :max-size-m-b="form.mediaType === 'video' ? 45 : 20"
             />
           </div>
         </div>
@@ -234,6 +256,7 @@ interface ProofItem {
   mediaUrl: string
   mediaType: 'image' | 'video'
   originTag: string
+  sourceUrl?: string
   order: number
 }
 
@@ -265,6 +288,7 @@ const form = ref({
   mediaUrl: '',
   mediaType: 'image' as 'image' | 'video',
   originTag: '',
+  sourceUrl: '',
   order: 0
 })
 
@@ -280,6 +304,7 @@ const populateForm = () => {
         mediaUrl: props.item.mediaUrl || '',
         mediaType: props.item.mediaType || 'image',
         originTag: props.item.originTag,
+        sourceUrl: props.item.sourceUrl || '',
         order: props.item.order || 0
       }
     } else if ('proofCategoryId' in props.item) {
@@ -291,6 +316,7 @@ const populateForm = () => {
         mediaUrl: '',
         mediaType: 'image',
         originTag: '',
+        sourceUrl: '',
         order: 0
       }
     }
@@ -325,6 +351,7 @@ const handleSubmit = () => {
     mediaUrl: form.value.mediaUrl,
     mediaType: form.value.mediaType,
     originTag: form.value.originTag,
+    sourceUrl: form.value.sourceUrl,
     order: form.value.order
   }
 

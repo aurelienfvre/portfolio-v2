@@ -1,6 +1,12 @@
 <template>
-  <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+  <div 
+    class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+    @click="$emit('close')"
+  >
+    <div 
+      class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden"
+      @click.stop
+    >
       <!-- Header -->
       <div class="flex items-center justify-between p-6 border-b border-border-secondary">
         <h2 class="text-2xl font-bold text-text-primary">

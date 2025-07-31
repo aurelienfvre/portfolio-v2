@@ -33,6 +33,8 @@
         @editItem="editItem"
         @deleteItem="handleDeleteItem"
         @reorderItems="handleReorderItems"
+        @updateCategory="handleUpdateCategory"
+        @updateItem="handleUpdateItem"
       />
     </div>
 
@@ -174,6 +176,23 @@ const handleReorderItems = async (reorderData: { id: number, order: number }[]) 
     await reorderProofItems(reorderData)
   } catch (error) {
     console.error('Error reordering items:', error)
+  }
+}
+
+// Instant update handlers
+const handleUpdateCategory = async (category: any) => {
+  try {
+    await updateProofCategory(category.id, category)
+  } catch (error) {
+    console.error('Error updating category:', error)
+  }
+}
+
+const handleUpdateItem = async (item: any) => {
+  try {
+    await updateProofItem(item.id, item)
+  } catch (error) {
+    console.error('Error updating item:', error)
   }
 }
 

@@ -13,6 +13,7 @@ export default defineEventHandler(async (event) => {
       mediaUrl: body.mediaUrl,
       mediaType: body.mediaType || 'image',
       originTag: body.originTag,
+      sourceUrl: body.sourceUrl || null,
       order: body.order || 0
     }
     

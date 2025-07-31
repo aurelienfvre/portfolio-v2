@@ -253,6 +253,7 @@ export const proofItems = sqliteTable('proof_items', {
   mediaUrl: text('media_url'), // URL de l'image ou de la vidéo associée
   mediaType: text('media_type').default('image'), // 'image' ou 'video'
   originTag: text('origin_tag').notNull(), // 'STAGE', 'PERSONNEL', 'SCOLAIRE', 'INITIATIVE'
+  sourceUrl: text('source_url'), // URL vers la source/site web lié à cette preuve
   order: integer('order').default(0), // Pour le drag & drop des items
   createdAt: text('created_at').default('CURRENT_TIMESTAMP'),
   updatedAt: text('updated_at').default('CURRENT_TIMESTAMP')

@@ -1,14 +1,14 @@
 <template>
-  <div class="competence-proof-manager">
+  <div class="competence-proof-manager h-full flex flex-col">
     <!-- Les 2 Compétences Principales -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
       <div
         v-for="competence in mainCompetences"
         :key="competence.id"
-        class="competence-card bg-card-primary rounded-2xl p-6 border border-border-primary"
+        class="competence-card bg-card-primary rounded-2xl border border-border-primary flex flex-col"
       >
-        <!-- Header Compétence Principale -->
-        <div class="flex items-center justify-between mb-6">
+        <!-- Header Compétence Principale (fixe) -->
+        <div class="shrink-0 flex items-center justify-between p-6 pb-4">
           <div>
             <h2 class="text-2xl font-bold text-text-primary mb-1">
               {{ competence.title }}
@@ -30,8 +30,9 @@
           </div>
         </div>
 
-        <!-- Catégories de Preuves pour cette compétence -->
-        <div class="space-y-4">
+        <!-- Catégories de Preuves pour cette compétence (scrollable) -->
+        <div class="flex-1 px-6 pb-6 overflow-y-auto scrollbar-hide">
+          <div class="space-y-4">
           <VueDraggable
             :model-value="getProofCategoriesForCompetence(competence.id)"
             @update:model-value="(newCategories) => onCategoriesChange(competence.id, newCategories)"
@@ -50,12 +51,18 @@
               <!-- Header Catégorie -->
               <div class="flex items-start justify-between mb-4">
                 <div class="flex-1">
-                  <h3 class="text-lg font-semibold text-text-primary mb-1">
-                    {{ category.title }}
-                  </h3>
-                  <p class="text-sm text-text-tertiary">
-                    {{ category.subtitle }}
-                  </p>
+                  <input
+                    v-model="category.title"
+                    @input="debouncedSaveCategory(category, 'title', $event.target.value)"
+                    class="text-lg font-semibold text-text-primary mb-1 w-full bg-transparent border-none outline-none focus:bg-white focus:shadow-sm focus:border focus:border-accent rounded px-1 -mx-1"
+                    placeholder="Titre de la catégorie"
+                  />
+                  <input
+                    v-model="category.subtitle"
+                    @input="debouncedSaveCategory(category, 'subtitle', $event.target.value)"
+                    class="text-sm text-text-tertiary w-full bg-transparent border-none outline-none focus:bg-white focus:shadow-sm focus:border focus:border-accent rounded px-1 -mx-1"
+                    placeholder="Sous-titre..."
+                  />
                 </div>
                 <div class="flex items-center gap-1 ml-4">
                   <button
@@ -118,12 +125,26 @@
                             {{ item.mediaType === 'video' ? '🎥' : '🖼️' }}
                           </span>
                         </div>
-                        <h4 class="font-medium text-text-primary text-sm mb-1">
-                          {{ item.title }}
-                        </h4>
-                        <p class="text-xs text-text-tertiary line-clamp-2">
-                          {{ item.description }}
-                        </p>
+                        <input
+                          v-model="item.title"
+                          @input="debouncedSave(item, 'title', $event.target.value)"
+                          class="font-medium text-text-primary text-sm mb-1 w-full bg-transparent border-none outline-none focus:bg-white focus:shadow-sm focus:border focus:border-accent rounded px-1 -mx-1"
+                          placeholder="Titre de l'élément"
+                        />
+                        <textarea
+                          v-model="item.description"
+                          @input="debouncedSave(item, 'description', $event.target.value)"
+                          class="text-xs text-text-tertiary w-full bg-transparent border-none outline-none focus:bg-white focus:shadow-sm focus:border focus:border-accent rounded px-1 -mx-1 resize-none"
+                          rows="2"
+                          placeholder="Description..."
+                        ></textarea>
+                        <input
+                          v-model="item.sourceUrl"
+                          @input="debouncedSave(item, 'sourceUrl', $event.target.value)"
+                          class="text-xs text-text-tertiary w-full bg-transparent border-none outline-none focus:bg-white focus:shadow-sm focus:border focus:border-accent rounded px-1 -mx-1 mt-1"
+                          placeholder="Lien source (optionnel)"
+                          type="url"
+                        />
                       </div>
                       <div class="flex items-center gap-1 ml-3">
                         <button
@@ -189,6 +210,7 @@
               Ajouter une catégorie
             </button>
           </div>
+          </div>
         </div>
       </div>
     </div>
@@ -224,6 +246,7 @@ interface ProofItem {
   mediaUrl: string
   mediaType: 'image' | 'video'
   originTag: string
+  sourceUrl?: string
   order: number
 }
 
@@ -244,6 +267,8 @@ const emit = defineEmits<{
   editItem: [item: ProofItem | { proofCategoryId: number }]
   deleteItem: [item: ProofItem]
   reorderItems: [reorderData: { id: number, order: number }[]]
+  updateCategory: [category: ProofCategory]
+  updateItem: [item: ProofItem]
 }>()
 
 // Computed helpers
@@ -289,6 +314,32 @@ const onItemsChange = (categoryId: number, newItems: any[]) => {
   
   emit('reorderItems', reorderData)
 }
+
+// Debounced save functions
+let categoryTimeout: NodeJS.Timeout | null = null
+let itemTimeout: NodeJS.Timeout | null = null
+
+const debouncedSaveCategory = (category: ProofCategory, field: string, value: string) => {
+  if (categoryTimeout) {
+    clearTimeout(categoryTimeout)
+  }
+  
+  categoryTimeout = setTimeout(() => {
+    const updatedCategory = { ...category, [field]: value }
+    emit('updateCategory', updatedCategory)
+  }, 1000)
+}
+
+const debouncedSave = (item: ProofItem, field: string, value: string) => {
+  if (itemTimeout) {
+    clearTimeout(itemTimeout)
+  }
+  
+  itemTimeout = setTimeout(() => {
+    const updatedItem = { ...item, [field]: value }
+    emit('updateItem', updatedItem)
+  }, 1000)
+}
 </script>
 
 <style scoped>
@@ -329,5 +380,15 @@ const onItemsChange = (categoryId: number, newItems: any[]) => {
 
 .proof-item:hover {
   transform: translateX(4px);
+}
+
+/* Hide scrollbars but keep functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari, Opera */
 }
 </style>

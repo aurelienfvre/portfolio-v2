@@ -4,9 +4,32 @@
       {{ label }}
     </label>
 
-    <!-- Current Image Preview -->
+    <!-- Current Media Preview -->
     <div v-if="modelValue" class="relative inline-block">
+      <!-- Video Preview -->
+      <div v-if="isVideoUrl" class="w-full max-w-xs">
+        <!-- YouTube/Vimeo Embed -->
+        <iframe
+          v-if="modelValue.includes('youtube.com') || modelValue.includes('youtu.be') || modelValue.includes('vimeo.com')"
+          :src="getEmbedUrl(modelValue)"
+          class="w-full h-32 rounded-xl border border-border-primary"
+          frameborder="0"
+          allowfullscreen
+        ></iframe>
+        <!-- Regular Video File -->
+        <video
+          v-else
+          :src="modelValue"
+          class="w-full max-w-xs h-32 object-cover rounded-xl border border-border-primary"
+          controls
+          preload="metadata"
+        >
+          Votre navigateur ne supporte pas la lecture vidéo.
+        </video>
+      </div>
+      <!-- Image Preview -->
       <img
+        v-else
         :src="modelValue"
         :alt="label"
         class="w-full max-w-xs h-32 object-cover rounded-xl border border-border-primary"
@@ -64,16 +87,16 @@
             />
           </svg>
           <p class="text-sm text-text-secondary">
-            Glissez-déposez une image ici ou cliquez pour choisir
+            {{ dragDropText }}
           </p>
           <p class="text-xs text-text-tertiary">
-            Formats supportés: JPG, PNG, GIF, WebP
+            Formats supportés: {{ supportedFormats }}
           </p>
         </div>
         <input
           ref="fileInput"
           type="file"
-          accept="image/*"
+          :accept="acceptedTypes"
           @change="handleFileSelect"
           class="hidden"
         />
@@ -84,7 +107,7 @@
         <input
           v-model="urlInput"
           type="text"
-          placeholder="Ou collez une URL d'image"
+          :placeholder="placeholderText"
           class="flex-1 px-4 py-3 border border-border-primary rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-bg-secondary text-text-primary placeholder-text-tertiary"
         />
         <button
@@ -169,6 +192,8 @@ const props = defineProps<{
   label: string;
   showExistingImages?: boolean;
   existingImages?: string[];
+  fileType?: 'image' | 'video' | 'any';
+  maxSizeMB?: number;
 }>();
 
 const emit = defineEmits<{
@@ -179,6 +204,94 @@ const isDragging = ref(false);
 const urlInput = ref("");
 const showGallery = ref(false);
 const fileInput = ref<HTMLInputElement>();
+
+// Computed properties based on fileType
+const acceptedTypes = computed(() => {
+  switch (props.fileType) {
+    case 'image':
+      return 'image/*'
+    case 'video':
+      return 'video/*'
+    case 'any':
+    default:
+      return 'image/*,video/*'
+  }
+})
+
+const supportedFormats = computed(() => {
+  switch (props.fileType) {
+    case 'image':
+      return 'JPG, PNG, GIF, WebP'
+    case 'video':
+      return 'MP4, MOV, AVI, WebM'
+    case 'any':
+    default:
+      return 'JPG, PNG, GIF, WebP, MP4, MOV'
+  }
+})
+
+const placeholderText = computed(() => {
+  switch (props.fileType) {
+    case 'image':
+      return 'Ou collez une URL d\'image'
+    case 'video':
+      return 'Ou collez un lien YouTube/Vimeo ou URL vidéo'
+    case 'any':
+    default:
+      return 'Ou collez une URL d\'image/vidéo ou lien YouTube'
+  }
+})
+
+const dragDropText = computed(() => {
+  switch (props.fileType) {
+    case 'image':
+      return 'Glissez-déposez une image ici ou cliquez pour choisir'
+    case 'video':
+      return 'Glissez-déposez une vidéo ici ou cliquez pour choisir'
+    case 'any':
+    default:
+      return 'Glissez-déposez un fichier ici ou cliquez pour choisir'
+  }
+})
+
+const maxFileSize = computed(() => {
+  return (props.maxSizeMB || 45) * 1024 * 1024 // Default 45MB for videos
+})
+
+// Helper to detect if URL is a video
+const isVideoUrl = computed(() => {
+  if (!props.modelValue) return false
+  
+  const url = props.modelValue.toLowerCase()
+  
+  // Check for video file extensions
+  const videoExtensions = ['.mp4', '.mov', '.avi', '.webm', '.mkv', '.flv', '.wmv']
+  const hasVideoExtension = videoExtensions.some(ext => url.includes(ext))
+  
+  // Check for video hosting platforms
+  const isYouTube = url.includes('youtube.com') || url.includes('youtu.be')
+  const isVimeo = url.includes('vimeo.com')
+  const isDailymotion = url.includes('dailymotion.com')
+  
+  return hasVideoExtension || isYouTube || isVimeo || isDailymotion
+})
+
+// Helper to get YouTube embed URL
+const getEmbedUrl = (url: string) => {
+  if (url.includes('youtube.com/watch?v=')) {
+    const videoId = url.split('v=')[1].split('&')[0]
+    return `https://www.youtube.com/embed/${videoId}`
+  }
+  if (url.includes('youtu.be/')) {
+    const videoId = url.split('youtu.be/')[1].split('?')[0]
+    return `https://www.youtube.com/embed/${videoId}`
+  }
+  if (url.includes('vimeo.com/')) {
+    const videoId = url.split('vimeo.com/')[1].split('?')[0]
+    return `https://player.vimeo.com/video/${videoId}`
+  }
+  return url
+}
 
 // Trigger file input when clicking on drag zone
 const triggerFileInput = () => {
@@ -207,23 +320,40 @@ const handleFileSelect = (e: Event) => {
 
 // Process file
 const handleFile = async (file: File) => {
-  if (!file.type.startsWith("image/")) {
-    alert("Veuillez sélectionner un fichier image");
-    return;
+  // Validate file type based on fileType prop
+  const isValidType = (() => {
+    switch (props.fileType) {
+      case 'image':
+        return file.type.startsWith('image/')
+      case 'video':
+        return file.type.startsWith('video/')
+      case 'any':
+      default:
+        return file.type.startsWith('image/') || file.type.startsWith('video/')
+    }
+  })()
+
+  if (!isValidType) {
+    const expectedType = props.fileType === 'image' ? 'image' : 
+                        props.fileType === 'video' ? 'vidéo' : 'image ou vidéo'
+    alert(`Veuillez sélectionner un fichier ${expectedType}`)
+    return
   }
 
-  // Validate file size (max 10MB)
-  const maxSize = 10 * 1024 * 1024; // 10MB
-  if (file.size > maxSize) {
-    alert("La taille du fichier ne doit pas dépasser 10MB");
-    return;
+  // Validate file size
+  if (file.size > maxFileSize.value) {
+    alert(`La taille du fichier ne doit pas dépasser ${props.maxSizeMB || 45}MB`)
+    return
   }
 
   try {
     // Create FormData for upload
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('type', 'images');
+    
+    // Determine upload type based on file type
+    const uploadType = file.type.startsWith('video/') ? 'videos' : 'images'
+    formData.append('type', uploadType);
     
     // Upload file to server
     const response = await $fetch('/api/upload', {

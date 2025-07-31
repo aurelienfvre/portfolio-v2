@@ -43,12 +43,20 @@ export default defineEventHandler(async (event) => {
           statusMessage: 'Only image files (JPG, PNG, GIF, WebP) are allowed'
         })
       }
-    } else {
-      // Default to images for backward compatibility
-      if (!['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf'].includes(fileExtension)) {
+    } else if (fileType === 'videos') {
+      if (!['mp4', 'mov', 'avi', 'webm', 'mkv', 'flv', 'wmv'].includes(fileExtension)) {
         throw createError({
           statusCode: 400,
-          statusMessage: 'Only image and PDF files are allowed'  
+          statusMessage: 'Only video files (MP4, MOV, AVI, WebM, MKV) are allowed'
+        })
+      }
+    } else {
+      // Default to images and videos for backward compatibility
+      const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf', 'mp4', 'mov', 'avi', 'webm', 'mkv', 'flv', 'wmv']
+      if (!allowedExtensions.includes(fileExtension)) {
+        throw createError({
+          statusCode: 400,
+          statusMessage: 'Only image, video and PDF files are allowed'  
         })
       }
     }
