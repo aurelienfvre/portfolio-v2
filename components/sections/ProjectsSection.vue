@@ -1,5 +1,5 @@
 <template>
-  <BentoItem id="projects" className="col-span-12">
+  <BentoItem id="projects" :className="`col-span-${colSpan || 12}`">
     <div class="p-8">
       <!-- Header de la section -->
       <div class="flex items-center gap-3 mb-8">
@@ -145,10 +145,18 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import { Folder, ArrowUpRight, X, Globe, Github } from 'lucide-vue-next'
-import { projects } from '@/data/projects'
+import { usePortfolioDatabase } from '~/composables/usePortfolioDatabase'
 import type { Project } from '@/types/project'
 import BentoItem from '~/components/common/BentoItem.vue'
 import Card from '~/components/common/Card.vue'
+
+// Props
+defineProps<{
+  colSpan?: number
+}>()
+
+// Get projects from database
+const { projects, fetchProjects } = usePortfolioDatabase()
 
 const selectedProject = ref<Project | null>(null)
 
@@ -169,8 +177,9 @@ const handleKeydown = (e: KeyboardEvent) => {
 }
 
 // Ajout des event listeners
-onMounted(() => {
+onMounted(async () => {
   window.addEventListener('keydown', handleKeydown)
+  await fetchProjects()
 })
 
 onBeforeUnmount(() => {

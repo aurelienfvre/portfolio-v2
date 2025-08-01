@@ -23,3 +23,29 @@
     --text-primary: var(--text-dark);
     --border-primary: var(--border-dark);
 }
+
+/* Drag and Drop Cursors */
+[data-swapy-item] {
+    cursor: grab !important;
+}
+
+[data-swapy-item]:active {
+    cursor: grabbing !important;
+}
+
+[data-swapy-item].swapy-item-dragging {
+    cursor: grabbing !important;
+}
+
+.cursor-move {
+    cursor: grab !important;
+}
+
+.cursor-move:active {
+    cursor: grabbing !important;
+}
+
+/* Ensure grab cursor takes priority over other cursor styles */
+[data-swapy-item]:hover {
+    cursor: grab !important;
+}

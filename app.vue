@@ -27,6 +27,16 @@ import Footer from '~/components/layout/Footer.vue'
   --bg-dark: #0f1320;
   --text-light: #2c2c2c;
   --text-dark: #ffffff;
+  
+  /* Couleurs secondaires et tertiaires */
+  --bg-secondary-light: #f8f9fa;
+  --bg-secondary-dark: #1a1f2e;
+  --bg-tertiary-light: #e9ecef;
+  --bg-tertiary-dark: #252a3a;
+  --text-secondary-light: #6c757d;
+  --text-secondary-dark: #adb5bd;
+  --text-tertiary-light: #adb5bd;
+  --text-tertiary-dark: #6c757d;
 }
 
 /* Styles globaux */
@@ -37,7 +47,11 @@ body {
 /* Styles de thème */
 :root.light {
   --bg-primary: var(--bg-light);
+  --bg-secondary: var(--bg-secondary-light);
+  --bg-tertiary: var(--bg-tertiary-light);
   --text-primary: var(--text-light);
+  --text-secondary: var(--text-secondary-light);
+  --text-tertiary: var(--text-tertiary-light);
   --border-primary: var(--border-light);
 }
 
@@ -47,7 +61,11 @@ body {
 
 :root.dark {
   --bg-primary: var(--bg-dark);
+  --bg-secondary: var(--bg-secondary-dark);
+  --bg-tertiary: var(--bg-tertiary-dark);
   --text-primary: var(--text-dark);
+  --text-secondary: var(--text-secondary-dark);
+  --text-tertiary: var(--text-tertiary-dark);
   --border-primary: var(--border-dark);
 }
 

@@ -1,25 +1,26 @@
 <template>
-  <BentoItem id="about" className="col-span-12 md:col-span-6">
+  <BentoItem id="about" :className="`col-span-12 md:col-span-${colSpan || 6}`">
     <div class="p-8">
       <!-- Titre de la section -->
       <div class="flex items-center gap-3 mb-4">
         <Search class="w-5 h-5" />
-        <h3 class="text-lg font-medium">Recherche d'Alternance</h3>
+        <h3 class="text-lg font-medium">Situation Actuelle</h3>
       </div>
 
-      <!-- Informations du stage -->
-      <div class="space-y-4">
+      <!-- Informations de la situation actuelle -->
+      <div class="space-y-4" v-if="stage">
         <div>
           <p class="text-lg font-medium">
-            {{ stageInfo.duration }} à partir de {{ stageInfo.startDate }}
+            {{ stage.position }}
           </p>
-          <p class="text-gray-400">{{ stageInfo.position }}</p>
+          <p class="text-gray-400">{{ stage.company || 'Entreprise' }}</p>
+          <p class="text-sm text-gray-500">{{ stage.duration }}</p>
         </div>
 
         <!-- Villes -->
-        <div class="flex flex-wrap gap-2">
+        <div class="flex flex-wrap gap-2" v-if="stage.locations && stage.locations.length">
           <TechPill
-              v-for="location in stageInfo.locations"
+              v-for="location in stage.locations"
               :key="location.name"
               :label="location.name"
               class="tech-pill-location"
@@ -36,9 +37,23 @@
 
 <script setup lang="ts">
 import { Search, MapPin } from 'lucide-vue-next'
-import { stageInfo } from '@/data/stage'
 import BentoItem from '~/components/common/BentoItem.vue'
 import TechPill from '~/components/common/TechPill.vue'
+import { usePortfolioDatabase } from '~/composables/usePortfolioDatabase'
+
+// Props
+defineProps<{
+  colSpan?: number
+}>()
+
+const { stage, fetchStage } = usePortfolioDatabase()
+
+// Fetch stage data on mount
+onMounted(async () => {
+  if (!stage.value) {
+    await fetchStage()
+  }
+})
 </script>
 
 <style scoped>
