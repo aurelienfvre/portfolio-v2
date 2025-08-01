@@ -7,18 +7,60 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '21.4.0'
+          node-version: '20.x'
           cache: 'npm'
       - name: Deploy with SSH
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v0.1.8
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT }}
           script: |
-            /home/mmi22h03/deploy.sh
+            cd /home/mmi22h03/public_html/portfolio-v2
+            
+            # Configuration Git pour éviter les warnings
+            git config pull.rebase false
+            
+            # Mise à jour du code
+            git pull origin main
+            
+            # Utiliser Node.js 20 LTS
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm use 20 || nvm install 20 --lts
+            
+            # Vérifier les versions
+            echo "Node version: $(node -v)"
+            echo "NPM version: $(npm -v)"
+            
+            # Installer les outils de compilation nécessaires pour better-sqlite3
+            if ! command -v gcc &> /dev/null; then
+              echo "Installation des outils de compilation..."
+              # Sur la plupart des serveurs partagés, ceci ne fonctionnera pas
+              # Il faudra demander à l'hébergeur d'installer build-essential
+            fi
+            
+            # Installation des dépendances (sans better-sqlite3 d'abord)
+            npm ci --omit=dev --ignore-scripts
+            
+            # Essayer d'installer better-sqlite3 avec les binaires précompilés
+            npm install better-sqlite3 --omit=dev
+            
+            # Build du projet
+            npm run build
+            
+            # Copier la base de données si elle n'existe pas
+            if [ ! -f db/portfolio.db ]; then
+              echo "Création de la base de données..."
+              touch db/portfolio.db
+            fi
+            
+            # Démarrer/redémarrer l'application (si PM2 est installé)
+            if command -v pm2 &> /dev/null; then
+              pm2 restart portfolio || pm2 start npm --name "portfolio" -- start
+            fi
