@@ -14,6 +14,8 @@ export default defineEventHandler(async (event) => {
       mediaType: body.mediaType || 'image',
       originTag: body.originTag,
       sourceUrl: body.sourceUrl || null,
+      skills: body.skills ? JSON.stringify(body.skills) : null,
+      mediaUrls: body.mediaUrls ? JSON.stringify(body.mediaUrls) : null,
       order: body.order || 0
     }
     

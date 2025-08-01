@@ -250,10 +250,12 @@ export const proofItems = sqliteTable('proof_items', {
   proofCategoryId: integer('proof_category_id').references(() => proofCategories.id, { onDelete: 'cascade' }),
   title: text('title').notNull(), // Ex: "[STAGE] Adaptation à l'écosystème React"
   description: text('description'), // Le texte enrichi qui raconte l'histoire
-  mediaUrl: text('media_url'), // URL de l'image ou de la vidéo associée
-  mediaType: text('media_type').default('image'), // 'image' ou 'video'
+  mediaUrl: text('media_url'), // URL de l'image ou de la vidéo associée (backward compatibility)
+  mediaType: text('media_type').default('image'), // 'image' ou 'video' (backward compatibility)
+  mediaUrls: text('media_urls'), // JSON array avec multiples médias: [{"url": "...", "type": "image|video", "caption": "..."}]
   originTag: text('origin_tag').notNull(), // 'STAGE', 'PERSONNEL', 'SCOLAIRE', 'INITIATIVE'
   sourceUrl: text('source_url'), // URL vers la source/site web lié à cette preuve
+  skills: text('skills'), // JSON string avec les compétences/soft skills [{"name": "React", "icon": "url", "type": "tech|soft"}]
   order: integer('order').default(0), // Pour le drag & drop des items
   createdAt: text('created_at').default('CURRENT_TIMESTAMP'),
   updatedAt: text('updated_at').default('CURRENT_TIMESTAMP')

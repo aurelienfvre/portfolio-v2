@@ -52,6 +52,7 @@
       v-if="showItemModal"
       :item="selectedItem"
       :proofCategories="proofCategories"
+      :available-skills="skills"
       @close="closeItemModal"
       @save="saveItem"
     />
@@ -70,9 +71,11 @@ const {
   mainCompetences,
   proofCategories,
   proofItems,
+  skills,
   fetchMainCompetences,
   fetchProofCategories,
   fetchProofItems,
+  fetchSkills,
   addProofCategory,
   updateProofCategory,
   deleteProofCategory,
@@ -201,7 +204,8 @@ onMounted(async () => {
   await Promise.all([
     fetchMainCompetences(),
     fetchProofCategories(),
-    fetchProofItems()
+    fetchProofItems(),
+    fetchSkills()
   ])
 })
 

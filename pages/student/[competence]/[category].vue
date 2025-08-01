@@ -116,48 +116,22 @@
           <!-- Affichage du média (droite) -->
           <div class="lg:col-span-3">
             <div class="sticky top-28">
-              <!-- Prévisualisation du média -->
-              <div class="bg-bg-secondary border border-border-primary rounded-2xl overflow-hidden mb-6 min-h-[400px] flex items-center justify-center">
-                <!-- Image -->
-                <img 
-                  v-if="selectedItem?.mediaType === 'image' && selectedItem?.mediaUrl"
-                  :src="selectedItem.mediaUrl"
-                  :alt="selectedItem.title"
-                  class="w-full h-full object-cover"
-                  @error="onMediaError"
-                />
-                
-                <!-- Vidéo -->
-                <div 
-                  v-else-if="selectedItem?.mediaType === 'video' && selectedItem?.mediaUrl"
-                  class="w-full h-full flex items-center justify-center"
-                >
-                  <!-- YouTube/Vimeo Embed -->
-                  <iframe
-                    v-if="isYouTubeOrVimeo(selectedItem.mediaUrl)"
-                    :src="getEmbedUrl(selectedItem.mediaUrl)"
-                    class="w-full h-full min-h-[400px]"
-                    frameborder="0"
-                    allowfullscreen
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  ></iframe>
-                  <!-- Regular Video File -->
-                  <video
-                    v-else
-                    :src="selectedItem.mediaUrl"
-                    controls
-                    class="w-full h-full"
-                    @error="onMediaError"
-                  >
-                    Votre navigateur ne supporte pas la lecture vidéo.
-                  </video>
-                </div>
-
-                <!-- Placeholder si aucun média sélectionné -->
-                <div 
-                  v-else
-                  class="text-center p-8"
-                >
+              <!-- MediaSwiper Component -->
+              <MediaSwiper 
+                v-if="selectedItem"
+                :media-url="selectedItem.mediaUrl"
+                :media-type="selectedItem.mediaType"
+                :media-urls="selectedItem.mediaUrls"
+                :title="selectedItem.title"
+                class="mb-6"
+              />
+              
+              <!-- Placeholder si aucun élément sélectionné -->
+              <div 
+                v-else
+                class="bg-bg-secondary border border-border-primary rounded-2xl overflow-hidden mb-6 min-h-[400px] flex items-center justify-center"
+              >
+                <div class="text-center p-8">
                   <div class="w-20 h-20 mx-auto mb-4 bg-bg-primary rounded-2xl flex items-center justify-center">
                     <svg class="w-10 h-10 text-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -192,6 +166,35 @@
                 <div class="prose prose-sm max-w-none text-text-secondary">
                   <p class="leading-relaxed whitespace-pre-line">{{ selectedItem.description }}</p>
                 </div>
+
+                <!-- Skills/Technologies -->
+                <div 
+                  v-if="selectedItem.skills && selectedItem.skills.length > 0"
+                  class="mt-4"
+                >
+                  <h4 class="text-sm font-semibold text-text-primary mb-3">Compétences & Technologies :</h4>
+                  <div class="flex flex-wrap gap-2">
+                    <span
+                      v-for="(skill, index) in selectedItem.skills"
+                      :key="index"
+                      :class="[
+                        'inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium',
+                        skill.type === 'soft' 
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                          : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+                      ]"
+                    >
+                      <img 
+                        v-if="skill.icon" 
+                        :src="skill.icon" 
+                        :alt="skill.name"
+                        class="w-4 h-4"
+                        :class="{ 'filter invert': skill.invert }"
+                      />
+                      {{ skill.name }}
+                    </span>
+                  </div>
+                </div>
                 
                 <!-- Source Link -->
                 <div 
@@ -224,6 +227,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { usePortfolioDatabase } from '~/composables/usePortfolioDatabase'
 import { usePortfolioMode } from '~/composables/usePortfolioMode'
+import MediaSwiper from '~/components/ui/MediaSwiper.vue'
 
 // Route management
 const route = useRoute()
@@ -285,34 +289,6 @@ const switchToPro = async () => {
   await navigateTo('/')
 }
 
-const onMediaError = () => {
-  console.warn('Erreur de chargement du média:', selectedItem.value?.mediaUrl)
-}
-
-// Helper functions for video handling
-const isYouTubeOrVimeo = (url: string) => {
-  if (!url) return false
-  const lowerUrl = url.toLowerCase()
-  return lowerUrl.includes('youtube.com') || 
-         lowerUrl.includes('youtu.be') || 
-         lowerUrl.includes('vimeo.com')
-}
-
-const getEmbedUrl = (url: string) => {
-  if (url.includes('youtube.com/watch?v=')) {
-    const videoId = url.split('v=')[1].split('&')[0]
-    return `https://www.youtube.com/embed/${videoId}`
-  }
-  if (url.includes('youtu.be/')) {
-    const videoId = url.split('youtu.be/')[1].split('?')[0]
-    return `https://www.youtube.com/embed/${videoId}`
-  }
-  if (url.includes('vimeo.com/')) {
-    const videoId = url.split('vimeo.com/')[1].split('?')[0]
-    return `https://player.vimeo.com/video/${videoId}`
-  }
-  return url
-}
 
 // Auto-select first item when items change
 watch(items, (newItems) => {

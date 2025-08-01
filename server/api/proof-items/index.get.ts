@@ -16,6 +16,8 @@ export default defineEventHandler(async (event) => {
       mediaType: proofItems.mediaType,
       originTag: proofItems.originTag,
       sourceUrl: proofItems.sourceUrl,
+      skills: proofItems.skills,
+      mediaUrls: proofItems.mediaUrls,
       order: proofItems.order,
       createdAt: proofItems.createdAt,
       updatedAt: proofItems.updatedAt,
@@ -41,9 +43,16 @@ export default defineEventHandler(async (event) => {
     
     const items = await itemsQuery
     
+    // Parse skills and mediaUrls JSON
+    const parsedItems = items.map(item => ({
+      ...item,
+      skills: item.skills ? JSON.parse(item.skills) : [],
+      mediaUrls: item.mediaUrls ? JSON.parse(item.mediaUrls) : []
+    }))
+    
     return {
       success: true,
-      data: items
+      data: parsedItems
     }
   } catch (error) {
     console.error('Error fetching proof items:', error)

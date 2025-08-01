@@ -117,57 +117,200 @@
           </p>
         </div>
 
-        <!-- Média -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Type de média -->
-          <div>
-            <label class="block text-sm font-medium text-text-primary mb-2">
-              Type de Média
+        <!-- Skills Selector -->
+        <div>
+          <SkillSelector
+            v-model="form.skills"
+            :available-skills="availableSkills"
+          />
+        </div>
+
+        <!-- Médias -->
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <label class="block text-sm font-medium text-text-primary">
+              Médias (Images/Vidéos)
             </label>
-            <div class="flex gap-3">
-              <label class="flex items-center p-3 border rounded-xl cursor-pointer transition-all flex-1"
-                :class="form.mediaType === 'image' 
-                  ? 'border-blue-500 bg-blue-50 text-blue-700' 
-                  : 'border-border-secondary hover:border-border-primary'"
-              >
-                <input
-                  v-model="form.mediaType"
-                  type="radio"
-                  value="image"
-                  class="sr-only"
-                >
-                <div class="text-center w-full">
-                  <div class="text-lg mb-1">🖼️</div>
-                  <div class="text-xs font-medium">Image</div>
-                </div>
-              </label>
-              <label class="flex items-center p-3 border rounded-xl cursor-pointer transition-all flex-1"
-                :class="form.mediaType === 'video' 
-                  ? 'border-blue-500 bg-blue-50 text-blue-700' 
-                  : 'border-border-secondary hover:border-border-primary'"
-              >
-                <input
-                  v-model="form.mediaType"
-                  type="radio"
-                  value="video"
-                  class="sr-only"
-                >
-                <div class="text-center w-full">
-                  <div class="text-lg mb-1">🎥</div>
-                  <div class="text-xs font-medium">Vidéo</div>
-                </div>
-              </label>
-            </div>
+            <button
+              type="button"
+              @click="addMedia"
+              class="flex items-center gap-2 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Ajouter un média
+            </button>
           </div>
 
-          <!-- Upload du média -->
-          <div>
-            <ImageUpload
-              v-model="form.mediaUrl"
-              :label="form.mediaType === 'video' ? 'Vidéo ou Image' : 'Image'"
-              :file-type="form.mediaType === 'video' ? 'any' : 'image'"
-              :max-size-m-b="form.mediaType === 'video' ? 45 : 20"
-            />
+          <!-- Liste des médias -->
+          <div class="space-y-4">
+            <!-- Media unique (backward compatibility) -->
+            <div v-if="form.mediaUrls.length === 0" class="border border-border-secondary rounded-xl p-4">
+              <div class="flex items-center justify-between mb-3">
+                <h4 class="font-medium text-text-primary">Média Principal</h4>
+                <button
+                  type="button"
+                  @click="convertToMultiple"
+                  class="text-blue-500 hover:text-blue-600 text-sm font-medium"
+                >
+                  Passer en mode multiple
+                </button>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Type de média -->
+                <div>
+                  <label class="block text-xs font-medium text-text-primary mb-2">Type</label>
+                  <div class="flex gap-2">
+                    <label class="flex items-center p-2 border rounded-lg cursor-pointer transition-all flex-1"
+                      :class="form.mediaType === 'image' 
+                        ? 'border-blue-500 bg-blue-50 text-blue-700' 
+                        : 'border-border-secondary hover:border-border-primary'"
+                    >
+                      <input
+                        v-model="form.mediaType"
+                        type="radio"
+                        value="image"
+                        class="sr-only"
+                      >
+                      <div class="text-center w-full">
+                        <div class="text-sm mb-1">🖼️</div>
+                        <div class="text-xs font-medium">Image</div>
+                      </div>
+                    </label>
+                    <label class="flex items-center p-2 border rounded-lg cursor-pointer transition-all flex-1"
+                      :class="form.mediaType === 'video' 
+                        ? 'border-blue-500 bg-blue-50 text-blue-700' 
+                        : 'border-border-secondary hover:border-border-primary'"
+                    >
+                      <input
+                        v-model="form.mediaType"
+                        type="radio"
+                        value="video"
+                        class="sr-only"
+                      >
+                      <div class="text-center w-full">
+                        <div class="text-sm mb-1">🎥</div>
+                        <div class="text-xs font-medium">Vidéo</div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Upload du média -->
+                <div class="md:col-span-2">
+                  <ImageUpload
+                    v-model="form.mediaUrl"
+                    :label="form.mediaType === 'video' ? 'Vidéo ou Image' : 'Image'"
+                    :file-type="form.mediaType === 'video' ? 'any' : 'image'"
+                    :max-size-m-b="form.mediaType === 'video' ? 45 : 20"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Médias multiples -->
+            <div 
+              v-for="(media, index) in form.mediaUrls" 
+              :key="index"
+              class="border border-border-secondary rounded-xl p-4"
+            >
+              <div class="flex items-center justify-between mb-3">
+                <h4 class="font-medium text-text-primary">Média {{ index + 1 }}</h4>
+                <button
+                  type="button"
+                  @click="removeMedia(index)"
+                  class="text-red-500 hover:text-red-600 p-1"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Type de média -->
+                <div>
+                  <label class="block text-xs font-medium text-text-primary mb-2">Type</label>
+                  <div class="flex gap-2">
+                    <label class="flex items-center p-2 border rounded-lg cursor-pointer transition-all flex-1"
+                      :class="media.type === 'image' 
+                        ? 'border-blue-500 bg-blue-50 text-blue-700' 
+                        : 'border-border-secondary hover:border-border-primary'"
+                    >
+                      <input
+                        v-model="media.type"
+                        type="radio"
+                        value="image"
+                        class="sr-only"
+                      >
+                      <div class="text-center w-full">
+                        <div class="text-sm mb-1">🖼️</div>
+                        <div class="text-xs font-medium">Image</div>
+                      </div>
+                    </label>
+                    <label class="flex items-center p-2 border rounded-lg cursor-pointer transition-all flex-1"
+                      :class="media.type === 'video' 
+                        ? 'border-blue-500 bg-blue-50 text-blue-700' 
+                        : 'border-border-secondary hover:border-border-primary'"
+                    >
+                      <input
+                        v-model="media.type"
+                        type="radio"
+                        value="video"
+                        class="sr-only"
+                      >
+                      <div class="text-center w-full">
+                        <div class="text-sm mb-1">🎥</div>
+                        <div class="text-xs font-medium">Vidéo</div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Upload du média -->
+                <div class="md:col-span-2">
+                  <ImageUpload
+                    v-model="media.url"
+                    :label="media.type === 'video' ? 'Vidéo ou Image' : 'Image'"
+                    :file-type="media.type === 'video' ? 'any' : 'image'"
+                    :max-size-m-b="media.type === 'video' ? 45 : 20"
+                  />
+                </div>
+              </div>
+
+              <!-- Caption -->
+              <div class="mt-4">
+                <label class="block text-xs font-medium text-text-primary mb-2">
+                  Légende (optionnelle)
+                </label>
+                <input
+                  v-model="media.caption"
+                  type="text"
+                  placeholder="Description de ce média..."
+                  class="w-full px-3 py-2 border border-border-secondary rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-sm"
+                >
+              </div>
+            </div>
+
+            <!-- Message si aucun média -->
+            <div 
+              v-if="form.mediaUrls.length === 0 && !form.mediaUrl"
+              class="text-center py-8 border-2 border-dashed border-border-secondary rounded-xl"
+            >
+              <svg class="w-12 h-12 mx-auto mb-4 text-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <p class="text-text-tertiary mb-2">Aucun média ajouté</p>
+              <button
+                type="button"
+                @click="addMedia"
+                class="text-blue-500 hover:text-blue-600 font-medium text-sm"
+              >
+                Cliquez pour ajouter un média
+              </button>
+            </div>
           </div>
         </div>
 
@@ -238,6 +381,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
 import ImageUpload from './ImageUpload.vue'
+import SkillSelector from './SkillSelector.vue'
 
 interface ProofCategory {
   id: number
@@ -248,6 +392,19 @@ interface ProofCategory {
   }
 }
 
+interface Skill {
+  name: string
+  icon?: string
+  type: 'tech' | 'soft'
+  invert?: boolean
+}
+
+interface MediaItem {
+  url: string
+  type: 'image' | 'video'
+  caption?: string
+}
+
 interface ProofItem {
   id?: number
   proofCategoryId: number
@@ -255,8 +412,10 @@ interface ProofItem {
   description: string
   mediaUrl: string
   mediaType: 'image' | 'video'
+  mediaUrls?: MediaItem[]
   originTag: string
   sourceUrl?: string
+  skills?: Skill[]
   order: number
 }
 
@@ -264,6 +423,7 @@ interface ProofItem {
 const props = defineProps<{
   item?: ProofItem | { proofCategoryId: number }
   proofCategories: ProofCategory[]
+  availableSkills?: any[]
 }>()
 
 // Emits
@@ -287,8 +447,10 @@ const form = ref({
   description: '',
   mediaUrl: '',
   mediaType: 'image' as 'image' | 'video',
+  mediaUrls: [] as MediaItem[],
   originTag: '',
   sourceUrl: '',
+  skills: [] as Skill[],
   order: 0
 })
 
@@ -303,8 +465,10 @@ const populateForm = () => {
         description: props.item.description || '',
         mediaUrl: props.item.mediaUrl || '',
         mediaType: props.item.mediaType || 'image',
+        mediaUrls: props.item.mediaUrls || [],
         originTag: props.item.originTag,
         sourceUrl: props.item.sourceUrl || '',
+        skills: props.item.skills || [],
         order: props.item.order || 0
       }
     } else if ('proofCategoryId' in props.item) {
@@ -315,8 +479,10 @@ const populateForm = () => {
         description: '',
         mediaUrl: '',
         mediaType: 'image',
+        mediaUrls: [],
         originTag: '',
         sourceUrl: '',
+        skills: [],
         order: 0
       }
     }
@@ -342,6 +508,30 @@ const getOriginTagClass = (tag: string) => {
   return classes[tag as keyof typeof classes] || 'bg-gray-100 text-gray-800'
 }
 
+// Media management functions
+const addMedia = () => {
+  form.value.mediaUrls.push({
+    url: '',
+    type: 'image',
+    caption: ''
+  })
+}
+
+const removeMedia = (index: number) => {
+  form.value.mediaUrls.splice(index, 1)
+}
+
+const convertToMultiple = () => {
+  if (form.value.mediaUrl) {
+    form.value.mediaUrls.push({
+      url: form.value.mediaUrl,
+      type: form.value.mediaType,
+      caption: ''
+    })
+  }
+  form.value.mediaUrl = ''
+}
+
 // Handle form submission
 const handleSubmit = () => {
   const itemData: ProofItem = {
@@ -350,8 +540,10 @@ const handleSubmit = () => {
     description: form.value.description,
     mediaUrl: form.value.mediaUrl,
     mediaType: form.value.mediaType,
+    mediaUrls: form.value.mediaUrls,
     originTag: form.value.originTag,
     sourceUrl: form.value.sourceUrl,
+    skills: form.value.skills,
     order: form.value.order
   }
 
