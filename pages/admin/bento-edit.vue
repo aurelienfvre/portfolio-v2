@@ -1294,6 +1294,11 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick } from "vue";
 import { usePortfolioDatabase } from "~/composables/usePortfolioDatabase";
+
+// Appliquer le middleware d'authentification
+definePageMeta({
+  middleware: 'admin-auth'
+})
 import BentoModal from "~/components/admin/BentoModal.vue";
 import ResizeModal from "~/components/admin/ResizeModal.vue";
 import TipTapEditor from "~/components/admin/TipTapEditor.vue";

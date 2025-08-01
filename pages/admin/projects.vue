@@ -167,6 +167,11 @@ onMounted(async () => {
   await fetchProjects()
 })
 
+// Appliquer le middleware d'authentification
+definePageMeta({
+  middleware: 'admin-auth'
+})
+
 // SEO
 useHead({
   title: 'Gestion des Projets - Portfolio Admin',

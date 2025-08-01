@@ -2,21 +2,10 @@
   <div class="admin-dashboard min-h-screen bg-bg-primary flex items-center justify-center">
     <div class="max-w-5xl mx-auto px-4 py-8 w-full">
       <!-- Header Admin -->
-      <div class="mb-8 flex items-center justify-between">
-        <div>
-          <h1 class="text-3xl font-bold text-text-primary mb-2">Back Office Portfolio</h1>
-          <p class="text-text-tertiary">Gérez le contenu de votre portfolio en temps réel</p>
-        </div>
-        <NuxtLink 
-          to="/"
-          class="flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-xl hover:bg-accent/90 transition-colors font-medium"
-        >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          Retour au Portfolio
-        </NuxtLink>
-      </div>
+      <AdminHeader 
+        title="Back Office Portfolio"
+        subtitle="Gérez le contenu de votre portfolio en temps réel"
+      />
 
       <!-- Dashboard Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
@@ -136,6 +125,12 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { usePortfolioDatabase } from '~/composables/usePortfolioDatabase'
+import AdminHeader from '~/components/admin/AdminHeader.vue'
+
+// Appliquer le middleware d'authentification
+definePageMeta({
+  middleware: 'admin-auth'
+})
 
 // Portfolio data management
 const {

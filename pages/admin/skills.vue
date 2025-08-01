@@ -185,6 +185,11 @@ onMounted(async () => {
   await fetchSkills()
 })
 
+// Appliquer le middleware d'authentification
+definePageMeta({
+  middleware: 'admin-auth'
+})
+
 // SEO
 useHead({
   title: 'Gestion des Compétences - Portfolio Admin',

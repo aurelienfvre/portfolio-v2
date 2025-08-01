@@ -201,6 +201,30 @@ export type NewStage = typeof stage.$inferInsert
 export type SocialLink = typeof socialLinks.$inferSelect
 export type NewSocialLink = typeof socialLinks.$inferInsert
 
+// Table AdminUsers pour l'authentification admin
+export const adminUsers = sqliteTable('admin_users', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  email: text('email').notNull().unique(),
+  password: text('password').notNull(), // Hashé avec bcrypt
+  name: text('name'),
+  createdAt: text('created_at').default('CURRENT_TIMESTAMP'),
+  updatedAt: text('updated_at').default('CURRENT_TIMESTAMP')
+})
+
+// Table AdminSessions pour gérer les sessions
+export const adminSessions = sqliteTable('admin_sessions', {
+  id: text('id').primaryKey(), // UUID
+  userId: integer('user_id').references(() => adminUsers.id, { onDelete: 'cascade' }),
+  createdAt: text('created_at').default('CURRENT_TIMESTAMP'),
+  expiresAt: text('expires_at').notNull()
+})
+
+export type AdminUser = typeof adminUsers.$inferSelect
+export type NewAdminUser = typeof adminUsers.$inferInsert
+
+export type AdminSession = typeof adminSessions.$inferSelect
+export type NewAdminSession = typeof adminSessions.$inferInsert
+
 // Table pour les blocs custom (expériences, projets custom, etc.)
 export const customBlocks = sqliteTable('custom_blocks', {
   id: integer('id').primaryKey({ autoIncrement: true }),

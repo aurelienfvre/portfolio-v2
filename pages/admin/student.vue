@@ -2,12 +2,11 @@
   <div class="admin-page min-h-screen bg-bg-primary">
     <div class="max-w-7xl mx-auto px-4 py-8">
       <!-- Header -->
-      <div class="mb-8 flex items-center justify-between">
-        <div>
-          <h1 class="text-3xl font-bold text-text-primary mb-2">Système Compétence/Preuve</h1>
-          <p class="text-text-tertiary">Gérez vos compétences principales et preuves (Focus 3ème année)</p>
-        </div>
-        <div class="flex items-center gap-3">
+      <AdminHeader 
+        title="Système Compétence/Preuve"
+        subtitle="Gérez vos compétences principales et preuves (Focus 3ème année)"
+      >
+        <template #actions>
           <NuxtLink 
             to="/admin"
             class="flex items-center gap-2 px-4 py-2 bg-gray-500 text-white rounded-xl hover:bg-gray-600 transition-colors font-medium"
@@ -17,8 +16,8 @@
             </svg>
             Retour Admin
           </NuxtLink>
-        </div>
-      </div>
+        </template>
+      </AdminHeader>
 
       <!-- Compétences Principales -->
       <CompetenceProofManager
@@ -62,9 +61,15 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { usePortfolioDatabase } from '~/composables/usePortfolioDatabase'
+import AdminHeader from '~/components/admin/AdminHeader.vue'
 import CompetenceProofManager from '~/components/admin/CompetenceProofManager.vue'
 import ProofCategoryModal from '~/components/admin/ProofCategoryModal.vue'
 import ProofItemModal from '~/components/admin/ProofItemModal.vue'
+
+// Appliquer le middleware d'authentification
+definePageMeta({
+  middleware: 'admin-auth'
+})
 
 // Portfolio data management
 const {
