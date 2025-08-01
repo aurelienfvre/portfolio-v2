@@ -124,5 +124,32 @@ export default defineNuxtConfig({
     payloadExtraction: false
   },
 
-  compatibilityDate: '2024-11-24'
+  compatibilityDate: '2024-11-24',
+
+  // Hook pour initialiser la BDD au build et au démarrage
+  hooks: {
+    'build:before': async () => {
+      console.log('🔧 Initialisation de la base de données avant le build...')
+      try {
+        const { initDatabase } = require('./scripts/init-db.cjs')
+        await initDatabase()
+        console.log('✅ Base de données initialisée avant le build')
+      } catch (error) {
+        console.error('❌ Erreur initialisation BDD au build:', error)
+        // Ne pas faire échouer le build
+      }
+    },
+    
+    'listen': async () => {
+      console.log('🔧 Initialisation de la base de données au démarrage du serveur...')
+      try {
+        const { initDatabase } = require('./scripts/init-db.cjs')
+        await initDatabase()
+        console.log('✅ Base de données initialisée au démarrage')
+      } catch (error) {
+        console.error('❌ Erreur initialisation BDD au démarrage:', error)
+        // Ne pas faire échouer le serveur
+      }
+    }
+  }
 })
