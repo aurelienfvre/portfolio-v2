@@ -1,0 +1,142 @@
+# Fichier de Tâches pour la Migration du Portfolio
+# Objectif : Transformer le backend d'un système AC vers un système Compétence/Preuve.
+
+system_objective:
+  title: "Migration du Portfolio vers une Structure Compétence/Preuve (Focus 3ème Année)"
+  description: >
+    L'objectif est de refondre l'architecture de la base de données et du back-office
+    pour abandonner la hiérarchie rigide "Année -> Compétence -> AC" et adopter
+    une structure narrative plus flexible : "Compétence Principale -> Catégorie de Preuve -> Élément de Preuve".
+    # NOUVELLE INSTRUCTION : Ce nouveau système ne concerne QUE la 3ème année du BUT. La notion de plusieurs années (BUT1, BUT2) est complètement supprimée pour simplifier le modèle.
+  tech_stack:
+    - "Nuxt 3 / Vue 3"
+    - "TypeScript"
+    - "SQLite"
+    - "Drizzle ORM"
+    - "vue-draggable-plus"
+
+user_story_frontend:
+  description: "Parcours d'un visiteur sur le nouveau site public."
+  steps:
+    - 1: "L'utilisateur arrive sur la page d'accueil et choisit une Compétence Principale (ex: 'Développer')."
+    - 2: "Il est redirigé vers une page 'hub' qui liste plusieurs Catégories de Preuves (ex: 'Maîtrise des Frameworks', 'Expertise Back-End')."
+    - 3: "Il clique sur une Catégorie de Preuve et arrive sur une page de détail interactive."
+    - 4: "Sur cette page, une liste d'Éléments de Preuve est affichée à gauche. Cliquer sur un élément met à jour un visuel (image/vidéo) à droite."
+
+#-----------------------------------------------------
+# TÂCHES PRINCIPALES À RÉALISER
+#-----------------------------------------------------
+
+database_migration:
+  task: "Refondre le schéma de la base de données SQLite avec Drizzle ORM pour se focaliser uniquement sur les réalisations de la 3ème année."
+  
+  tables_a_deprecier:
+    - "studentYears" # NOUVELLE INSTRUCTION : La structure par année est abandonnée.
+    - "competences"
+    - "apprentissagesCritiques"
+
+  nouveau_schema:
+    description: "Définir les nouvelles tables pour la structure Compétence/Preuve."
+    
+    mainCompetences:
+      table_name: "main_competences"
+      description: "Les 2 compétences piliers du portfolio (Développer, Entreprendre)."
+      fields:
+        - name: "id"
+          type: "INTEGER PRIMARY KEY"
+        - name: "title"
+          type: "TEXT" # Ex: "Développer"
+        - name: "slug"
+          type: "TEXT UNIQUE" # Ex: "developper"
+        - name: "subtitle"
+          type: "TEXT" # Ex: "Maîtrise technique et apprentissage continu."
+        - name: "order"
+          type: "INTEGER"
+    
+    proofCategories:
+      table_name: "proof_categories"
+      description: "Les 'preuves' qui regroupent plusieurs exemples (équivalent des diapos)."
+      fields:
+        - name: "id"
+          type: "INTEGER PRIMARY KEY"
+        - name: "mainCompetenceId"
+          type: "INTEGER"
+          foreign_key: "REFERENCES main_competences(id)"
+        - name: "title"
+          type: "TEXT" # Ex: "Maîtrise des Frameworks Front-End"
+        - name: "subtitle"
+          type: "TEXT" # Ex: "De Vue.js à React, jusqu'à l'exploration de React Native."
+        - name: "slug"
+          type: "TEXT UNIQUE"
+        - name: "order"
+          type: "INTEGER" # Pour le drag & drop des catégories
+          
+    proofItems:
+      table_name: "proof_items"
+      description: "Chaque exemple concret (stage, perso, scolaire) au sein d'une catégorie."
+      fields:
+        - name: "id"
+          type: "INTEGER PRIMARY KEY"
+        - name: "proofCategoryId"
+          type: "INTEGER"
+          foreign_key: "REFERENCES proof_categories(id)"
+        - name: "title"
+          type: "TEXT" # Ex: "[STAGE] Adaptation à l'écosystème React"
+        - name: "description"
+          type: "TEXT" # Le texte enrichi qui raconte l'histoire.
+        - name: "media_url"
+          type: "TEXT" # URL de l'image ou de la vidéo associée.
+        - name: "media_type"
+          type: "TEXT" # 'image' ou 'video'
+        - name: "origin_tag"
+          type: "TEXT" # Enum: 'STAGE', 'PERSONNEL', 'SCOLAIRE', 'INITIATIVE'
+        - name: "order"
+          type: "INTEGER" # Pour le drag & drop des items
+
+admin_panel_refactoring:
+  task: "Adapter le back-office existant pour gérer la nouvelle structure."
+  
+  vue_principale:
+    description: "Remplacer la vue Kanban qui était triée par année par une gestion simplifiée des nouvelles entités, centrée sur la 3ème année uniquement."
+    layout:
+      - "Afficher les 2 'Compétences Principales' (Développer, Entreprendre)."
+      - "Pour chaque Compétence Principale, afficher une liste de ses 'Catégories de Preuves'."
+      - "Cette liste de catégories doit être réorganisable par drag & drop."
+
+  vue_edition_categorie:
+    description: "Créer une nouvelle vue ou un modal pour éditer une 'Catégorie de Preuve'."
+    trigger: "Clic sur une 'Catégorie de Preuve' dans la vue principale."
+    content:
+      - "Un formulaire pour éditer le titre et le sous-titre de la catégorie."
+      - "Une zone principale affichant la liste des 'Éléments de Preuve' associés."
+      - "Cette liste d'éléments doit être réorganisable par drag & drop."
+
+  formulaire_edition_item:
+    description: "Modal ou formulaire pour créer/modifier un 'Élément de Preuve'."
+    fields:
+      - "Champ 'Titre' (ex: '[STAGE] ...')"
+      - "Champ 'Description' (un éditeur de texte simple ou markdown)."
+      - "Champ 'URL du Média' (pour l'image/vidéo)."
+      - "Sélecteur 'Type de Média' (image/video)."
+      - "Sélecteur/Dropdown pour 'Origin Tag' (STAGE, PERSONNEL, SCOLAIRE...)."
+
+  logique_drag_and_drop:
+    library: "Conserver vue-draggable-plus"
+    functionnalites_requises:
+      - 1: "Réorganiser l'ordre des 'Catégories de Preuves' au sein d'une 'Compétence Principale'."
+      - 2: "Réorganiser l'ordre des 'Éléments de Preuve' au sein d'une 'Catégorie de Preuve'."
+    api_call: "Chaque action de drop doit déclencher un appel API (PATCH) pour sauvegarder le nouvel ordre en base de données."
+
+api_modification:
+  task: "Mettre à jour les endpoints de l'API Nuxt pour correspondre au nouveau schéma."
+  endpoints_a_creer:
+    - "CRUD pour `/api/main-competences`"
+    - "CRUD pour `/api/proof-categories`"
+    - "CRUD pour `/api/proof-items`"
+  endpoints_de_reorganisation:
+    - path: "PATCH /api/proof-categories/reorder"
+      body: "[{ id: 1, order: 0 }, { id: 2, order: 1 }]"
+      description: "Endpoint pour sauvegarder le nouvel ordre des catégories."
+    - path: "PATCH /api/proof-items/reorder"
+      body: "[{ id: 1, order: 0 }, { id: 2, order: 1 }]"
+      description: "Endpoint pour sauvegarder le nouvel ordre des items."

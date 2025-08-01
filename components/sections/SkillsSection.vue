@@ -9,14 +9,14 @@
 
       <!-- Grille des compétences -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div v-for="category in skills" :key="category.name">
+        <div v-for="(skillList, categoryName) in skills" :key="categoryName">
           <!-- Titre de la catégorie -->
-          <h4 class="text-sm font-medium mb-4">{{ category.name }}</h4>
+          <h4 class="text-sm font-medium mb-4">{{ categoryName }}</h4>
 
           <!-- Liste des compétences -->
           <div class="flex flex-wrap gap-2">
             <TechPill
-                v-for="skill in category.items"
+                v-for="skill in skillList"
                 :key="skill.name"
                 :label="skill.name"
                 :icon="skill.icon"
@@ -30,10 +30,23 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { Code2 } from 'lucide-vue-next'
-import { skills } from '@/data/skills'
+import { usePortfolioDatabase } from '~/composables/usePortfolioDatabase'
 import BentoItem from '~/components/common/BentoItem.vue'
 import TechPill from '~/components/common/TechPill.vue'
+
+// Props
+defineProps<{
+  colSpan?: number
+}>()
+
+// Get skills from database
+const { skillsByCategory: skills, fetchSkills } = usePortfolioDatabase()
+
+onMounted(async () => {
+  await fetchSkills()
+})
 </script>
 
 <style scoped>
